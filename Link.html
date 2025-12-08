@@ -1,11 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>Html收集</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Collection</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: 'Courier New', Courier, monospace; /* 编程字体 */
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
+        h1 {
+            text-transform: uppercase;
+            border-bottom: 2px solid #03DAC6;
+            padding-bottom: 10px;
+            margin-bottom: 50px;
+            text-shadow: 0 0 10px rgba(3, 218, 198, 0.5);
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #BB86FC;
+            border: 1px solid #BB86FC;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 4px;
+            font-size: 18px;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .nav-link:hover {
+            background-color: #BB86FC;
+            color: #000;
+            box-shadow: 0 0 20px #BB86FC;
+        }
+
+    </style>
 </head>
 <body>
-<a href="复古相机.html">复古相机</a>
-<a href="TCP.html">模拟tcp连接</a>
+
+<h1>Project Index</h1>
+
+<div>
+    <a href="复古相机.html" class="nav-link">Retro Camera</a>
+    <a href="TCP.html" class="nav-link">TCP Simulation</a>
+</div>
+
 </body>
 </html>
