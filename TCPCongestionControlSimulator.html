@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TCP 拥塞控制模拟器</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* 禁止移动端双击缩放干扰 */
+        body {
+            touch-action: manipulation;
+        }
+        .btn-press:active {
+            transform: scale(0.95);
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans">
+
+<!-- Header -->
+<header class="p-4 border-b border-slate-700 bg-slate-800 sticky top-0 z-10 shadow-md">
+    <h1 class="text-xl font-bold text-center text-blue-400">TCP 拥塞控制模拟 (Reno)</h1>
+    <p class="text-xs text-center text-slate-400 mt-1">可视化 Slow Start, Congestion Avoidance, Fast Recovery</p>
+</header>
+
+<main class="container mx-auto px-4 py-4 max-w-3xl">
+
+    <!-- Status Dashboard -->
+    <div class="grid grid-cols-2 gap-3 mb-4 text-center">
+        <div class="bg-slate-800 p-3 rounded-lg border border-slate-700 shadow-sm">
+            <div class="text-xs text-slate-400 uppercase tracking-wider">拥塞窗口 (CWND)</div>
+            <div id="disp-cwnd" class="text-2xl font-bold text-green-400">1</div>
+            <div class="text-[10px] text-slate-500">MSS (最大报文段)</div>
+        </div>
+        <div class="bg-slate-800 p-3 rounded-lg border border-slate-700 shadow-sm">
+            <div class="text-xs text-slate-400 uppercase tracking-wider">慢启动阈值 (SSTHRESH)</div>
+            <div id="disp-ssthresh" class="text-2xl font-bold text-yellow-400">16</div>
+            <div class="text-[10px] text-slate-500">MSS</div>
+        </div>
+    </div>
+
+    <div class="bg-slate-800 p-3 rounded-lg border border-slate-700 mb-4 flex justify-between items-center">
+        <span class="text-sm text-slate-300">当前状态:</span>
+        <span id="disp-state" class="px-3 py-1 rounded-full text-xs font-bold bg-green-900 text-green-300 border border-green-700">
+                SLOW START
+            </span>
+    </div>
+
+    <!-- Chart Area -->
+    <div class="bg-slate-800 p-2 rounded-lg border border-slate-700 shadow-lg mb-6 relative h-64 md:h-80 w-full">
+        <canvas id="tcpChart"></canvas>
+    </div>
+
+    <!-- Controls -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Playback Controls -->
+        <div class="grid grid-cols-2 gap-2">
+            <button id="btn-toggle" class="btn-press bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-lg shadow transition flex items-center justify-center gap-2">
+                <span id="icon-play">▶</span> <span id="text-play">开始传输</span>
+            </button>
+            <button id="btn-reset" class="btn-press bg-slate-600 hover:bg-slate-500 text-white font-bold py-3 px-4 rounded-lg shadow transition">
+                ↺ 重置
+            </button>
+        </div>
+
+        <!-- Simulation Triggers -->
+        <div class="grid grid-cols-2 gap-2">
+            <button id="btn-timeout" class="btn-press bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-2 rounded-lg shadow transition text-sm flex flex-col items-center justify-center">
+                <span>⚡ 超时 (Timeout)</span>
+                <span class="text-[10px] opacity-75 font-normal">网络严重拥塞</span>
+            </button>
+            <button id="btn-dupack" class="btn-press bg-orange-600 hover:bg-orange-500 text-white font-bold py-3 px-2 rounded-lg shadow transition text-sm flex flex-col items-center justify-center">
+                <span>⚠️ 3次重复 ACK</span>
+                <span class="text-[10px] opacity-75 font-normal">轻微丢包</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Legend / Info -->
+    <div class="mt-8 bg-slate-800/50 p-4 rounded-lg text-sm text-slate-300 space-y-2 border border-slate-700/50">
+        <h3 class="font-bold text-white mb-2">算法逻辑说明 (Reno):</h3>
+        <ul class="list-disc pl-5 space-y-1">
+            <li><strong class="text-green-400">慢启动 (Slow Start):</strong> CWND 指数增长 (x2)，直到达到 SSTHRESH。</li>
+            <li><strong class="text-blue-400">拥塞避免 (Congestion Avoidance):</strong> CWND 线性增长 (+1)，平稳探测带宽。</li>
+            <li><strong class="text-red-400">超时 (Timeout):</strong> 判定为严重拥塞。SSTHRESH 变为当前 CWND 的一半，CWND 重置为 1，重新进入慢启动。</li>
+            <li><strong class="text-orange-400">快速恢复 (3 Dup ACKs):</strong> 判定为轻微拥塞。SSTHRESH 变为 CWND 的一半，CWND 设为新的 SSTHRESH，进入拥塞避免。</li>
+        </ul>
+    </div>
+
+</main>
+
+<script>
+    // --- 核心变量 ---
+    const INITIAL_SSTHRESH = 16;
+    let cwnd = 1;
+    let ssthresh = INITIAL_SSTHRESH;
+    let time = 0;
+    let isRunning = false;
+    let timer = null;
+    let state = 'SLOW START'; // 'SLOW START' | 'CONGESTION AVOIDANCE'
+    let speed = 800; // ms per tick
+
+    // --- Chart.js 配置 ---
+    const ctx = document.getElementById('tcpChart').getContext('2d');
+    const tcpChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [
+                {
+                    label: 'CWND (窗口大小)',
+                    data: [],
+                    borderColor: 'rgb(56, 189, 248)', // Tailwind Sky-400
+                    backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.1,
+                    pointRadius: 3,
+                    pointBackgroundColor: 'rgb(56, 189, 248)',
+                    fill: true
+                },
+                {
+                    label: 'SSTHRESH (阈值)',
+                    data: [],
+                    borderColor: 'rgb(250, 204, 21)', // Tailwind Yellow-400
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false, // 允许自适应容器高度
+            animation: {
+                duration: 300 // 动画速度加快
+            },
+            scales: {
+                x: {
+                    title: { display: true, text: '传输轮次 (RTT)', color: '#94a3b8' },
+                    grid: { color: '#334155' },
+                    ticks: { color: '#94a3b8' }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: '窗口大小 (MSS)', color: '#94a3b8' },
+                    grid: { color: '#334155' },
+                    ticks: { color: '#94a3b8' },
+                    suggestedMax: 20
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: { color: '#e2e8f0' }
+                }
+            }
+        }
+    });
+
+    // --- DOM 元素 ---
+    const uiCwnd = document.getElementById('disp-cwnd');
+    const uiSsthresh = document.getElementById('disp-ssthresh');
+    const uiState = document.getElementById('disp-state');
+    const btnToggle = document.getElementById('btn-toggle');
+    const btnReset = document.getElementById('btn-reset');
+    const btnTimeout = document.getElementById('btn-timeout');
+    const btnDupAck = document.getElementById('btn-dupack');
+    const iconPlay = document.getElementById('icon-play');
+    const textPlay = document.getElementById('text-play');
+
+    // --- 辅助函数：更新UI ---
+    function updateUI() {
+        uiCwnd.textContent = Math.floor(cwnd);
+        uiSsthresh.textContent = Math.floor(ssthresh);
+
+        // 状态样式更新
+        uiState.textContent = state;
+        uiState.className = "px-3 py-1 rounded-full text-xs font-bold border transition-colors duration-300 ";
+        if (state === 'SLOW START') {
+            uiState.className += "bg-green-900 text-green-300 border-green-700";
+        } else {
+            uiState.className += "bg-blue-900 text-blue-300 border-blue-700";
+        }
+    }
+
+    function pushDataToChart() {
+        // 保持图表在移动端不至于过于拥挤，只保留最近30个点
+        if (tcpChart.data.labels.length > 30) {
+            tcpChart.data.labels.shift();
+            tcpChart.data.datasets[0].data.shift();
+            tcpChart.data.datasets[1].data.shift();
+        }
+
+        tcpChart.data.labels.push(time);
+        tcpChart.data.datasets[0].data.push(cwnd);
+        tcpChart.data.datasets[1].data.push(ssthresh);
+        tcpChart.update();
+    }
+
+    // --- 核心算法逻辑 ---
+    function nextTick() {
+        time++;
+
+        // 1. 算法状态机
+        if (state === 'SLOW START') {
+            // 指数增长 (为了演示效果，每次 * 2，实际上是每收到一个ACK +1 MSS)
+            cwnd = cwnd * 2;
+
+            // 检查是否超过阈值
+            if (cwnd >= ssthresh) {
+                cwnd = ssthresh; // 修正到阈值点
+                state = 'CONGESTION AVOIDANCE';
+            }
+        } else if (state === 'CONGESTION AVOIDANCE') {
+            // 线性增长
+            cwnd += 1;
+        }
+
+        // 更新UI和图表
+        updateUI();
+        pushDataToChart();
+    }
+
+    // --- 控制逻辑 ---
+    function startSimulation() {
+        if (isRunning) return;
+        isRunning = true;
+        iconPlay.textContent = "⏸";
+        textPlay.textContent = "暂停";
+        btnToggle.classList.replace("bg-blue-600", "bg-yellow-600");
+        btnToggle.classList.replace("hover:bg-blue-500", "hover:bg-yellow-500");
+
+        // 立即执行一次，然后开始计时器
+        if(time === 0) {
+            updateUI();
+            pushDataToChart();
+        }
+
+        timer = setInterval(nextTick, speed);
+    }
+
+    function pauseSimulation() {
+        if (!isRunning) return;
+        isRunning = false;
+        clearInterval(timer);
+        iconPlay.textContent = "▶";
+        textPlay.textContent = "继续";
+        btnToggle.classList.replace("bg-yellow-600", "bg-blue-600");
+        btnToggle.classList.replace("hover:bg-yellow-500", "hover:bg-blue-500");
+    }
+
+    function resetSimulation() {
+        pauseSimulation();
+        time = 0;
+        cwnd = 1;
+        ssthresh = INITIAL_SSTHRESH;
+        state = 'SLOW START';
+
+        // 清空图表数据
+        tcpChart.data.labels = [];
+        tcpChart.data.datasets[0].data = [];
+        tcpChart.data.datasets[1].data = [];
+        tcpChart.update();
+
+        textPlay.textContent = "开始传输";
+        updateUI();
+    }
+
+    // --- 事件处理：网络异常模拟 ---
+
+    // 1. 超时 (Timeout)
+    // 行为：ssthresh = cwnd / 2, cwnd = 1, 进入 Slow Start
+    btnTimeout.addEventListener('click', () => {
+        // 视觉反馈
+        triggerFlash('bg-red-900/50');
+
+        ssthresh = Math.max(2, Math.floor(cwnd / 2));
+        cwnd = 1;
+        state = 'SLOW START';
+
+        // 记录事件点以便观察，但不增加时间
+        updateUI();
+        // 强制图表更新当前状态的剧变
+        if (!isRunning) pushDataToChart();
+    });
+
+    // 2. 3次重复 ACK (3 Duplicate ACKs) - 快速重传/恢复
+    // 行为 (Reno): ssthresh = cwnd / 2, cwnd = ssthresh, 进入 Congestion Avoidance
+    btnDupAck.addEventListener('click', () => {
+        // 视觉反馈
+        triggerFlash('bg-orange-900/50');
+
+        ssthresh = Math.max(2, Math.floor(cwnd / 2));
+        cwnd = ssthresh; // Fast Recovery: set to ssthresh (sometimes ssthresh + 3)
+        state = 'CONGESTION AVOIDANCE';
+
+        updateUI();
+        if (!isRunning) pushDataToChart();
+    });
+
+    // 切换播放/暂停
+    btnToggle.addEventListener('click', () => {
+        if (isRunning) {
+            pauseSimulation();
+        } else {
+            startSimulation();
+        }
+    });
+
+    btnReset.addEventListener('click', resetSimulation);
+
+    // 屏幕闪烁效果 (用于事件反馈)
+    function triggerFlash(colorClass) {
+        const overlay = document.createElement('div');
+        overlay.className = `fixed inset-0 ${colorClass} z-50 pointer-events-none transition-opacity duration-300`;
+        document.body.appendChild(overlay);
+
+        // 强制重绘
+        requestAnimationFrame(() => {
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                document.body.removeChild(overlay);
+            }, 300);
+        });
+    }
+
+    // 初始化
+    updateUI();
+
+</script>
+</body>
+</html>
