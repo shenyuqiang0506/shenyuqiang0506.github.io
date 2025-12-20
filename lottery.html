@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown 题目抽奖系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        /* 控制面板样式 */
+        .controls {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        input[type="file"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.1s, background-color 0.2s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #357abd;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* 题目展示区域样式 */
+        .question-container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: left;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .question-content {
+            width: 100%;
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #444;
+        }
+
+        /* Markdown 样式微调 */
+        .question-content pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        .question-content img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .status-tag {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* 动画类 */
+        .blur-anim {
+            filter: blur(4px);
+            opacity: 0.7;
+        }
+
+        .placeholder {
+            color: #999;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+
+<h1>🎲 题目随机抽奖</h1>
+
+<div class="controls">
+    <input type="file" id="fileInput" accept=".md,.txt"/>
+    <span id="fileStatus" style="font-size: 14px; color: #666;">未加载文件</span>
+    <button id="drawBtn" disabled>开始抽取</button>
+</div>
+
+<div class="question-container" id="displayArea">
+    <div class="placeholder">
+        <h3>👋 请先上传包含题目的 Markdown 文件</h3>
+        <p>题目格式建议使用 "##" 开头来分隔不同的题目</p>
+    </div>
+</div>
+
+<script>
+    let questions = [];
+    let isRolling = false;
+    let animationInterval = null;
+
+    const fileInput = document.getElementById('fileInput');
+    const drawBtn = document.getElementById('drawBtn');
+    const displayArea = document.getElementById('displayArea');
+    const fileStatus = document.getElementById('fileStatus');
+
+    // 监听文件上传
+    fileInput.addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const text = e.target.result;
+            parseQuestions(text);
+        };
+        reader.readAsText(file);
+    });
+
+    // 解析 Markdown 文件
+    function parseQuestions(text) {
+        // 策略：使用正则表达式按 "## " (二级标题) 进行分割
+        // 过滤掉空行，并保留标题内容
+        const rawQuestions = text.split(/^## /gm);
+
+        // 清洗数据，移除第一个元素（通常是文件头或空内容），并重新加上 ##
+        questions = rawQuestions.filter(q => q.trim().length > 0).map(q => {
+            // 如果分割后丢失了 ##，我们在显示时如果需要可以补上，或者直接作为内容
+            // 这里我们假设分割出来的内容就是题目正文，我们补一个 ### 作为显示
+            return "## " + q;
+        });
+
+        if (questions.length > 0) {
+            fileStatus.textContent = `已加载 ${questions.length} 道题目`;
+            fileStatus.style.color = "green";
+            drawBtn.disabled = false;
+            displayArea.innerHTML = `<div class="placeholder" style="color:#4a90e2">✅ 题目加载完毕，点击“开始抽取”！</div>`;
+        } else {
+            fileStatus.textContent = "未检测到有效题目 (请用 ## 分隔)";
+            fileStatus.style.color = "red";
+            drawBtn.disabled = true;
+        }
+    }
+
+    // 抽取按钮点击事件
+    drawBtn.addEventListener('click', function () {
+        if (questions.length === 0) return;
+
+        if (isRolling) {
+            // 停止抽取
+            stopRolling();
+        } else {
+            // 开始滚动
+            startRolling();
+        }
+    });
+
+    function startRolling() {
+        isRolling = true;
+        drawBtn.textContent = "停止";
+        drawBtn.style.backgroundColor = "#e74c3c"; // 红色
+        displayArea.classList.add('blur-anim');
+
+        // 快速滚动的动画逻辑
+        animationInterval = setInterval(() => {
+            const randomIndex = Math.floor(Math.random() * questions.length);
+            // 这里只显示纯文本预览，不渲染 Markdown 以提高性能
+            displayArea.innerHTML = `<div style="text-align:center; opacity:0.5;">${questions[randomIndex].substring(0, 50)}...</div>`;
+        }, 100);
+    }
+
+    function stopRolling() {
+        isRolling = false;
+        clearInterval(animationInterval);
+        drawBtn.textContent = "再次抽取";
+        drawBtn.style.backgroundColor = ""; // 恢复原色
+        displayArea.classList.remove('blur-anim');
+
+        // 最终选定
+        const finalIndex = Math.floor(Math.random() * questions.length);
+        const finalQuestionMd = questions[finalIndex];
+
+        // 渲染 Markdown
+        const htmlContent = marked.parse(finalQuestionMd);
+
+        displayArea.innerHTML = `
+                <span class="status-tag">题目 #${finalIndex + 1}</span>
+                <div class="question-content markdown-body">
+                    ${htmlContent}
+                </div>
+            `;
+    }
+</script>
+</body>
+</html>
