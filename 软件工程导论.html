@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>软件工程</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f8;
+            --sidebar-bg: #1a1a2e;
+            --sidebar-text: #a6a7b7;
+            --highlight: #00d2ff;
+            --active-k: #2d2d44;
+            --accent: #ff4757;
+            --success: #2ed573;
+            --card-bg: #ffffff;
+            --text-main: #2f3542;
+            --stat-text: #57606f;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background: var(--bg-color); color: var(--text-main); height: 100vh; overflow: hidden; }
+
+        .layout-container { display: grid; grid-template-columns: 320px 1fr; height: 100vh; }
+
+        /* 左侧面板 */
+        .knowledge-panel {
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid #000;
+            display: flex;
+            flex-direction: column;
+        }
+        .knowledge-header {
+            color: #fff; margin-bottom: 20px; font-size: 1.1rem; border-bottom: 2px solid var(--highlight); padding-bottom: 10px;
+            position: sticky; top: 0; background: var(--sidebar-bg); z-index: 10;
+        }
+        .k-card {
+            background: rgba(255,255,255,0.05);
+            border-left: 3px solid #444;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            opacity: 0.8;
+        }
+        .k-card.active-link {
+            border-left-color: var(--highlight);
+            background: rgba(0, 210, 255, 0.15);
+            opacity: 1;
+            transform: translateX(5px);
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.1);
+        }
+        .k-title { color: var(--highlight); font-weight: bold; font-size: 0.9rem; margin-bottom: 5px; }
+        .k-content { font-size: 0.85rem; line-height: 1.5; color: #ccc; }
+        .k-content strong { color: #fff; font-weight: 600; }
+
+        /* 右侧面板 */
+        .quiz-panel { padding: 0; overflow-y: auto; background: var(--bg-color); scroll-behavior: smooth; }
+
+        /* 顶部仪表盘 - 已更新支持按钮组 */
+        .dashboard {
+            background: rgba(255,255,255,0.98);
+            padding: 12px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e1e4e8;
+        }
+
+        .global-stats {
+            display: flex;
+            gap: 20px;
+            font-family: 'Segoe UI Mono', monospace;
+            font-size: 1rem;
+            color: var(--text-main);
+            align-items: center;
+        }
+        .stat-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .stat-val { font-weight: 800; }
+        .c-green { color: var(--success); }
+        .c-blue { color: var(--highlight); }
+        .c-dark { color: var(--text-main); }
+
+        /* 新增：控制按钮样式 */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #fff;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .btn:active { transform: translateY(1px); }
+        .btn-retry { background: #57606f; }
+        .btn-retry:hover { background: #2f3542; }
+        .btn-shuffle { background: var(--highlight); }
+        .btn-shuffle:hover { background: #00b4db; box-shadow: 0 0 10px rgba(0, 210, 255, 0.4); }
+
+        /* 板块样式 */
+        .section-container {
+            padding: 40px;
+            border-bottom: 1px solid #e1e4e8;
+            min-height: 60vh;
+        }
+        .section-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e1e4e8;
+            padding-bottom: 10px;
+        }
+        .section-title { font-size: 1.6rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; }
+        .section-title::before { content: ''; display: block; width: 6px; height: 24px; background: var(--highlight); margin-right: 12px; border-radius: 4px; }
+
+        .section-stats {
+            font-size: 0.9rem;
+            color: var(--stat-text);
+            font-family: 'Segoe UI Mono', monospace;
+            background: #fff;
+            padding: 5px 12px;
+            border-radius: 6px;
+            border: 1px solid #e1e4e8;
+        }
+
+        /* 题目卡片 */
+        .question-card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+        .question-card:hover { border-color: var(--highlight); box-shadow: 0 8px 24px rgba(54, 153, 255, 0.15); }
+
+        .q-badges { margin-bottom: 12px; display: flex; gap: 5px; }
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
+        .badge-src { background: #eef2f7; color: #57606f; }
+        .badge-dup { background: #fff0f0; color: #ff4757; border: 1px dashed #ff4757; }
+
+        .q-text { font-size: 1.05rem; font-weight: 600; margin-bottom: 15px; line-height: 1.6; }
+
+        .options-grid { display: grid; gap: 8px; }
+        .option-btn {
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border: 1px solid #e1e4e8;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .option-btn:hover { background: #fff; border-color: var(--highlight); }
+
+        .question-card.correct { border-left: 5px solid var(--success); }
+        .question-card.wrong { border-left: 5px solid var(--accent); }
+        .option-btn.selected-correct { background: #d1f7c4; border-color: var(--success); color: #0a7c42; }
+        .option-btn.selected-wrong { background: #ffe0e3; border-color: var(--accent); color: #c0392b; }
+        .option-btn.correct-hint { border: 2px solid var(--success); }
+        .analysis-box { margin-top: 15px; padding: 15px; background: #fff8e1; border-radius: 8px; font-size: 0.9rem; color: #d35400; display: none; border-left: 4px solid #f1c40f; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--sidebar-bg); }
+        ::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<div class="layout-container">
+    <div class="knowledge-panel">
+        <div class="knowledge-header" id="kHeader">等待数据加载...</div>
+        <div id="kList"></div>
+    </div>
+
+    <div class="quiz-panel" id="mainScroll">
+        <div class="dashboard">
+            <div class="global-stats">
+                <div class="stat-pill"><span style="font-size:1.2rem">📊</span> <span>全景战术终端</span></div>
+                <div style="width:1px;background:#ddd;height:24px;margin:0 10px;"></div>
+                <div class="stat-pill c-green">✅ 正确: <span class="stat-val" id="g-correct">0</span></div>
+                <div class="stat-pill c-blue">📝 作答: <span class="stat-val" id="g-answered">0</span></div>
+                <div class="stat-pill c-dark">📚 总题: <span class="stat-val" id="g-total">140</span></div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-retry" onclick="app.retryCurrent()" title="保留当前题目顺序，清空答案">
+                    <span>🔄</span> 本轮重置
+                </button>
+                <button class="btn btn-shuffle" onclick="app.shuffleReset()" title="重新打乱题目和选项顺序">
+                    <span>🔀</span> 随机洗牌
+                </button>
+            </div>
+        </div>
+
+        <div id="quizContent"></div>
+    </div>
+</div>
+
+<script>
+    // 数据源：全量140题
+    const rawData = [
+        {
+            id: "sec1", title: "第一板块：软件工程概论",
+            knowledgePoints: [
+                { id: "k1-1", title: "软件定义", content: "软件 = 程序 + 数据 + 文档。<br>特性：逻辑产品(无形/磨不坏)、不可靠(人会犯错)。" },
+                { id: "k1-2", title: "软件危机", content: "表现：做不好、做太慢、做太贵。<br>原因：管理无力 + 缺乏规范 (不是缺人)。" },
+                { id: "k1-3", title: "工程三要素", content: "方法(技术)、工具、过程(管理)。口诀：方工过。" },
+                { id: "k1-4", title: "质量与测试", content: "测试只能验证质量，不能提高质量。质量是开发出来的。" }
+            ],
+            questions: [
+                { q: "软件是（ ）。", options: ["可执行程序", "数据", "过程文档", "包含以上三种"], a: "包含以上三种", src: "书本", kRef: "k1-1" },
+                { q: "在下列选项中，（ ）不是软件的固有特性。", options: ["复杂性", "抽象性", "依赖性", "可靠性"], a: "可靠性", src: "书本", kRef: "k1-1" },
+                { q: "软件是一种（ ）产品。", options: ["有形", "逻辑", "物质", "消耗"], a: "逻辑", src: "书本", kRef: "k1-1" },
+                { q: "（ ）不是软件危机的突出表现。", options: ["对软件开发成本和进度的估计常常很不准确", "无法完成功能复杂的软件", "用户对“已完成的”软件系统不满意现象经常发生", "软件产品的复杂性增加，可靠性、质量却在下降"], a: "无法完成功能复杂的软件", src: "书本", kRef: "k1-2" },
+                { q: "（ ）不是软件危机的突出表现。", options: ["对软件开发成本和进度的估计常常很不准确", "无法完成功能复杂的软件", "用户对“已完成的”软件系统不满意现象经常发生", "软件产品的复杂性增加，可靠性、质量却在下降"], a: "无法完成功能复杂的软件", src: "网页(重复题)", kRef: "k1-2" },
+                { q: "产生软件危机的原因不包括（ ）。", options: ["没有合适的软件开发人员", "软件人员与用户的交流存在障碍", "软件开发过程不规范，缺乏方法论和规范的指导", "缺少有效的软件评测手段，提交用户软件质量差"], a: "没有合适的软件开发人员", src: "书本", kRef: "k1-2" },
+                { q: "产生软件危机的原因不包括（ ）。", options: ["没有合适的软件开发人员", "软件人员与用户的交流存在障碍", "软件开发过程不规范，缺乏方法论和规范的指导", "缺少有效的软件评测手段，提交用户软件质量差"], a: "没有合适的软件开发人员", src: "网页(重复题)", kRef: "k1-2" },
+                { q: "衡量软件质量的因素不包括（ ）。", options: ["功能性", "可靠性", "可移植性", "互补性"], a: "互补性", src: "书本", kRef: "k1-4" },
+                { q: "衡量软件质量的因素不包括（ ）。", options: ["功能性", "可靠性", "可移植性", "互补性"], a: "互补性", src: "网页(重复题)", kRef: "k1-4" },
+                { q: "与计算机科学的理论研究不同，软件工程是一门（ ）学科。", options: ["理论性", "工程性", "原理性", "心理性"], a: "工程性", src: "书本", kRef: "k1-3" },
+                { q: "与计算机科学的理论研究不同，软件工程是一门（ ）学科。", options: ["理论性", "工程性", "原理性", "逻辑性"], a: "工程性", src: "网页(重复题)", kRef: "k1-3" },
+                { q: "软件工程三要素不包括（ ）。", options: ["过程", "方法", "工具", "对象"], a: "对象", src: "书本", kRef: "k1-3" },
+                { q: "[判断] 软件质量可以通过后期测试得以提高。", options: ["T (对)", "F (错)"], a: "F (错)", src: "网页", kRef: "k1-4" },
+                { q: "[多选] 软件工程的通用原则包括（ ）。", options: ["存在价值", "有管理的软件过程", "可用性和信息安全性", "需求工程", "提前计划复用", "面向未来"], a: "存在价值|有管理的软件过程|可用性和信息安全性|需求工程|提前计划复用|面向未来", type: "multi", src: "网页", kRef: "k1-3" }
+            ]
+        },
+        {
+            id: "sec2", title: "第二板块：软件过程模型",
+            knowledgePoints: [
+                { id: "k2-1", title: "瀑布模型", content: "特点：文档驱动、死板。死穴：需求变了回头难。" },
+                { id: "k2-2", title: "增量模型", content: "特点：非整体开发、搭积木。优点：资金回笼快。" },
+                { id: "k2-3", title: "螺旋模型", content: "核心：风险分析。适合高风险大项目。" },
+                { id: "k2-4", title: "敏捷开发", content: "价值观：人>文档，拥抱变化。" },
+                { id: "k2-5", title: "生命周期", content: "维护阶段时间最长。" }
+            ],
+            questions: [
+                { q: "软件生命周期包括...编码、（ ）、维护等活动。", options: ["应用", "测试", "检测", "以上答案都不正确"], a: "测试", src: "书本", kRef: "k2-5" },
+                { q: "软件生命周期包括...编码、（ ）、维护等活动。", options: ["应用", "测试", "验收", "以上都不对"], a: "测试", src: "网页(重复题)", kRef: "k2-5" },
+                { q: "下列选项中，（ ）不是软件过程模型。", options: ["螺旋模型", "增量模型", "功能模型", "瀑布模型"], a: "功能模型", src: "书本", kRef: "k2-1" },
+                { q: "下列选项中，（ ）不是软件过程模型。", options: ["螺旋模型", "增量模型", "瀑布模型", "组件模型"], a: "组件模型", src: "网页(重复题)", kRef: "k2-1" },
+                { q: "软件生命周期中时间最长的阶段是（ ）。", options: ["需求分析阶段", "总体设计阶段", "测试阶段", "维护阶段"], a: "维护阶段", src: "书本", kRef: "k2-5" },
+                { q: "增量模型是一种（ ）的模型。", options: ["整体开发", "非整体开发", "灵活性差", "较晚产生工作软件"], a: "非整体开发", src: "书本", kRef: "k2-2" },
+                { q: "增量模型是一种（ ）的模型。", options: ["整体开发", "非整体开发", "灵活性差", "较晚产生工作软件"], a: "非整体开发", src: "网页(重复题)", kRef: "k2-2" },
+                { q: "对于原型的使用建议，以下说法不正确的是（ ）。", options: ["开发周期很长的项目，能够使用原型", "在系统的使用可能变化较大...能够使用原型", "缺乏开发工具...能够使用原型", "开发人员对系统...无信心...能够使用原型"], a: "开发周期很长的项目，能够使用原型", src: "书本", kRef: "k2-2" },
+                { q: "原型模型的主要特点之一是（ ）。", options: ["开发完毕才见到产品", "及早提供工作软件", "及早提供全部完整软件", "开发完毕才见到工作软件"], a: "及早提供工作软件", src: "书本", kRef: "k2-2" },
+                { q: "原型模型的主要特点之一是（ ）。", options: ["开发完毕才能见到产品", "及早提供工作软件", "开发完毕才能见到工作软件", "及早提供全部完整软件"], a: "及早提供工作软件", src: "网页(重复题)", kRef: "k2-2" },
+                { q: "在软件开发过程中，系统分析员主要负责（ ）。", options: ["系统详细功能设计", "通过需求设计系统总体结构", "和用户沟通，获取系统需求", "数据库设计与数据库管理"], a: "和用户沟通，获取系统需求", src: "书本", kRef: "k2-1" },
+                { q: "在软件开发过程中，系统需求分析员主要负责（ ）。", options: ["系统详细功能设计", "通过需求分析设计系统框架结构", "数据库设计和数据库管理", "和用户沟通，获取系统需求"], a: "和用户沟通，获取系统需求", src: "网页(重复题)", kRef: "k2-1" },
+                { q: "以下哪种软件过程模型增加了风险分析活动环节（ ）。", options: ["增量", "螺旋", "敏捷", "瀑布"], a: "螺旋", src: "网页", kRef: "k2-3" },
+                { q: "[判断] 增量模型是将待开发的软件系统模块化，将每个模块作为一个增量组件。", options: ["T (对)", "F (错)"], a: "T (对)", src: "网页", kRef: "k2-2" },
+                { q: "[判断] 软件生命周期中，开发阶段是整个软件生命周期最长的阶段。", options: ["T (对)", "F (错)"], a: "F (错)", src: "网页", kRef: "k2-5" },
+                { q: "[多选] 以下哪些项属于敏捷软件开发宣言内容（ ）。", options: ["有效的沟通交流胜过开发过程和工具", "可运行的软件胜过面面俱到的文档", "客户合作胜过合同谈判", "对变更的良好响应胜过按部就班的遵循计划", "不断关注优秀的技能..."], a: "有效的沟通交流胜过开发过程和工具|可运行的软件胜过面面俱到的文档|客户合作胜过合同谈判|对变更的良好响应胜过按部就班的遵循计划", type: "multi", src: "网页", kRef: "k2-4" }
+            ]
+        },
+        {
+            id: "sec3", title: "第三板块：可行性与需求",
+            knowledgePoints: [
+                { id: "k3-1", title: "可行性分析", content: "三维：技术、经济、社会。没有人员可行性。" },
+                { id: "k3-2", title: "经济计算", content: "现值P = 未来值F / (1+利率)^n。<br>现在的钱 > 未来的钱。" },
+                { id: "k3-3", title: "数据流图 (DFD)", content: "元素：变换(圈)、流(箭头)、存储(双杠)、实体(方框)。<br>禁忌：无控制流、无分支。" },
+                { id: "k3-4", title: "需求分类", content: "业务(Boss)、用户(User)、功能(System)。SRS不含算法细节。" }
+            ],
+            questions: [
+                { q: "可行性研究需要从3个方面分析项目的可行性，不包括（ ）。", options: ["技术可行性", "经济可行性", "人员可行性", "社会可行性"], a: "人员可行性", src: "书本", kRef: "k3-1" },
+                { q: "可行性研究需要从3个方面分析项目的可行性，不包括（ ）。", options: ["技术可行性", "经济可行性", "人员可行性", "社会可行性"], a: "人员可行性", src: "网页(重复题)", kRef: "k3-1" },
+                { q: "（ ）是系统逻辑功能的图形表示。", options: ["系统流程图", "软件结构图", "PAD图", "数据流图"], a: "数据流图", src: "书本", kRef: "k3-3" },
+                { q: "（ ）是概括地描绘物理系统的工作流程，用图形符号以黑盒子形式描绘组成系统的每个部件。", options: ["系统流程图", "软件结构图", "PAD图", "数据流图"], a: "系统流程图", src: "书本", kRef: "k3-3" },
+                { q: "（ ）不是数据流图的基本符号。", options: ["数据源点", "变化数据的处理", "数据存储", "分支"], a: "分支", src: "书本", kRef: "k3-3" },
+                { q: "假定年利率为 12%，一年后可以收到 5000 元，这笔钱的当前价值约为（ ）元。", options: ["5600", "4464", "4400", "5464"], a: "4464", src: "书本", kRef: "k3-2" },
+                { q: "假定年利率为 12%，一年后可以收到 6000 元，这笔钱的当前价值约为（ ）元。", options: ["6720", "6000", "5357", "5280"], a: "5357", src: "网页", kRef: "k3-2" },
+                { q: "需求的层次不包括（ ）。", options: ["业务需求", "系统需求", "用户需求", "功能需求"], a: "功能需求", src: "书本", kRef: "k3-4" },
+                { q: "需求工程的主要目的是（ ）。", options: ["系统开发的具体方案", "进一步确定用户的需求", "解决系统是“做什么的问题”", "解决系统是“如何做的问题”"], a: "解决系统是“做什么的问题”", src: "书本", kRef: "k3-4" },
+                { q: "需求获取的方法不包括（ ）。", options: ["猜测法", "原型法", "研究资料法", "问卷调查法"], a: "猜测法", src: "书本", kRef: "k3-4" },
+                { q: "需求获取的方法不包括（ ）。", options: ["猜测法", "原型法", "研究资料法", "问卷调查法"], a: "猜测法", src: "网页(重复题)", kRef: "k3-4" },
+                { q: "结构化需求分析的主要描述手段有（ ）。", options: ["系统流程图和模块图", "DFD 图、数据字典、微规格说明", "软件结构图、微规格说明", "功能结构图、微规格说明"], a: "DFD 图、数据字典、微规格说明", src: "书本", kRef: "k3-3" },
+                { q: "结构化需求分析的主要描述手段有（ ）。", options: ["系统流程图和模块图", "DFD图、数据字典、微规格说明", "软件结构图、微规格说明", "功能结构图、微规格说明"], a: "DFD图、数据字典、微规格说明", src: "网页(重复题)", kRef: "k3-3" },
+                { q: "数据流图是进行软件需求分析的常用图形工具，其基本图形符号是（ ）。", options: ["输入、输出、外部实体和过程", "变换、过程、数据流和存储", "过程、数据流、数据存储和外部加工", "变换、数据存储、过程和数据流"], a: "过程、数据流、数据存储和外部加工", src: "书本", kRef: "k3-3" },
+                { q: "数据流图是进行软件需求分析的常用图形工具，其基本图形符号是（ ）。", options: ["输入、输出、外部实体和过程", "变换、过程、数据流和存储", "过程、数据流、数据存储和外部实体", "变换、数据存储、过程和数据流"], a: "过程、数据流、数据存储和外部实体", src: "网页(重复题)", kRef: "k3-3" },
+                { q: "画分层 DFD 图的基本原则有（ ）。", options: ["父过程与子图平衡的原则", "数据守恒原则", "分解的可靠性原则", "数据流封闭的原则"], a: "父过程与子图平衡的原则", src: "书本", kRef: "k3-3" },
+                { q: "下述软件开发的结构化方法中，（ ）是常采用的编写微规格说明的方法。", options: ["结构化语言", "判定表", "判定表、判定树", "结构化语言、判定表、判定树"], a: "结构化语言、判定表、判定树", src: "书本", kRef: "k3-4" },
+                { q: "数据字典用来定义（ ）中各个成分的具体含义。", options: ["流程图", "功能结构图", "系统结构图", "数据流图"], a: "数据流图", src: "书本", kRef: "k3-3" },
+                { q: "在 ER 图中，基本成分包括（ ）。", options: ["数据、对象、实体", "控制、关系、对象", "实体、关系、控制", "实体、属性、关系"], a: "实体、属性、关系", src: "书本", kRef: "k3-3" },
+                { q: "在ER图中，基本构图元素包括（ ）。", options: ["数据、对象、实体", "控制、关系、对象", "实体、关系、控制", "实体、属性、关系"], a: "实体、属性、关系", src: "网页(重复题)", kRef: "k3-3" },
+                { q: "软件需求规格说明文档的内容不应该包括（ ）。", options: ["对重要功能的描述", "对算法的详细过程描述", "对数据的要求", "软件的性能"], a: "对算法的详细过程描述", src: "书本", kRef: "k3-4" },
+                { q: "软件需求规格说明文档的内容中不应该包括 ( )。", options: ["对算法的详细过程描述", "对重要功能的描述", "对数据的要求", "软件的性能描述"], a: "对算法的详细过程描述", src: "网页(重复题)", kRef: "k3-4" },
+                { q: "[判断] 可行性研究的目的是在最短的时间内判断项目是否可行。", options: ["T (对)", "F (错)"], a: "T (对)", src: "网页", kRef: "k3-1" },
+                { q: "[判断] 需求从分类的角度来分可以分为业务需求和系统需求。", options: ["T (对)", "F (错)"], a: "T (对)", src: "网页", kRef: "k3-4" },
+                { q: "[判断] 软件需求规格说明文档应包括:功能描述、性能描述、对数据要求的描述和对算法的详细过程描述。", options: ["T (对)", "F (错)"], a: "F (错)", src: "网页", kRef: "k3-4" },
+                { q: "[多选] 需求管理阶段的主要任务包括（ ）。", options: ["建立和维护需求基线", "获取用户需求", "建立需求跟踪信息", "进行变更控制"], a: "建立和维护需求基线|获取用户需求|建立需求跟踪信息|进行变更控制", type: "multi", src: "网页", kRef: "k3-4" },
+                { q: "[多选] ER图使用（ ）来描述数据模型。", options: ["实体", "关系", "数据项", "属性"], a: "实体|关系|属性", type: "multi", src: "网页", kRef: "k3-3" }
+            ]
+        },
+        {
+            id: "sec4", title: "第四板块：系统设计",
+            knowledgePoints: [
+                { id: "k4-1", title: "模块独立性", content: "原则：高内聚、低耦合。<br>内聚：功能内聚(最好)。<br>耦合：数据耦合(最好，只传参)。" },
+                { id: "k4-2", title: "设计阶段", content: "概要设计：定架构、接口。<br>详细设计：定算法、数据结构。" },
+                { id: "k4-3", title: "工具", content: "判定表：复杂条件组合。<br>判定树/PAD：结构化。<br>ER图：数据结构。" }
+            ],
+            questions: [
+                { q: "软件的( )设计又称为总体设计，其主要任务是建立软件系统的总体结构。", options: ["概要", "抽象", "逻辑", "规划"], a: "概要", src: "书本", kRef: "k4-2" },
+                { q: "软件的（ ）设计又称为总体设计，其主要任务是建立软件系统的总体结构。", options: ["概要", "抽象", "逻辑", "详细"], a: "概要", src: "网页(重复题)", kRef: "k4-2" },
+                { q: "模块独立性是软件模块化所提出的要求，衡量模块独立性的度量标准是模块( )。", options: ["内聚性和耦合性", "局部化和封装化", "抽象和信息隐藏", "逐步求精和结构图"], a: "内聚性和耦合性", src: "书本", kRef: "k4-1" },
+                { q: "模块独立性是软件模块化所提出的要求，衡量模块独立性的度量标准是模块的（ ）。", options: ["局部化和封装化", "抽象和信息隐蔽", "逐步求精和结构图", "内聚性和耦合性"], a: "内聚性和耦合性", src: "网页(重复题)", kRef: "k4-1" },
+                { q: "划分模块时尽量做到( )，保持模块的独立性。", options: ["高内聚、低耦合", "高内聚、高耦合", "低内聚、低耦合", "低内聚、高耦合"], a: "高内聚、低耦合", src: "书本", kRef: "k4-1" },
+                { q: "划分模块时尽量做到（ ），保持模块的独立性。", options: ["低内聚，高耦合", "高内聚，高耦合", "低内聚，低耦合", "高内聚，低耦合"], a: "高内聚，低耦合", src: "网页(重复题)", kRef: "k4-1" },
+                { q: "为了提高模块的独立性，模块之间最好是( )。", options: ["公共耦合", "控制耦合", "数据耦合", "特征耦合"], a: "数据耦合", src: "书本", kRef: "k4-1" },
+                { q: "模块的内聚性最高的是( )。", options: ["逻辑内聚", "时间内聚", "偶然内聚", "功能内聚"], a: "功能内聚", src: "网页", kRef: "k4-1" },
+                { q: "面向数据流的软件设计方法可将( )映射成软件结构。", options: ["控制结构", "数据流", "程序流程", "模块"], a: "数据流", src: "书本", kRef: "k4-2" },
+                { q: "在面向数据流的软件设计方法中，一般将信息流分为( )。", options: ["数据流和控制流", "变换流和控制流", "事务流和控制流", "变换流和事务流"], a: "变换流和事务流", src: "书本", kRef: "k4-2" },
+                { q: "软件详细设计的主要任务是确定每个模块的( )。", options: ["外部接口", "功能", "算法和数据结构", "编程"], a: "算法和数据结构", src: "书本", kRef: "k4-2" },
+                { q: "当算法中需要用一个模块去计算多种条件的复杂组合，并根据这些条件完成适当的功能时，从下列答案中选出合适的描述工具。( )", options: ["程序流程图", "N-S图", "PAD图", "判定表"], a: "判定表", src: "书本", kRef: "k4-3" },
+                { q: "在软件开发过程常采用与图形相关的信息，( )不用于表示软件模块的执行过程。", options: ["N-S图", "E-R图", "PAD图", "程序流程图"], a: "E-R图", src: "书本", kRef: "k4-3" },
+                { q: "程序中的3种基本控制结构是( )。", options: ["顺序、选择、循环", "数组、递推、排序", "递归、子程序、分程序", "递归、递推、迭代"], a: "顺序、选择、循环", src: "书本", kRef: "k4-3" },
+                { q: "[判断] 接口设计是概要设计阶段需要完成的任务.", options: ["T (对)", "F (错)"], a: "T (对)", src: "网页", kRef: "k4-2" },
+                { q: "[多选] 程序中的3种基本控制结构是（ ）。", options: ["顺序", "选择", "迭代", "循环", "并行"], a: "顺序|选择|循环", type: "multi", src: "网页", kRef: "k4-3" },
+                { q: "[多选] 以下哪些图形化工具是用来表示软件项目的详细设计（ ）。", options: ["程序流程图", "N-S图", "PDL", "PAD", "E-R图", "时序图"], a: "程序流程图|N-S图|PDL|PAD", type: "multi", src: "网页", kRef: "k4-3" }
+            ]
+        },
+        {
+            id: "sec5", title: "第五板块：面向对象与UML",
+            knowledgePoints: [
+                { id: "k5-1", title: "OO三大特性", content: "封装：隐藏细节(接口)。<br>继承：泛化/复用。<br>多态：同一操作不同实现。" },
+                { id: "k5-2", title: "UML图谱 (静态)", content: "类图：最核心静态结构。<br>部署图：硬件物理结构。" },
+                { id: "k5-3", title: "UML图谱 (动态)", content: "用例图：用户交互。<br>时序图：时间顺序(消息)。<br>状态图：状态迁移。<br>活动图：业务流程。" },
+                { id: "k5-4", title: "映射规则", content: "对象 -> 类。<br>消息 -> 方法。" }
+            ],
+            questions: [
+                { q: "对象实现了数据和操作的结合，使数据和操作（ ）于对象的统一体中。", options: ["结合", "隐藏", "封装", "抽象"], a: "封装", src: "书本", kRef: "k5-1" },
+                { q: "封装是一种（ ）技术，目的是使对象的生产者和使用者分离，使对象的定义和实现分开。", options: ["工程化", "软件开发", "信息隐蔽", "产生对象"], a: "信息隐蔽", src: "网页", kRef: "k5-1" },
+                { q: "在 Java 语言中，对象的属性和方法访问控制符不包括（ ）。", options: ["public", "defend", "protected", "private"], a: "defend", src: "书本", kRef: "k5-1" },
+                { q: "面向对象的（ ）特性，可以方便开发更灵活、易修改的系统。", options: ["继承", "隐藏", "封装", "多态"], a: "多态", src: "书本", kRef: "k5-1" },
+                { q: "下列选项中不属于面向对象优势的是（ ）。", options: ["复用性强", "系统易于维护", "软件的执行效率更高", "适应需求变化"], a: "软件的执行效率更高", src: "网页", kRef: "k5-1" },
+                { q: "（ ）用于界定系统的边界，定义系统与环境之间的依赖关系。", options: ["上下文模型", "类模型", "动态模型", "边界模型"], a: "上下文模型", src: "书本", kRef: "k5-3" },
+                { q: "在 UML 提供的图中，（ ）用于按时间顺序描述对象间的交互。", options: ["网络图", "状态图", "协作图", "时序图"], a: "时序图", src: "书本", kRef: "k5-3" },
+                { q: "在 UML 提供的图中，（ ）用于描述系统与外部系统及用户之间的交互功能。", options: ["用例图", "类图", "对象图", "部署图"], a: "用例图", src: "书本", kRef: "k5-3" },
+                { q: "在 UML 提供的图中，（ ）用于描述系统业务流程。", options: ["活动图", "状态图", "协作图", "顺序图"], a: "活动图", src: "书本", kRef: "k5-3" },
+                { q: "在 UML 提供的图中，（ ）用于描述系统静态结构及类之间的关联关系。", options: ["用例图", "类图", "对象图", "部署图"], a: "类图", src: "书本", kRef: "k5-2" },
+                { q: "在UML提供的图中，（ ）用于描述系统静态结构及类之间的关联关系。", options: ["用例图", "活动图", "类图", "时序图"], a: "类图", src: "网页(重复题)", kRef: "k5-2" },
+                { q: "在系统分析阶段，识别问题域相关的（ ）类。", options: ["控制", "边界", "实体", "视图"], a: "实体", src: "书本", kRef: "k5-2" },
+                { q: "在 UML 提供的图中，（ ）用于描述一个类对象在不同用例间状态的迁移。", options: ["活动图", "状态图", "协作图", "顺序图"], a: "状态图", src: "书本", kRef: "k5-3" },
+                { q: "在UML提供的图中，（ ）用于描述一个类对象在不同用例间状态的转换。", options: ["活动图", "状态图", "协作图", "顺序图"], a: "状态图", src: "网页(重复题)", kRef: "k5-3" },
+                { q: "（ ）不是面向对象设计的主要活动。", options: ["数据/类设计", "体系结构设计", "流程设计", "构件与接口设计"], a: "流程设计", src: "书本", kRef: "k5-1" },
+                { q: "( ）不是面向对象概要设计的主要活动。", options: ["数据/类设计", "体系结构设计", "构件与接口设计", "流程设计"], a: "流程设计", src: "网页(重复题)", kRef: "k5-1" },
+                { q: "面向对象的设计原则中信息隐蔽原则是通过对象的（ ）来实现的。", options: ["继承性", "多态性", "封装性", "实例"], a: "封装性", src: "书本", kRef: "k5-1" },
+                { q: "面向对象的设计原则中，信息隐蔽原则是通过对象的（ ）来实现的。", options: ["继承性", "多态性", "封装性", "实例"], a: "封装性", src: "网页(重复题)", kRef: "k5-1" },
+                { q: "面向对象的设计中模块之间的耦合关系是通过类的（ ）来实现的。", options: ["接口", "实例", "属性", "方法"], a: "接口", src: "书本", kRef: "k5-1" },
+                { q: "（ ）描述了系统不同层次的类的划分，体现了系统的逻辑体系结构。", options: ["构件图", "部署图", "包图", "类图"], a: "包图", src: "书本", kRef: "k5-2" },
+                { q: "（ ）中通过将解决同一问题的类划分为一个构件，构件利用提供接口和请求接口定义自身的行为，其清晰地体现了系统的结构与功能。", options: ["构件图", "部署图", "包图", "类图"], a: "构件图", src: "书本", kRef: "k5-2" },
+                { q: "（ ）描述系统硬件的物理拓扑结构及在此结构上运行的软件构件。", options: ["构件图", "部署图", "包图", "类图"], a: "部署图", src: "书本", kRef: "k5-2" },
+                { q: "用户界面设计的黄金原则，不包括（ ）。", options: ["把控制权交给用户", "减轻用户的记忆负担", "保持界面一致", "操作流程简单可行"], a: "操作流程简单可行", src: "书本", kRef: "k5-1" },
+                { q: "从用例场景时序图设计中采用（ ）映射为类，（ ）映射为方法原则，可以导出系统设计类图。", options: ["消息对象", "属性消息", "对象消息", "名称对象"], a: "对象消息", src: "书本", kRef: "k5-4" },
+                { q: "UML的全称是（ ）。", options: ["Unify Made Language", "Unified Modeling Language", "Unify Modem Language", "Unified Making Language"], a: "Unified Modeling Language", src: "网页", kRef: "k5-2" },
+                { q: "UML的（ ）模型由活动图、顺序图、通信图和状态图组成。", options: ["用例", "动态", "静态", "物理"], a: "动态", src: "网页", kRef: "k5-3" },
+                { q: "在多个类中能够定义同一个属性名和操作，并在每一个类中有不同实现的一种方法是（ ）。", options: ["继承", "抽象", "封装", "多态"], a: "多态", src: "网页", kRef: "k5-1" },
+                { q: "从用例场景的时序图设计中，采用（ ）映射为类，对象消息映射为方法的原则，可以导出系统设计类图。", options: ["消息对象", "属性消息", "对象消息", "名称对象"], a: "对象消息", src: "网页(重复题)", kRef: "k5-4" },
+                { q: "面向对象建模过程中，用来表示事物之间一般和特殊关系的是（ ）。", options: ["实现关系", "泛化关系", "依赖关系", "关联关系"], a: "泛化关系", src: "网页", kRef: "k5-1" },
+                { q: "[判断] 类可以派生出子类，继承能避免共同行为的重复。", options: ["T (对)", "F (错)"], a: "T (对)", src: "网页", kRef: "k5-1" },
+                { q: "[判断] 在顺序图中，循环重复执行的交互片段标记为“loop”。", options: ["T (对)", "F (错)"], a: "T (对)", src: "网页", kRef: "k5-3" },
+                { q: "[判断] 活动图可以通过添加交互片段来描述分支、循环和并行。", options: ["T (对)", "F (错)"], a: "T (对)", src: "网页", kRef: "k5-3" },
+                { q: "[多选] 以下属于时序图构图要素的是（ ）。", options: ["对象", "生命线", "依赖关系", "消息", "用例"], a: "对象|生命线|消息", type: "multi", src: "网页", kRef: "k5-3" },
+                { q: "[多选] 面向对象设计任务的输入主要包含（ ）。", options: ["基于场景的元素...", "ER图", "行为元素", "基于类的元素...", "数据流图"], a: "基于场景的元素...|基于类的元素...", type: "multi", src: "网页", kRef: "k5-2" },
+                { q: "[多选] 在面向对象的用例图需求建模过程中，用例之间的关系有（ ）。", options: ["实现", "包含", "扩展", "泛化", "关联"], a: "实现|包含|扩展|泛化|关联", type: "multi", src: "网页", kRef: "k5-3" }
+            ]
+        },
+        {
+            id: "sec6", title: "第六板块：Web开发",
+            knowledgePoints: [
+                { id: "k6-1", title: "MVC架构", content: "M(Bean/数据) - V(JSP/显示) - C(Servlet/控制)。" },
+                { id: "k6-2", title: "代码规范", content: "Bean属性private/方法public。<br>获取参数: request.getParameter。<br>MySQL端口: 3306。" }
+            ],
+            questions: [
+                { q: "在 MVC 模式中，控制器的作用是（ ）。", options: ["与用户完成动态交互", "接受用户输入并调用模型和视图去完成用户需求", "数据库连接与访问", "封装业务数据"], a: "接受用户输入并调用模型和视图去完成用户需求", src: "书本", kRef: "k6-1" },
+                { q: "在基于 MVC 模式的 Web 体系结构中，JavaBean 的作用是（ ）。", options: ["封装业务数据", "控制页面跳转", "接收用户请求", "数据库连接"], a: "封装业务数据", src: "书本", kRef: "k6-1" },
+                { q: "JSP 从 HTML 表单中获得用户输入的正确语句为（ ）。", options: ["request.getParameter(\"ID\")", "reponse.getParameter(\"ID\")", "request.getAttribute(\"ID\")", "reponse.getAttribute(\"ID\")"], a: "request.getParameter(\"ID\")", src: "书本", kRef: "k6-2" },
+                { q: "在JSP中，page 指令（ ）属性用来引入需要的包或类。", options: ["extends", "import", "language", "contenttype"], a: "import", src: "书本", kRef: "k6-2" },
+                { q: "JavaBean 的属性必须声明为 private，方法必须声明为（ ）访问类型。", options: ["private", "static", "protect", "public"], a: "public", src: "书本", kRef: "k6-2" },
+                { q: "MySql 数据库服务器的默认端口号是（ ）。", options: ["80", "8080", "21", "3306"], a: "3306", src: "书本", kRef: "k6-2" }
+            ]
+        },
+        {
+            id: "sec7", title: "第七板块：软件测试",
+            knowledgePoints: [
+                { id: "k7-1", title: "测试目的", content: "发现错误！(不是证明无错)。" },
+                { id: "k7-2", title: "黑盒 vs 白盒", content: "黑盒：等价类、边界值 (不看代码)。<br>白盒：逻辑覆盖、路径 (看代码)。" },
+                { id: "k7-3", title: "V模型测试", content: "编码->单元(桩/白盒)。<br>设计->集成(渐增)。<br>需求->验收(确认)。" }
+            ],
+            questions: [
+                { q: "软件测试的目的是（ ）。", options: ["证明软件的正确性", "找出软件系统中存在的所有错误", "证明软件系统中存在错误", "尽可能多地发现软件系统中的错误"], a: "尽可能多地发现软件系统中的错误", src: "书本", kRef: "k7-1" },
+                { q: "软件测试的目的是（ ）。", options: ["证明软件的正确性", "找出软件系统中存在的所有错误", "证明软件系统中存在错误", "尽可能多的发现软件系统中的错误"], a: "尽可能多的发现软件系统中的错误", src: "网页(重复题)", kRef: "k7-1" },
+                { q: "在软件测试中，逻辑覆盖标准主要用于（ ）。", options: ["白盒测试方法", "黑盒测试方法", "灰盒测试方法", "软件验收方法"], a: "白盒测试方法", src: "书本", kRef: "k7-2" },
+                { q: "集成测试的方法主要有两个，一个是（ ），另一个是...", options: ["白盒测试方法，黑盒测试方法", "等价类划分法，边界值分析法", "渐增式测试方法，非渐增式测试方法", "因果图法，场景法"], a: "渐增式测试方法，非渐增式测试方法", src: "书本", kRef: "k7-3" },
+                { q: "集成测试的方法主要有两种，它们是（ ）。", options: ["白盒测试方法，黑盒测试方法", "等价类划分法，边界值分析法", "渐增式测试方法，非渐增式测试方法", "因果图法，场景法"], a: "渐增式测试方法，非渐增式测试方法", src: "网页(重复题)", kRef: "k7-3" },
+                { q: "以下不属于白盒测试的是（ ）。", options: ["逻辑覆盖", "基本路径测试", "条件覆盖", "等价类划分"], a: "等价类划分", src: "书本", kRef: "k7-2" },
+                { q: "以下不属于白盒测试的是（ ）。", options: ["逻辑覆盖", "基本路径测试", "条件覆盖", "等价类划分"], a: "等价类划分", src: "网页(重复题)", kRef: "k7-2" },
+                { q: "下列叙述中，能够与软件开发各阶段，如需求分析、设计、编码相对应的软件测试是（ ）。", options: ["集成测试、确认测试、单元测试", "单元测试、集成测试、确认测试", "单元测试、确认测试、集成测试", "确认测试、集成测试、单元测试"], a: "确认测试、集成测试、单元测试", src: "书本", kRef: "k7-3" },
+                { q: "单元测试时用户代替被调用模块的是（ ）。", options: ["桩模块", "通信模块", "驱动模块", "代理模块"], a: "桩模块", src: "书本", kRef: "k7-3" },
+                { q: "以下哪种测试时以用户测试为主，是软件正式交付前的最后一道工序( )。", options: ["集成测试", "系统测试", "单元测试", "验收测试"], a: "验收测试", src: "网页", kRef: "k7-3" },
+                { q: "单元测试又称为（ ），可以用白盒法也可以采用黑盒法测试。", options: ["集成测试", "系统测试", "模块测试", "验收测试"], a: "模块测试", src: "网页", kRef: "k7-3" },
+                { q: "[多选] 软件测试过程主要包括（ ）。", options: ["单元测试", "集成测试", "确认测试", "系统测试", "验收测试", "回归测试"], a: "单元测试|集成测试|确认测试|系统测试|验收测试|回归测试", type: "multi", src: "网页", kRef: "k7-3" }
+            ]
+        },
+        {
+            id: "sec8", title: "第八板块：软件维护与文档",
+            knowledgePoints: [
+                { id: "k8-1", title: "维护类型", content: "完善性维护：占比最大(加功能)。<br>副作用：因修改引入新错误。" },
+                { id: "k8-2", title: "文档", content: "用户手册：给用户看。<br>系统设计：给程序员看(模块接口)。" }
+            ],
+            questions: [
+                { q: "在软件生存周期中，工作量所占比例最大的阶段是（ ）阶段。", options: ["需求分析", "设计", "测试", "维护"], a: "维护", src: "书本", kRef: "k8-1" },
+                { q: "一个软件产品开发完成投入使用后，常常由于各种原因需要对它做适当的变更，通常把软件交付使用后所做的变更称为（ ）。", options: ["改正性维护", "适应性维护", "完善性维护", "维护"], a: "维护", src: "书本", kRef: "k8-1" },
+                { q: "软件工程对维护工作的主要目标是提高（ ）。", options: ["软件的可维护性", "软件的生产率", "维护的效率", "软件的可移植性"], a: "软件的可维护性", src: "书本", kRef: "k8-1" },
+                { q: "在软件维护的内容中，占维护活动工作量比例最高的是（ ）。", options: ["改正性维护", "适应性维护", "完善性维护", "预防性维护"], a: "完善性维护", src: "书本", kRef: "k8-1" },
+                { q: "一个软件产品开发完投入使用后，常常由于各种原因需要对它做适当的变更，通常把改善和加强系统的功能和性能的变更称为（ ）维护。", options: ["改正性", "适应性维护", "完善性", "预防性"], a: "完善性", src: "网页", kRef: "k8-1" },
+                { q: "软件维护的副作用是指（ ）。", options: ["运行时误操作", "隐含的错误", "因修改软件而造成的错误", "开发时的错误"], a: "因修改软件而造成的错误", src: "书本", kRef: "k8-1" },
+                { q: "软件维护的副作用是指（ ）。", options: ["运行时误操作", "隐含的错误", "因修改软件而造成的错误", "开发时的错误"], a: "因修改软件而造成的错误", src: "网页(重复题)", kRef: "k8-1" },
+                { q: "软件工程标准可分为 5 个级别，即国际标准、（ ）、行业标准、企业(机构)标准及项目(课题)标准。", options: ["国家标准", "公司标准", "单位标准", "部门标准"], a: "国家标准", src: "书本", kRef: "k8-2" },
+                { q: "软件工程标准可分为5个级别，即国际标准、（ ）、行业标准、企业标准及项目标准。", options: ["国家标准", "公司标准", "单位标准", "部门标准"], a: "国家标准", src: "网页(重复题)", kRef: "k8-2" },
+                { q: "记录软件开发的历史文档是（ ）。", options: ["开发文档", "产品文档", "管理文档", "维护文档"], a: "开发文档", src: "书本", kRef: "k8-2" },
+                { q: "（ ）主要描述功能分配、模块划分、程序的总体结构、输入输出，以及接口设计、运行设计、数据结构设计和出错处理设计等。", options: ["项目开发计划", "系统设计说明书", "可行性研究报告", "需求规格说明书"], a: "系统设计说明书", src: "书本", kRef: "k8-2" },
+                { q: "（ ）主要描述所开发软件的功能、性能、用户界面及运行环境做出详细说明。", options: ["项目开发计划", "系统设计说明书", "可行性研究报告", "需求规格说明书"], a: "需求规格说明书", src: "书本", kRef: "k8-2" },
+                { q: "（ ）主要描述软件的功能、性能、用户界面，使用户了解如何使用该软件。", options: ["项目开发计划", "软件测试说明书", "软件用户手册", "需求规格说明书"], a: "软件用户手册", src: "书本", kRef: "k8-2" }
+            ]
+        }
+    ];
+
+    const app = {
+        // 状态管理：全局+各板块
+        state: {
+            global: { correct: 0, answered: 0, total: 140 },
+            sections: []
+        },
+
+        // 经典的洗牌算法
+        shuffle: (arr) => {
+            let newArr = [...arr]; // 创建副本，不修改原数组
+            let i = newArr.length, r;
+            while (i != 0) {
+                r = Math.floor(Math.random() * i);
+                i--;
+                [newArr[i], newArr[r]] = [newArr[r], newArr[i]];
+            }
+            return newArr;
+        },
+
+        init: () => {
+            // 初始化时默认进行一次洗牌
+            app.shuffleReset();
+            const quizPanel = document.getElementById('mainScroll');
+            quizPanel.addEventListener('scroll', app.onScroll);
+        },
+
+        // 【核心功能】完全重新洗牌（题目顺序、选项顺序全部打乱）
+        shuffleReset: () => {
+            app.resetStats();
+
+            // 重新从 rawData 读取数据并进行洗牌
+            app.state.sections = JSON.parse(JSON.stringify(rawData)).map(sec => {
+                // 洗牌题目
+                sec.questions = app.shuffle(sec.questions);
+
+                // 洗牌选项 (单选题选项随机，多选题建议保持固定逻辑以免混淆，也可改)
+                sec.questions.forEach(q => {
+                    if(q.type !== 'multi') {
+                        q.options = app.shuffle(q.options);
+                    }
+                });
+
+                sec.stats = { correct: 0, answered: 0, total: sec.questions.length };
+                return sec;
+            });
+
+            app.renderQuestions();
+            app.renderKnowledge(0);
+            app.updateGlobalStats();
+
+            // 滚动回顶部
+            const mainScroll = document.getElementById('mainScroll');
+            if(mainScroll) mainScroll.scrollTop = 0;
+        },
+
+        // 【辅助功能】保留当前顺序，仅清空作答记录
+        retryCurrent: () => {
+            app.resetStats();
+
+            // 清除板块统计但保留题目顺序
+            app.state.sections.forEach(sec => {
+                sec.stats = { correct: 0, answered: 0, total: sec.questions.length };
+            });
+
+            // 重新渲染（因为 state 中的 questions 顺序没变，所以顺序保留）
+            app.renderQuestions();
+            app.updateGlobalStats();
+        },
+
+        resetStats: () => {
+            app.state.global.correct = 0;
+            app.state.global.answered = 0;
+        },
+
+        renderQuestions: () => {
+            const c = document.getElementById('quizContent');
+            c.innerHTML = '';
+            app.state.sections.forEach((sec, sIdx) => {
+                const secDiv = document.createElement('div');
+                secDiv.className = 'section-container';
+                secDiv.id = `sec-div-${sIdx}`;
+                secDiv.setAttribute('data-idx', sIdx);
+
+                // 头部：标题 + 独立统计面板
+                const headerRow = document.createElement('div');
+                headerRow.className = 'section-header-row';
+                headerRow.innerHTML = `
+                <div class="section-title">${sec.title}</div>
+                <div class="section-stats" id="sec-stats-${sIdx}">
+                    ✅ 0 | 📝 0/${sec.stats.total}
+                </div>
+            `;
+                secDiv.appendChild(headerRow);
+
+                sec.questions.forEach((q, qIdx) => {
+                    const card = document.createElement('div');
+                    card.className = 'question-card';
+                    card.id = `q-${sIdx}-${qIdx}`;
+
+                    if(q.kRef) {
+                        card.onmouseenter = () => app.highlightKnowledge(q.kRef);
+                        card.onmouseleave = () => app.unhighlightKnowledge(q.kRef);
+                    }
+
+                    let badges = '';
+                    if(q.src.includes('重复')) badges += `<span class="badge badge-dup">重复题</span>`;
+                    else badges += `<span class="badge badge-src">${q.src}</span>`;
+                    if(q.type === 'multi') badges += `<span class="badge badge-src" style="background:#e0f7fa;color:#006064">多选</span>`;
+
+                    let opts = '<div class="options-grid">';
+                    const labels = ['A','B','C','D','E','F'];
+                    q.options.forEach((opt, oIdx) => {
+                        const cleanOpt = opt.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        opts += `<div class="option-btn" onclick="app.check(${sIdx}, ${qIdx}, '${cleanOpt}', this, '${q.type}')" data-v="${cleanOpt}"><strong>${labels[oIdx]}.</strong> ${opt}</div>`;
+                    });
+                    opts += '</div>';
+
+                    card.innerHTML = `
+                    <div class="q-badges">${badges}</div>
+                    <div class="q-text">${qIdx+1}. ${q.q}</div>
+                    ${opts}
+                    <div class="analysis-box" id="a-${sIdx}-${qIdx}">✅ 答案：${q.a}</div>
+                `;
+                    secDiv.appendChild(card);
+                });
+                c.appendChild(secDiv);
+            });
+        },
+
+        renderKnowledge: (sIdx) => {
+            const sec = app.state.sections[sIdx];
+            document.getElementById('kHeader').innerText = sec.title.split('：')[1] || sec.title;
+            const kList = document.getElementById('kList');
+            kList.innerHTML = '';
+            sec.knowledgePoints.forEach(kp => {
+                const kCard = document.createElement('div');
+                kCard.className = 'k-card';
+                kCard.id = `kp-${kp.id}`;
+                kCard.innerHTML = `<div class="k-title">${kp.title}</div><div class="k-content">${kp.content}</div>`;
+                kList.appendChild(kCard);
+            });
+        },
+
+        highlightKnowledge: (kId) => {
+            const el = document.getElementById(`kp-${kId}`);
+            if(el) el.classList.add('active-link');
+        },
+        unhighlightKnowledge: (kId) => {
+            const el = document.getElementById(`kp-${kId}`);
+            if(el) el.classList.remove('active-link');
+        },
+
+        onScroll: () => {
+            const sections = document.querySelectorAll('.section-container');
+            let currentIdx = 0;
+            sections.forEach((sec) => {
+                const rect = sec.getBoundingClientRect();
+                if (rect.top <= 300 && rect.bottom >= 300) {
+                    currentIdx = parseInt(sec.getAttribute('data-idx'));
+                }
+            });
+
+            if (app.state.sections[currentIdx]) {
+                const currentTitle = document.getElementById('kHeader').innerText;
+                const newTitle = app.state.sections[currentIdx].title.split('：')[1] || app.state.sections[currentIdx].title;
+                if (currentTitle !== newTitle) app.renderKnowledge(currentIdx);
+            }
+        },
+
+        check: (sIdx, qIdx, val, btn, type) => {
+            const card = document.getElementById(`q-${sIdx}-${qIdx}`);
+            const ansBox = document.getElementById(`a-${sIdx}-${qIdx}`);
+
+            if(type !== 'multi' && card.classList.contains('answered')) return;
+
+            if(type === 'multi') {
+                btn.classList.toggle('selected-correct');
+                ansBox.style.display = 'block';
+                return;
+            }
+
+            const sec = app.state.sections[sIdx];
+            const q = sec.questions[qIdx];
+            card.classList.add('answered');
+
+            // 更新数据：全局 + 局部
+            app.state.global.answered++;
+            sec.stats.answered++;
+
+            if(val === q.a) {
+                card.classList.add('correct');
+                btn.classList.add('selected-correct');
+                app.state.global.correct++;
+                sec.stats.correct++;
+            } else {
+                card.classList.add('wrong');
+                btn.classList.add('selected-wrong');
+                const allOpts = card.querySelectorAll('.option-btn');
+                allOpts.forEach(o => { if(o.getAttribute('data-v') === q.a) o.classList.add('correct-hint'); });
+                ansBox.style.display = 'block';
+            }
+
+            // 刷新UI
+            app.updateGlobalStats();
+            app.updateSectionStats(sIdx);
+        },
+
+        updateGlobalStats: () => {
+            document.getElementById('g-correct').innerText = app.state.global.correct;
+            document.getElementById('g-answered').innerText = app.state.global.answered;
+            document.getElementById('g-total').innerText = app.state.global.total;
+        },
+
+        updateSectionStats: (sIdx) => {
+            const stats = app.state.sections[sIdx].stats;
+            const html = `✅ ${stats.correct} | 📝 ${stats.answered}/${stats.total}`;
+            document.getElementById(`sec-stats-${sIdx}`).innerHTML = html;
+        }
+    };
+
+    app.init();
+</script>
+</body>
+</html>
