@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EDF 算法动画演示：CPU急诊室</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .task-card {
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .pulse-border {
+      animation: pulse-border 1.5s infinite;
+    }
+    @keyframes pulse-border {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+    /* Custom scrollbar for logs */
+    .log-container::-webkit-scrollbar { width: 6px; }
+    .log-container::-webkit-scrollbar-track { background: #f1f1f1; rounded: 8px;}
+    .log-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 8px; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans h-screen flex flex-col overflow-hidden">
+
+<!-- Header & Controls -->
+<header class="bg-white shadow-sm p-4 flex justify-between items-center z-10">
+  <div>
+    <h1 class="text-2xl font-bold text-blue-600 flex items-center gap-2">
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+      CPU急诊室：EDF算法演示
+    </h1>
+    <p class="text-sm text-slate-500 mt-1">规则：医生(CPU)永远优先治疗距离死线(Deadline)最近的病人(任务)。</p>
+  </div>
+  <div class="flex items-center gap-4">
+    <div class="text-xl font-mono bg-slate-800 text-green-400 px-4 py-2 rounded-lg shadow-inner">
+      全局时钟: <span id="global-clock" class="font-bold">0</span> 秒
+    </div>
+    <div class="flex gap-2">
+      <button id="btn-play" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition font-medium">开始 / 继续</button>
+      <button id="btn-pause" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-md transition font-medium disabled:opacity-50">暂停</button>
+      <button id="btn-reset" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-md transition font-medium">重置</button>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main class="flex-1 p-6 flex gap-6 overflow-hidden">
+
+  <!-- Hospital Zones -->
+  <div class="flex-1 flex flex-col gap-6">
+
+    <!-- Doctor (CPU) Room -->
+    <div class="bg-white rounded-xl shadow-md border-t-4 border-red-500 flex flex-col relative h-64">
+      <div class="p-3 border-b border-slate-100 bg-red-50 rounded-t-lg flex justify-between items-center">
+        <h2 class="font-bold text-red-700 flex items-center gap-2">
+          <span>🩺 急诊室 (CPU核心)</span>
+        </h2>
+        <span id="cpu-status" class="text-sm px-2 py-1 bg-red-100 text-red-600 rounded-full font-medium animate-pulse">空闲中</span>
+      </div>
+      <div id="cpu-zone" class="flex-1 p-4 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-red-50 to-white">
+        <div class="text-slate-300 flex flex-col items-center">
+          <svg class="w-16 h-16 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+          <span>等待接诊...</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-1 gap-6">
+      <!-- Waiting Room -->
+      <div class="flex-1 bg-white rounded-xl shadow-md border-t-4 border-blue-400 flex flex-col">
+        <div class="p-3 border-b border-slate-100 bg-blue-50 rounded-t-lg">
+          <h2 class="font-bold text-blue-700">🪑 候诊区 (就绪队列)</h2>
+        </div>
+        <div id="waiting-zone" class="flex-1 p-4 flex flex-wrap content-start gap-4 overflow-y-auto">
+          <!-- Tasks go here -->
+        </div>
+      </div>
+
+      <!-- Discharged Room -->
+      <div class="flex-1 bg-white rounded-xl shadow-md border-t-4 border-green-500 flex flex-col">
+        <div class="p-3 border-b border-slate-100 bg-green-50 rounded-t-lg">
+          <h2 class="font-bold text-green-700">🏥 已出院 (完成任务)</h2>
+        </div>
+        <div id="done-zone" class="flex-1 p-4 flex flex-wrap content-start gap-4 overflow-y-auto">
+          <!-- Finished tasks go here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logging Panel -->
+  <div class="w-80 bg-slate-800 rounded-xl shadow-md flex flex-col text-slate-300">
+    <div class="p-4 border-b border-slate-700">
+      <h2 class="font-bold text-white flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+        医院日志
+      </h2>
+    </div>
+    <div id="log-container" class="flex-1 p-4 overflow-y-auto log-container space-y-3 text-sm font-mono">
+      <!-- Logs will be injected here -->
+    </div>
+  </div>
+
+</main>
+
+<!-- Template for a Task Card -->
+<template id="task-template">
+  <div class="task-card w-40 bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
+    <div class="task-header p-2 text-white font-bold flex justify-between items-center text-sm">
+      <span class="task-id">Task</span>
+      <span class="text-xs bg-white/20 px-1.5 rounded">病人</span>
+    </div>
+    <div class="p-3 flex-1 flex flex-col gap-2">
+      <div>
+        <div class="flex justify-between text-xs text-slate-500 mb-1">
+          <span>剩余治疗</span>
+          <span class="task-rem-text font-bold text-slate-700">0s</span>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-2">
+          <div class="task-progress bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: 100%"></div>
+        </div>
+      </div>
+      <div class="mt-1 bg-slate-50 p-1.5 rounded border border-slate-100">
+        <div class="text-xs text-slate-500">截止时间 (死线)</div>
+        <div class="font-mono font-bold text-lg text-red-500 task-deadline-text">0</div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+  // Story definitions based on the user's prompt
+  const INITIAL_TASKS = [
+    { id: '小A', arrival: 0, execTime: 5, deadline: 10, color: 'bg-blue-500' },
+    { id: '小B', arrival: 3, execTime: 2, deadline: 6, color: 'bg-purple-500' }, // t=3 arrives, 3s away -> absolute deadline 6
+    { id: '小C', arrival: 5, execTime: 3, deadline: 20, color: 'bg-teal-500' }
+  ];
+
+  // Simulation State
+  let time = 0;
+  let timer = null;
+  let isRunning = false;
+
+  let allTasks = [];
+  let queue = [];
+  let done = [];
+  let activeTask = null;
+
+  // DOM Elements
+  const elClock = document.getElementById('global-clock');
+  const elCpuZone = document.getElementById('cpu-zone');
+  const elCpuStatus = document.getElementById('cpu-status');
+  const elWaitZone = document.getElementById('waiting-zone');
+  const elDoneZone = document.getElementById('done-zone');
+  const elLogs = document.getElementById('log-container');
+
+  const btnPlay = document.getElementById('btn-play');
+  const btnPause = document.getElementById('btn-pause');
+  const btnReset = document.getElementById('btn-reset');
+
+  // Initialize simulation
+  function init() {
+    stopSimulation();
+    time = 0;
+    allTasks = INITIAL_TASKS.map(t => ({
+      ...t,
+      rem: t.execTime,
+      status: 'pending' // pending, waiting, running, done
+    }));
+    queue = [];
+    done = [];
+    activeTask = null;
+
+    elWaitZone.innerHTML = '';
+    elDoneZone.innerHTML = '';
+    elCpuZone.innerHTML = '<div class="text-slate-300 flex flex-col items-center"><svg class="w-16 h-16 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg><span>等待接诊...</span></div>';
+    elLogs.innerHTML = '';
+    updateClock();
+    updateCpuStatus();
+
+    log("<span class='text-blue-400'>[系统]</span> CPU急诊室已准备就绪。按“开始”放映动画。");
+
+    btnPlay.disabled = false;
+    btnPause.disabled = true;
+  }
+
+  function log(msg) {
+    const div = document.createElement('div');
+    div.innerHTML = msg;
+    div.className = "border-l-2 border-slate-600 pl-2 animate-[fadeIn_0.5s_ease-out]";
+    elLogs.appendChild(div);
+    elLogs.scrollTop = elLogs.scrollHeight;
+  }
+
+  function updateClock() {
+    elClock.innerText = time;
+  }
+
+  function updateCpuStatus() {
+    if (activeTask) {
+      elCpuStatus.innerText = "手术中";
+      elCpuStatus.className = "text-sm px-2 py-1 bg-red-500 text-white rounded-full font-medium shadow-md pulse-border";
+    } else if (done.length === INITIAL_TASKS.length) {
+      elCpuStatus.innerText = "下班啦";
+      elCpuStatus.className = "text-sm px-2 py-1 bg-green-100 text-green-600 rounded-full font-medium";
+    } else {
+      elCpuStatus.innerText = "空闲中";
+      elCpuStatus.className = "text-sm px-2 py-1 bg-slate-100 text-slate-600 rounded-full font-medium";
+    }
+  }
+
+  function createTaskElement(task) {
+    const template = document.getElementById('task-template');
+    const clone = template.content.cloneNode(true);
+    const card = clone.querySelector('.task-card');
+    card.id = `card-${task.id}`;
+
+    const header = card.querySelector('.task-header');
+    if (header) header.classList.add(task.color);
+
+    const idSpan = card.querySelector('.task-id');
+    if (idSpan) idSpan.innerText = task.id;
+
+    // 安全地传入已创建的 HTMLElement
+    updateTaskElementConfig(card, task);
+    return card;
+  }
+
+  function updateTaskElementConfig(elOrCard, task) {
+    let card = null;
+    if (elOrCard && elOrCard.classList && elOrCard.classList.contains('task-card')) {
+      card = elOrCard;
+    } else {
+      card = document.getElementById(`card-${task.id}`);
+    }
+
+    if (!card) return;
+
+    const remTextEl = card.querySelector('.task-rem-text');
+    if (remTextEl) remTextEl.innerText = `${task.rem}s / ${task.execTime}s`;
+
+    const progressEl = card.querySelector('.task-progress');
+    if (progressEl) {
+      const pct = (task.rem / task.execTime) * 100;
+      progressEl.style.width = `${pct}%`;
+      if (task.rem === 0) {
+        progressEl.classList.replace('bg-blue-500', 'bg-green-500');
+      }
+    }
+
+    const dlEl = card.querySelector('.task-deadline-text');
+    if (dlEl) {
+      dlEl.innerText = task.deadline;
+      let timeToDeadline = task.deadline - time;
+      if (task.status === 'done') {
+        dlEl.className = "font-mono font-bold text-lg text-slate-400";
+        dlEl.innerText = "已解除";
+      } else if (timeToDeadline < 3) {
+        dlEl.className = "font-mono font-bold text-lg text-red-600 animate-pulse";
+      } else {
+        dlEl.className = "font-mono font-bold text-lg text-slate-700";
+      }
+    }
+
+    if (task.status === 'running') {
+      card.classList.add('ring-4', 'ring-red-400', 'ring-opacity-50', 'scale-105');
+    } else {
+      card.classList.remove('ring-4', 'ring-red-400', 'ring-opacity-50', 'scale-105');
+    }
+  }
+
+  function moveTaskToZone(task, zoneId) {
+    const card = document.getElementById(`card-${task.id}`);
+    if (!card) return;
+
+    const zone = document.getElementById(zoneId);
+    // If moving to CPU, clear the placeholder
+    if (zoneId === 'cpu-zone' && zone.innerHTML.includes('等待接诊')) {
+      zone.innerHTML = '';
+    }
+    zone.appendChild(card);
+  }
+
+  function tick() {
+    // 1. Process Finished Task from previous tick
+    if (activeTask && activeTask.rem === 0) {
+      activeTask.status = 'done';
+      done.push(activeTask);
+      moveTaskToZone(activeTask, 'done-zone');
+      updateTaskElementConfig(null, activeTask);
+      log(`⏱️ <span class='text-green-400'>[${time}秒]</span> 病人 <b>${activeTask.id}</b> 治愈出院！`);
+      activeTask = null;
+    }
+
+    // 2. Check Arrivals
+    let newArrivals = allTasks.filter(t => t.arrival === time);
+    newArrivals.forEach(t => {
+      t.status = 'waiting';
+      queue.push(t);
+
+      // Create DOM
+      const card = createTaskElement(t);
+      elWaitZone.appendChild(card);
+
+      log(`🚪 <span class='text-yellow-400'>[${time}秒]</span> 病人 <b>${t.id}</b> 冲进急诊室！(死线: 第${t.deadline}秒)`);
+    });
+
+    // 3. EDF Scheduling Decision
+    let candidates = [...queue];
+    if (activeTask) candidates.push(activeTask);
+
+    if (candidates.length > 0) {
+      // Sort by deadline (Earliest Deadline First)
+      candidates.sort((a, b) => a.deadline - b.deadline);
+      let chosenTask = candidates[0];
+
+      if (activeTask !== chosenTask) {
+        // Preemption or new selection
+        if (activeTask) {
+          activeTask.status = 'waiting';
+          queue.push(activeTask);
+          moveTaskToZone(activeTask, 'waiting-zone');
+          updateTaskElementConfig(null, activeTask);
+          log(`🚨 <span class='text-red-400'>[抢占]</span> 医生发现 <b>${chosenTask.id}</b>(死线${chosenTask.deadline}) 比当前 <b>${activeTask.id}</b>(死线${activeTask.deadline}) 更危急！<br>👉 医生果断切换病人！`);
+        } else {
+          log(`🩺 <span class='text-blue-300'>[接诊]</span> 医生开始治疗当前最危急的 <b>${chosenTask.id}</b> (死线: ${chosenTask.deadline})。`);
+        }
+
+        activeTask = chosenTask;
+        activeTask.status = 'running';
+        queue = queue.filter(t => t.id !== activeTask.id);
+        moveTaskToZone(activeTask, 'cpu-zone');
+      }
+    }
+
+    // 4. Update state and UI for active task
+    if (activeTask) {
+      activeTask.rem--;
+      updateTaskElementConfig(null, activeTask);
+    }
+
+    // Update global UI
+    queue.forEach(t => updateTaskElementConfig(null, t));
+    updateCpuStatus();
+
+    // 5. End Condition
+    if (done.length === INITIAL_TASKS.length) {
+      log(`🏁 <span class='text-green-400'>[剧终]</span> 所有病人均在死线前成功治愈！EDF算法调度圆满完成。`);
+      stopSimulation();
+      btnPlay.disabled = true;
+      return;
+    }
+
+    // Next time tick
+    time++;
+    updateClock();
+  }
+
+  function startSimulation() {
+    if (!isRunning) {
+      if (done.length === INITIAL_TASKS.length) return; // already finished
+      isRunning = true;
+      btnPlay.disabled = true;
+      btnPause.disabled = false;
+      timer = setInterval(tick, 1200); // 1.2s per tick for animation visibility
+      if(time === 0) tick(); // run immediately on frame 0
+    }
+  }
+
+  function stopSimulation() {
+    isRunning = false;
+    clearInterval(timer);
+    btnPlay.disabled = false;
+    btnPause.disabled = true;
+  }
+
+  // Event Listeners
+  btnPlay.addEventListener('click', startSimulation);
+  btnPause.addEventListener('click', stopSimulation);
+  btnReset.addEventListener('click', init);
+
+  // Run Init on Load
+  window.onload = init;
+
+</script>
+</body>
+</html>

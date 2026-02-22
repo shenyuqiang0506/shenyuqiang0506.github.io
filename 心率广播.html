@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>蓝牙心率与心电图监测</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #121212;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .container {
+      background: #1e1e1e;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      text-align: center;
+      width: 100%;
+      max-width: 600px;
+    }
+    h1 { margin-top: 0; font-size: 24px; }
+    .bpm-display {
+      font-size: 64px;
+      font-weight: bold;
+      color: #ff4757;
+      margin: 20px 0;
+      font-variant-numeric: tabular-nums;
+    }
+    .unit { font-size: 24px; color: #a4b0be; }
+    button {
+      background-color: #2ed573;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin: 5px;
+    }
+    button:hover { background-color: #27ae60; }
+    button:disabled { background-color: #57606f; cursor: not-allowed; }
+    #disconnectBtn { background-color: #ff4757; }
+    #disconnectBtn:hover { background-color: #ff6b81; }
+    canvas {
+      background-color: #000;
+      border-radius: 8px;
+      margin-top: 20px;
+      width: 100%;
+      height: 200px;
+      border: 1px solid #2f3542;
+    }
+    .status { margin-top: 15px; font-size: 14px; color: #ced6e0; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>实时心率监测面板</h1>
+  <div class="bpm-display"><span id="bpmValue">--</span> <span class="unit">BPM</span></div>
+
+  <div>
+    <button id="connectBtn">连接蓝牙心率计</button>
+    <button id="disconnectBtn" disabled>断开连接</button>
+  </div>
+
+  <div class="status" id="statusText">等待连接...</div>
+
+  <canvas id="ecgCanvas" width="600" height="200"></canvas>
+</div>
+
+<script>
+  // --- 蓝牙逻辑 ---
+  let bluetoothDevice;
+  let heartRateCharacteristic;
+  const connectBtn = document.getElementById('connectBtn');
+  const disconnectBtn = document.getElementById('disconnectBtn');
+  const bpmValue = document.getElementById('bpmValue');
+  const statusText = document.getElementById('statusText');
+
+  let currentBpm = 0; // 当前心率
+
+  connectBtn.addEventListener('click', async () => {
+    try {
+      statusText.textContent = "正在请求蓝牙设备...";
+      // 请求包含标准心率服务(0x180D)的设备
+      bluetoothDevice = await navigator.bluetooth.requestDevice({
+        filters: [{ services: ['heart_rate'] }]
+      });
+
+      bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
+      statusText.textContent = "正在连接到设备...";
+
+      const server = await bluetoothDevice.gatt.connect();
+      const service = await server.getPrimaryService('heart_rate');
+      heartRateCharacteristic = await service.getCharacteristic('heart_rate_measurement');
+
+      await heartRateCharacteristic.startNotifications();
+      heartRateCharacteristic.addEventListener('characteristicvaluechanged', handleHeartRateMeasurement);
+
+      statusText.textContent = `已连接: ${bluetoothDevice.name || '未知设备'}`;
+      connectBtn.disabled = true;
+      disconnectBtn.disabled = false;
+
+    } catch (error) {
+      console.error(error);
+      statusText.textContent = "连接失败或取消: " + error.message;
+    }
+  });
+
+  disconnectBtn.addEventListener('click', () => {
+    if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+      bluetoothDevice.gatt.disconnect();
+    }
+  });
+
+  function onDisconnected() {
+    statusText.textContent = "设备已断开连接";
+    connectBtn.disabled = false;
+    disconnectBtn.disabled = true;
+    bpmValue.textContent = "--";
+    currentBpm = 0;
+  }
+
+  function handleHeartRateMeasurement(event) {
+    const value = event.target.value;
+    // 解析心率数据 (BLE Heart Rate Profile 规范)
+    const flags = value.getUint8(0);
+    const rate16Bits = flags & 0x1;
+    let heartRate;
+    if (rate16Bits) {
+      heartRate = value.getUint16(1, true);
+    } else {
+      heartRate = value.getUint8(1);
+    }
+
+    currentBpm = heartRate;
+    bpmValue.textContent = heartRate;
+  }
+
+  // --- 模拟心电图 (ECG) 绘制逻辑 ---
+  const canvas = document.getElementById('ecgCanvas');
+  const ctx = canvas.getContext('2d');
+  const drawingData = new Array(canvas.width).fill(0);
+
+  // 经典的QRS波形模板 (相对Y轴偏移)
+  const qrsComplex = [0, 0, -5, -15, 45, -25, 5, 0, 0, 5, 8, 5, 0, 0];
+  let qrsIndex = 0;
+  let isDrawingQrs = false;
+  let timeSinceLastBeat = 0;
+
+  function drawECG() {
+    // 计算当前需要多长时间跳动一次 (以帧为单位，假设60FPS)
+    // 例如 60 BPM = 1秒1跳 = 60帧1跳
+    const framesPerBeat = currentBpm > 0 ? Math.max(15, (60 / currentBpm) * 60) : Infinity;
+
+    // 决定推入的新数据点
+    let newDataPoint = 0;
+
+    if (currentBpm > 0) {
+      timeSinceLastBeat++;
+      // 触发一次心跳波形
+      if (timeSinceLastBeat >= framesPerBeat && !isDrawingQrs) {
+        isDrawingQrs = true;
+        qrsIndex = 0;
+        timeSinceLastBeat = 0;
+      }
+
+      // 绘制QRS波群
+      if (isDrawingQrs) {
+        newDataPoint = qrsComplex[qrsIndex];
+        qrsIndex++;
+        if (qrsIndex >= qrsComplex.length) {
+          isDrawingQrs = false;
+        }
+      } else {
+        // 增加一点基线微小噪音，让波形更真实
+        newDataPoint = (Math.random() - 0.5) * 2;
+      }
+    }
+
+    // 将新数据推入数组末尾，移除头部元素，实现滚动效果
+    drawingData.push(newDataPoint);
+    drawingData.shift();
+
+    // 清空画布并绘制网格
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 绘制简单的背景网格
+    ctx.strokeStyle = "#1a3a1a";
+    ctx.lineWidth = 1;
+    for(let i=0; i<canvas.width; i+=20) {
+      ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+    }
+    for(let i=0; i<canvas.height; i+=20) {
+      ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+    }
+
+    // 绘制心电图线
+    ctx.strokeStyle = "#00ff00"; // 经典心电图绿色
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+
+    const baseline = canvas.height / 2;
+    ctx.moveTo(0, baseline - drawingData[0]);
+
+    for (let i = 1; i < canvas.width; i++) {
+      ctx.lineTo(i, baseline - drawingData[i]);
+    }
+
+    ctx.stroke();
+
+    // 循环请求下一帧
+    requestAnimationFrame(drawECG);
+  }
+
+  // 启动动画循环
+  drawECG();
+
+</script>
+</body>
+</html>
