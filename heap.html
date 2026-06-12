@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>大/小根堆可视化工具 - 动画版</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f7f6;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 { color: #2c3e50; }
+    .controls {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      align-items: center;
+      justify-content: center;
+      max-width: 900px;
+    }
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-right: 15px;
+      border-right: 1px solid #eee;
+    }
+    .control-group:last-child { border-right: none; }
+    input[type="text"], input[type="number"], input[type="range"] {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      background-color: #3498db;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.2s;
+    }
+    button:hover { background-color: #2980b9; }
+    button:disabled { background-color: #95a5a6; cursor: not-allowed; }
+    button.btn-red { background-color: #e74c3c; }
+    button.btn-red:hover { background-color: #c0392b; }
+    button.btn-green { background-color: #2ecc71; }
+    button.btn-green:hover { background-color: #27ae60; }
+    #arrayDisplay { margin: 10px 0; font-size: 18px; font-weight: bold; color: #2c3e50; }
+    canvas {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin-top: 10px;
+    }
+    .status-panel {
+      display: flex;
+      justify-content: space-between;
+      width: 800px;
+      margin-top: 10px;
+    }
+    #stepMessage { color: #d35400; font-weight: bold; font-size: 16px; }
+    .legend { display: flex; gap: 15px; font-size: 14px; }
+    .legend-item { display: flex; align-items: center; gap: 5px; }
+    .color-box { width: 16px; height: 16px; border-radius: 3px; border: 1px solid #333;}
+  </style>
+</head>
+<body>
+
+<h1>堆 (Heap) 可视化工具 (包含步骤动画)</h1>
+
+<div class="controls">
+  <div class="control-group">
+    <label>初始序列:</label>
+    <input type="text" id="inputArr" placeholder="例: 3,1,4,1,5,9,2,6" value="10,20,15,30,40">
+    <button id="btnMax" onclick="buildHeap('max')">建立大根堆</button>
+    <button id="btnMin" onclick="buildHeap('min')">建立小根堆</button>
+  </div>
+
+  <div class="control-group">
+    <input type="number" id="insertVal" placeholder="输入数字">
+    <button id="btnInsert" class="btn-green" onclick="insertElement()">添加</button>
+    <button id="btnExtract" class="btn-red" onclick="extractRoot()">删除堆顶</button>
+  </div>
+
+  <div class="control-group">
+    <label>动画速度:</label>
+    <input type="range" id="speedSlider" min="100" max="2000" value="800" dir="rtl">
+  </div>
+</div>
+
+<div id="arrayDisplay">当前数组: []</div>
+
+<div class="status-panel">
+  <div id="stepMessage">等待操作...</div>
+  <div class="legend">
+    <div class="legend-item"><div class="color-box" style="background:#f1c40f;"></div>比较中</div>
+    <div class="legend-item"><div class="color-box" style="background:#2ecc71;"></div>发生交换</div>
+  </div>
+</div>
+
+<canvas id="heapCanvas" width="800" height="400"></canvas>
+
+<script>
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  class Heap {
+    constructor() {
+      this.heap = [];
+      this.type = 'max';
+      this.comparing = []; // 正在比较的节点索引
+      this.swapping = [];  // 正在交换的节点索引
+      this.isAnimating = false;
+    }
+
+    getDelay() { return parseInt(document.getElementById('speedSlider').value); }
+
+    compare(a, b) { return this.type === 'max' ? a > b : a < b; }
+
+    async build(arr, type, updateFn) {
+      this.isAnimating = true;
+      this.type = type;
+      this.heap = [...arr];
+      updateFn("数组已加载，准备自下而上建堆...");
+      drawTree();
+      await sleep(this.getDelay());
+
+      for (let i = Math.floor(this.heap.length / 2) - 1; i >= 0; i--) {
+        updateFn(`对索引 ${i} (元素 ${this.heap[i]}) 进行向下调整`);
+        await this.heapifyDown(i, updateFn);
+      }
+
+      this.resetStates();
+      updateFn(`成功建立${type === 'max' ? '大' : '小'}根堆！`);
+      this.isAnimating = false;
+    }
+
+    async insert(val, updateFn) {
+      this.isAnimating = true;
+      this.heap.push(val);
+      updateFn(`将元素 ${val} 添加到数组末尾`);
+      drawTree();
+      await sleep(this.getDelay());
+
+      await this.heapifyUp(this.heap.length - 1, updateFn);
+
+      this.resetStates();
+      updateFn(`添加完成`);
+      this.isAnimating = false;
+    }
+
+    async extract(updateFn) {
+      if (this.heap.length === 0) return null;
+      this.isAnimating = true;
+
+      if (this.heap.length === 1) {
+        const val = this.heap.pop();
+        updateFn(`弹出唯一节点: ${val}`);
+        drawTree();
+        this.isAnimating = false;
+        return val;
+      }
+
+      const root = this.heap[0];
+      const last = this.heap.pop();
+
+      this.swapping = [0, this.heap.length]; // 只是为了高亮动画
+      updateFn(`弹出堆顶 ${root}，并将末尾元素 ${last} 移到堆顶`);
+      this.heap[0] = last;
+      drawTree();
+      await sleep(this.getDelay());
+
+      await this.heapifyDown(0, updateFn);
+
+      this.resetStates();
+      updateFn(`删除堆顶元素完成`);
+      this.isAnimating = false;
+      return root;
+    }
+
+    async heapifyUp(i, updateFn) {
+      let parent = Math.floor((i - 1) / 2);
+      while (i > 0) {
+        this.swapping = [];
+        this.comparing = [i, parent];
+        updateFn(`比较节点: ${this.heap[i]} 和 ${this.heap[parent]}`);
+        drawTree();
+        await sleep(this.getDelay());
+
+        if (this.compare(this.heap[i], this.heap[parent])) {
+          this.comparing = [];
+          this.swapping = [i, parent];
+          updateFn(`条件满足，交换 ${this.heap[i]} 和 ${this.heap[parent]}`);
+          [this.heap[i], this.heap[parent]] = [this.heap[parent], this.heap[i]];
+          drawTree();
+          await sleep(this.getDelay());
+
+          i = parent;
+          parent = Math.floor((i - 1) / 2);
+        } else {
+          updateFn(`无需交换，向上调整结束`);
+          await sleep(this.getDelay());
+          break;
+        }
+      }
+    }
+
+    async heapifyDown(i, updateFn) {
+      let length = this.heap.length;
+      let current = i;
+
+      while (true) {
+        let left = 2 * current + 1;
+        let right = 2 * current + 2;
+        let target = current;
+
+        // 高亮当前节点和其子节点
+        let compareList = [current];
+        if (left < length) compareList.push(left);
+        if (right < length) compareList.push(right);
+
+        this.swapping = [];
+        this.comparing = compareList;
+        if (compareList.length > 1) {
+          updateFn(`比较节点 ${this.heap[current]} 及其子节点`);
+          drawTree();
+          await sleep(this.getDelay());
+        }
+
+        if (left < length && this.compare(this.heap[left], this.heap[target])) {
+          target = left;
+        }
+        if (right < length && this.compare(this.heap[right], this.heap[target])) {
+          target = right;
+        }
+
+        if (target !== current) {
+          this.comparing = [];
+          this.swapping = [current, target];
+          updateFn(`交换 ${this.heap[current]} 和 ${this.heap[target]}`);
+          [this.heap[current], this.heap[target]] = [this.heap[target], this.heap[current]];
+          drawTree();
+          await sleep(this.getDelay());
+
+          current = target;
+        } else {
+          updateFn(`无需交换，向下调整结束`);
+          await sleep(this.getDelay());
+          break;
+        }
+      }
+    }
+
+    resetStates() {
+      this.comparing = [];
+      this.swapping = [];
+      drawTree();
+    }
+  }
+
+  const myHeap = new Heap();
+  const canvas = document.getElementById('heapCanvas');
+  const ctx = canvas.getContext('2d');
+
+  function updateStatus(msg) {
+    document.getElementById('stepMessage').innerText = msg;
+    document.getElementById('arrayDisplay').innerText = `当前数组: [${myHeap.heap.join(', ')}]`;
+  }
+
+  function toggleButtons(disabled) {
+    ['btnMax', 'btnMin', 'btnInsert', 'btnExtract'].forEach(id => {
+      document.getElementById(id).disabled = disabled;
+    });
+  }
+
+  async function buildHeap(type) {
+    if (myHeap.isAnimating) return;
+    const input = document.getElementById('inputArr').value;
+    const arr = input.split(',').map(item => parseInt(item.trim())).filter(item => !isNaN(item));
+
+    if (arr.length === 0) { updateStatus("错误：请输入有效的数字序列！"); return; }
+
+    toggleButtons(true);
+    await myHeap.build(arr, type, updateStatus);
+    toggleButtons(false);
+  }
+
+  async function insertElement() {
+    if (myHeap.isAnimating) return;
+    if (myHeap.heap.length === 0 && !myHeap.type) { updateStatus("请先建立一个堆！"); return; }
+
+    const val = parseInt(document.getElementById('insertVal').value);
+    if (isNaN(val)) { updateStatus("错误：请输入有效的数字！"); return; }
+
+    document.getElementById('insertVal').value = '';
+    toggleButtons(true);
+    await myHeap.insert(val, updateStatus);
+    toggleButtons(false);
+  }
+
+  async function extractRoot() {
+    if (myHeap.isAnimating) return;
+    if (myHeap.heap.length === 0) { updateStatus("堆已空！"); return; }
+
+    toggleButtons(true);
+    await myHeap.extract(updateStatus);
+    toggleButtons(false);
+  }
+
+  function drawTree() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const arr = myHeap.heap;
+    if (arr.length === 0) return;
+
+    const radius = 22;
+    const verticalSpacing = 65;
+
+    function drawNode(index, x, y, horizontalSpacing) {
+      if (index >= arr.length) return;
+
+      const leftChild = 2 * index + 1;
+      const rightChild = 2 * index + 2;
+
+      // 绘制连线
+      ctx.strokeStyle = '#bdc3c7';
+      ctx.lineWidth = 2;
+      if (leftChild < arr.length) {
+        const childX = x - horizontalSpacing;
+        const childY = y + verticalSpacing;
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(childX, childY); ctx.stroke();
+        drawNode(leftChild, childX, childY, horizontalSpacing / 2);
+      }
+      if (rightChild < arr.length) {
+        const childX = x + horizontalSpacing;
+        const childY = y + verticalSpacing;
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(childX, childY); ctx.stroke();
+        drawNode(rightChild, childX, childY, horizontalSpacing / 2);
+      }
+
+      // 确定节点颜色
+      let fillColor = myHeap.type === 'max' ? '#e74c3c' : '#3498db'; // 默认：大红小蓝
+      let textColor = 'white';
+
+      if (myHeap.swapping.includes(index)) {
+        fillColor = '#2ecc71'; // 交换时显示绿色
+        textColor = 'black';
+      } else if (myHeap.comparing.includes(index)) {
+        fillColor = '#f1c40f'; // 比较时显示黄色
+        textColor = 'black';
+      }
+
+      // 绘制节点圆圈
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, 2 * Math.PI);
+      ctx.fillStyle = fillColor;
+      ctx.fill();
+      ctx.strokeStyle = '#2c3e50';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // 绘制节点文字
+      ctx.fillStyle = textColor;
+      ctx.font = 'bold 16px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(arr[index], x, y);
+    }
+
+    drawNode(0, canvas.width / 2, 40, canvas.width / 4);
+  }
+
+  // 初始画布提示
+  ctx.fillStyle = '#95a5a6';
+  ctx.font = '20px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('请在上方输入序列并点击"建立大/小根堆"', canvas.width/2, canvas.height/2);
+
+</script>
+</body>
+</html>
