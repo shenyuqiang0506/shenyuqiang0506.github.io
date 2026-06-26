@@ -224,12 +224,12 @@
     });
 
     function parseQuestions(text) {
-        const rawQuestions = text.split(/^## /gm);
+        const rawQuestions = text.split(/^# /gm);
         // 转换为对象数组，初始化被抽次数(timesDrawn)为0
         questionData = rawQuestions
             .filter(q => q.trim().length > 0)
             .map((q, index) => ({
-                content: "## " + q, // 补回标题符
+                content: "# " + q, // 补回标题符
                 originalIndex: index + 1,
                 timesDrawn: 0
             }));
