@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BFS 算法可视化 </title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        /* 隐藏整个页面的外层滚动条，让内容自适应屏幕高度 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px 15px;
+            background-color: #f0f2f5;
+            font-size: 13px;
+            height: 100vh;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+        h2 { color: #333; text-align: center; margin: 0 0 10px 0; font-size: 18px; flex-shrink: 0; }
+
+        /* 核心布局：水平三列 flex 布局 */
+        #main-layout {
+            display: flex;
+            flex-direction: row;
+            gap: 15px;
+            flex: 1;       /* 填满剩余高度 */
+            min-height: 0; /* 防止子元素撑破容器 */
+        }
+
+        /* 第 1 列：操作面板 */
+        #col-controls {
+            flex: 0 0 220px; /* 固定宽度 220px */
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow-y: auto;
+        }
+
+        /* 第 2 列：代码及状态区 */
+        #col-code {
+            flex: 0 0 380px; /* 固定宽度 380px */
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* 第 3 列：图形可视化区 */
+        #col-graph {
+            flex: 1; /* 占据右侧全部剩余空间 */
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        /* 元素具体样式 */
+        #code-display {
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            background-color: #272822;
+            color: #f8f8f2;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 0;
+            flex: 1; /* 代码区占满中间列的剩余高度 */
+            overflow-y: auto;
+        }
+
+        .code-line { display: block; padding: 0 3px; border-radius: 2px; }
+        .code-line.active { background-color: #5b5b5b; border-left: 3px solid #ffca28; }
+        .code-line.queue-op { background-color: #4a148c; }
+        .code-line.visit-op { background-color: #b71c1c; }
+        .code-line.loop-op { background-color: #004d40; }
+
+        .status-panel {
+            font-family: "Consolas", monospace;
+            padding: 8px;
+            background-color: #e3f2fd;
+            border-left: 3px solid #2196f3;
+            border-radius: 4px;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        #queue-display {
+            font-family: "Consolas", monospace;
+            padding: 8px;
+            background-color: #f3e5f5;
+            border-left: 3px solid #9c27b0;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        #graph-viz {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0; /* 绝对定位撑满第3列 */
+        }
+
+        textarea { width: 100%; height: 120px; resize: none; font-family: monospace; font-size: 12px; box-sizing: border-box; }
+        button { padding: 8px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; color: white; font-size: 13px; }
+        #load-btn { background-color: #6c757d; }
+        #start-btn { background-color: #28a745; }
+        #next-btn { background-color: #007bff; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; }
+
+        /* SVG 图形样式 */
+        .node { stroke: #333; stroke-width: 1.5px; transition: fill 0.2s ease; }
+        .node-text { pointer-events: none; font-family: sans-serif; font-size: 12px; font-weight: bold; }
+        .link { stroke: #999; stroke-opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+<h2>BFS (广度优先搜索) 算法动态图解</h2>
+
+<div id="main-layout">
+    <!-- 第 1 列：输入与控制 -->
+    <div id="col-controls">
+        <label>1. 输入图数据 (JSON):</label>
+        <textarea id="graph-input">{
+  "0": [1, 2],
+  "1": [0, 3, 4],
+  "2": [0, 5],
+  "3": [1],
+  "4": [1, 5],
+  "5": [2, 4]
+}</textarea>
+        <button id="load-btn">加载图结构</button>
+        <hr style="width: 100%; border: 0; border-top: 1px solid #eee;">
+        <label>2. 选择起始顶点:</label>
+        <select id="start-vertex"></select>
+        <button id="start-btn" disabled>开始 BFS</button>
+        <hr style="width: 100%; border: 0; border-top: 1px solid #eee;">
+        <label>3. 逐步执行代码:</label>
+        <button id="next-btn" disabled style="padding: 12px; font-size: 14px;">下一步执行 &rarr;</button>
+    </div>
+
+    <!-- 第 2 列：代码及状态 -->
+    <div id="col-code">
+        <div id="queue-display">队列 Q: [ 空 ]</div>
+        <div class="status-panel" id="variable-status">变量: 就绪</div>
+        <div class="status-panel" id="visited-array-display" style="background-color: #fbe9e7; border-left-color: #ff5722;">visited: []</div>
+
+        <pre id="code-display">
+<span class="code-line line-1">bool visited[MaxVertexNum];</span>
+<span class="code-line line-3">void BFS(ALGraph G, int v) {</span>
+<span class="code-line line-4">    InitQueue(Q);</span>
+<span class="code-line line-6">    visit(v);</span>
+<span class="code-line line-7">    visited[v] = true;</span>
+<span class="code-line line-8">    EnQueue(Q, v);</span>
+<span class="code-line line-10">    while (!IsEmpty(Q)) {</span>
+<span class="code-line line-11">        DeQueue(Q, v);</span>
+<span class="code-line line-15">        ArcNode *p = G.vertices[v].first; </span>
+<span class="code-line line-16">        while (p != NULL) {</span>
+<span class="code-line line-17">            int w = p->adjvex;</span>
+<span class="code-line line-20">            if (!visited[w]) {</span>
+<span class="code-line line-21">                visit(w);</span>
+<span class="code-line line-22">                visited[w] = true;</span>
+<span class="code-line line-23">                EnQueue(Q, w);</span>
+<span class="code-line line-24">            }</span>
+<span class="code-line line-25">            p = p->next;</span>
+<span class="code-line line-26">        }</span>
+<span class="code-line line-28">    }</span>
+<span class="code-line line-29">}</span></pre>
+    </div>
+
+    <!-- 第 3 列：图形展示区 -->
+    <div id="col-graph">
+        <div id="graph-viz"></div>
+    </div>
+</div>
+
+<script>
+    let graphData = {};
+    let nodes = [], links = [];
+    let simulation, svg, gContainer;
+
+    let allSteps = [];
+    let currentStepIndex = -1;
+    let visited = [];
+    let MaxVertexNum;
+
+    const nodeColors = {
+        unvisited: "#e0e0e0",
+        enqueued: "#4dd0e1",
+        active: "#ffeb3b",
+        target: "#69f0ae"
+    };
+
+    function initViz() {
+        const vizContainer = document.getElementById('graph-viz');
+        vizContainer.innerHTML = '';
+        // 确保获取到的宽度和高度是准确的
+        const width = vizContainer.clientWidth || 500;
+        const height = vizContainer.clientHeight || 500;
+
+        svg = d3.select("#graph-viz").append("svg")
+            .attr("width", width)
+            .attr("height", height);
+        gContainer = svg.append("g");
+    }
+
+    function loadGraph() {
+        try {
+            graphData = JSON.parse(document.getElementById("graph-input").value);
+            nodes = []; links = [];
+            MaxVertexNum = Object.keys(graphData).length;
+
+            for (let nodeId in graphData) { nodes.push({ id: parseInt(nodeId), label: nodeId }); }
+            for (let nodeId in graphData) {
+                graphData[nodeId].forEach(targetId => {
+                    if (graphData[targetId] !== undefined) {
+                        links.push({ source: parseInt(nodeId), target: parseInt(targetId) });
+                    }
+                });
+            }
+
+            initViz(); renderGraph();
+
+            const select = document.getElementById('start-vertex');
+            select.innerHTML = '';
+            nodes.forEach(node => {
+                const option = document.createElement('option');
+                option.value = node.id; option.textContent = node.label; select.appendChild(option);
+            });
+
+            document.getElementById('start-btn').disabled = false;
+            document.getElementById('next-btn').disabled = true;
+
+            visited = Array(MaxVertexNum).fill(false);
+            allSteps = []; currentStepIndex = -1;
+            updateDisplays("未开始", "", [], []);
+
+        } catch (e) { alert("JSON 格式错误！\n" + e.message); }
+    }
+
+    function renderGraph() {
+        const vizContainer = document.getElementById('graph-viz');
+        const width = vizContainer.clientWidth;
+        const height = vizContainer.clientHeight;
+
+        simulation = d3.forceSimulation(nodes)
+            .force("link", d3.forceLink(links).id(d => d.id).distance(100))
+            .force("charge", d3.forceManyBody().strength(-350))
+            .force("center", d3.forceCenter(width / 2, height / 2));
+
+        svg.append("defs").append("marker")
+            .attr("id", "arrow")
+            .attr("viewBox", "0 -5 10 10")
+            .attr("refX", 22).attr("refY", 0)
+            .attr("markerWidth", 7).attr("markerHeight", 7).attr("orient", "auto")
+            .append("path").attr("d", "M0,-5L10,0L0,5").attr("fill", "#999");
+
+        const link = gContainer.append("g").selectAll("line").data(links).enter().append("line")
+            .attr("class", "link").attr("stroke-width", 1.5).attr("marker-end", "url(#arrow)");
+
+        const node = gContainer.append("g").selectAll("circle").data(nodes).enter().append("circle")
+            .attr("class", "node").attr("r", 15).attr("fill", nodeColors.unvisited);
+
+        const text = gContainer.append("g").selectAll("text").data(nodes).enter().append("text")
+            .attr("class", "node-text").attr("dx", -5).attr("dy", 4).text(d => d.label);
+
+        simulation.on("tick", () => {
+            link.attr("x1", d => d.source.x).attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x).attr("y2", d => d.target.y);
+            node.attr("cx", d => d.x).attr("cy", d => d.y);
+            text.attr("x", d => d.x).attr("y", d => d.y);
+        });
+
+        // 监听窗口大小变化，让中心点自动居中
+        window.addEventListener('resize', () => {
+            const newWidth = vizContainer.clientWidth;
+            const newHeight = vizContainer.clientHeight;
+            svg.attr("width", newWidth).attr("height", newHeight);
+            simulation.force("center", d3.forceCenter(newWidth / 2, newHeight / 2));
+            simulation.alpha(0.3).restart();
+        });
+    }
+
+    function generateBFSSteps(startVertexId) {
+        allSteps = [];
+        let currentVisited = Array(MaxVertexNum).fill(false);
+        let Q = [], currentV = null;
+
+        const addStep = (lineId, type, desc, w = null, p = null) => {
+            allSteps.push({ lineId, type, desc, qState: [...Q], visitedState: [...currentVisited], v: currentV, w, p });
+        };
+
+        addStep(4, 'queue-op', `InitQueue(Q)`);
+        currentV = startVertexId;
+        addStep(6, 'visit-op', `visit(${currentV})`);
+        currentVisited[currentV] = true;
+        addStep(7, 'visit-op', `visited[${currentV}] = true`);
+        Q.push(currentV);
+        addStep(8, 'queue-op', `EnQueue(Q, ${currentV})`);
+
+        while (Q.length > 0) {
+            addStep(10, 'loop-op', `while(!IsEmpty(Q))`);
+            currentV = Q.shift();
+            addStep(11, 'queue-op', `DeQueue(Q) -> 取出 ${currentV}`);
+
+            const adjacents = graphData[currentV] || [];
+            let p_adj = adjacents.length > 0 ? adjacents[0] : "NULL";
+            addStep(15, 'loop-op', `取 ${currentV} 的第一个邻居`);
+
+            let i = 0;
+            while (i < adjacents.length) {
+                addStep(16, 'loop-op', `while(p != NULL)`);
+                let w = adjacents[i];
+                addStep(17, 'loop-op', `w = ${w}`, w);
+                addStep(20, 'loop-op', `if(!visited[${w}]) -> ${currentVisited[w]}`, w);
+
+                if (!currentVisited[w]) {
+                    addStep(21, 'visit-op', `visit(${w})`, w);
+                    currentVisited[w] = true;
+                    addStep(22, 'visit-op', `visited[${w}] = true`, w);
+                    Q.push(w);
+                    addStep(23, 'queue-op', `EnQueue(Q, ${w})`, w);
+                }
+                i++;
+                p_adj = i < adjacents.length ? adjacents[i] : "NULL";
+                addStep(25, 'loop-op', `p = p->next (${p_adj})`, w);
+            }
+            addStep(16, 'loop-op', `${currentV} 邻居遍历完`);
+        }
+        addStep(10, 'loop-op', `队列空，结束`);
+    }
+
+    function runNextStep() {
+        if (currentStepIndex >= allSteps.length - 1) {
+            alert("BFS 执行完毕！"); document.getElementById('next-btn').disabled = true; return;
+        }
+        currentStepIndex++; const step = allSteps[currentStepIndex];
+
+        d3.selectAll('.code-line').classed('active queue-op visit-op loop-op', false);
+        d3.select(`.line-${step.lineId}`).classed('active', true).classed(step.type, true);
+
+        // 让代码框自动滚动到高亮行
+        const activeLine = document.querySelector(`.line-${step.lineId}`);
+        if (activeLine) {
+            activeLine.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+
+        let varStr = `v=${step.v !== null ? step.v : '?'}`;
+        if (step.w !== null) varStr += `, w=${step.w}`;
+        updateDisplays(step.desc, varStr, step.qState, step.visitedState);
+
+        d3.selectAll('.node').attr("fill", d => {
+            if (step.v !== null && d.id === step.v) return nodeColors.active;
+            if (step.w !== null && d.id === step.w) return nodeColors.target;
+            if (step.visitedState[d.id]) return nodeColors.enqueued;
+            return nodeColors.unvisited;
+        });
+    }
+
+    function updateDisplays(desc, vars, qState, visitedState) {
+        document.getElementById('variable-status').innerHTML = `<strong>动作:</strong> ${desc} <span style="color:#d81b60; margin-left:10px">[${vars}]</span>`;
+        document.getElementById('queue-display').innerHTML = `队列 Q: [ <span style="color: #e91e63;">${qState.length ? qState.join(" <- ") : "空"}</span> ]`;
+        document.getElementById('visited-array-display').innerText = `visited: [ ${visitedState.map(v=>v?'T':'F').join(', ')} ]`;
+    }
+
+    document.getElementById('load-btn').addEventListener('click', loadGraph);
+    document.getElementById('start-btn').addEventListener('click', function() {
+        loadGraph(); generateBFSSteps(parseInt(document.getElementById('start-vertex').value));
+        this.disabled = true; document.getElementById('next-btn').disabled = false; runNextStep();
+    });
+    document.getElementById('next-btn').addEventListener('click', runNextStep);
+
+    // 页面加载完成后，稍微延迟一下触发渲染，确保 flex 容器尺寸计算完毕
+    setTimeout(loadGraph, 100);
+</script>
+</body>
+</html>
