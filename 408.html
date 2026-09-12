@@ -10,12 +10,14 @@
     <style>
         :root {
             --primary-color: #007aff;
+            --primary-soft: #e9f3ff;
             --bg-color: #f5f5f7;
             --card-bg: #ffffff;
             --text-main: #333333;
             --text-light: #888888;
             --border-color: #e5e5ea;
             --gap: 16px;
+            --radius: 12px;
         }
 
         * {
@@ -24,10 +26,18 @@
             padding: 0;
         }
 
+        html, body {
+            height: 100%;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
+        }
+
+        body.modal-open {
+            overflow: hidden;
         }
 
         .layout {
@@ -35,13 +45,14 @@
             min-height: 100vh;
             padding: var(--gap);
             gap: var(--gap);
-            transition: all 0.3s;
         }
 
+        /* ============ 侧边栏 ============ */
         .sidebar {
             width: 280px;
+            flex-shrink: 0;
             background: var(--card-bg);
-            border-radius: 12px;
+            border-radius: var(--radius);
             padding: 20px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             height: calc(100vh - 32px);
@@ -50,15 +61,35 @@
             overflow-y: auto;
         }
 
+        .sidebar-title {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-sub {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
         .filter-group {
-            margin-bottom: 24px;
+            margin-bottom: 22px;
         }
 
         .filter-title {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             color: var(--text-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .filter-title .count {
+            font-weight: 400;
+            color: #b0b0b8;
         }
 
         .filter-options {
@@ -76,6 +107,11 @@
             cursor: pointer;
             transition: all 0.2s;
             color: var(--text-main);
+            font-family: inherit;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--primary-color);
         }
 
         .filter-btn.active {
@@ -84,8 +120,31 @@
             border-color: var(--primary-color);
         }
 
+        .sidebar-footer {
+            display: flex;
+            gap: 8px;
+        }
+
+        .ghost-btn {
+            flex: 1;
+            padding: 8px 0;
+            font-size: 13px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: #f8f8fa;
+            cursor: pointer;
+            color: var(--text-main);
+            font-family: inherit;
+        }
+
+        .ghost-btn:hover {
+            background: #efeff3;
+        }
+
+        /* ============ 主区域 ============ */
         .main-content {
             flex: 1;
+            min-width: 0;
             display: flex;
             flex-direction: column;
             gap: var(--gap);
@@ -95,74 +154,223 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
             background: var(--card-bg);
-            padding: 16px 20px;
-            border-radius: 12px;
+            padding: 14px 20px;
+            border-radius: var(--radius);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
 
+        .result-stat {
+            font-size: 14px;
+        }
+
+        .result-stat strong {
+            color: var(--primary-color);
+            font-size: 16px;
+        }
+
+        .result-stat .sub-stat {
+            color: var(--text-light);
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            width: 220px;
+            padding: 8px 30px 8px 32px;
+            font-size: 13px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            outline: none;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .search-box .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #b0b0b8;
+            font-size: 13px;
+        }
+
+        .search-box .clear-icon {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #b0b0b8;
+            font-size: 14px;
+            line-height: 1;
+        }
+
+        .sort-select {
+            padding: 8px 10px;
+            font-size: 13px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: white;
+            outline: none;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        /* ============ 题卡 ============ */
         .card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
             gap: var(--gap);
         }
 
         .question-card {
             background: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
+            border-radius: var(--radius);
+            padding: 18px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             position: relative;
         }
 
         .question-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.09);
         }
 
         .card-header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 8px;
         }
 
-        .difficulty-tag {
-            font-size: 12px;
-            padding: 4px 8px;
+        .tag-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .type-tag, .difficulty-tag, .score-tag {
+            font-size: 11px;
+            padding: 3px 8px;
             border-radius: 4px;
             font-weight: 500;
+            white-space: nowrap;
         }
 
-        .diff-1 {
+        .type-tag.choice {
+            background: #eef4ff;
+            color: #2f6fe0;
+        }
+
+        .type-tag.big {
+            background: #f3eeff;
+            color: #7a4fd6;
+        }
+
+        .difficulty-tag.diff-1 {
             background: #e8f5e9;
             color: #2e7d32;
         }
 
-        .diff-2 {
+        .difficulty-tag.diff-2 {
             background: #fff3e0;
             color: #ef6c00;
         }
 
-        .diff-3 {
+        .difficulty-tag.diff-3 {
             background: #ffebee;
             color: #c62828;
         }
 
-        .card-content {
+        .score-tag {
+            background: #f2f2f5;
+            color: #666;
+        }
+
+        .star-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: #d8d8de;
+            transition: color 0.2s;
+            line-height: 1;
+            padding: 0 2px;
+        }
+
+        .star-btn.active {
+            color: #fbc02d;
+        }
+
+        .card-stem {
             font-size: 14px;
-            line-height: 1.6;
-            margin-bottom: 20px;
+            line-height: 1.65;
+            margin-bottom: 10px;
             white-space: pre-wrap;
+            word-break: break-word;
             display: -webkit-box;
-            -webkit-line-clamp: 5;
+            -webkit-line-clamp: 4;
             -webkit-box-orient: vertical;
             overflow: hidden;
+        }
+
+        .card-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px 12px;
+            margin-bottom: 12px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .card-options .opt {
+            display: flex;
+            gap: 4px;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .card-options .opt .opt-key {
+            color: var(--primary-color);
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .card-options .opt .opt-val {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-image-note {
+            font-size: 12px;
+            color: #b08900;
+            background: #fff8e1;
+            padding: 6px 8px;
+            border-radius: 6px;
+            margin-bottom: 10px;
         }
 
         .card-footer {
@@ -172,63 +380,397 @@
             font-size: 12px;
             color: var(--text-light);
             border-top: 1px solid var(--border-color);
-            padding-top: 12px;
+            padding-top: 10px;
+            margin-top: auto;
         }
 
-        .star-btn {
-            background: none;
-            border: none;
+        .card-footer .qno {
+            font-weight: 500;
+        }
+
+        .load-more-wrap {
+            text-align: center;
+            padding: 8px 0 24px;
+        }
+
+        .load-more-btn {
+            padding: 10px 28px;
+            font-size: 14px;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            background: white;
+            border-radius: 20px;
             cursor: pointer;
-            font-size: 18px;
-            color: #ccc;
-            transition: color 0.2s;
+            font-family: inherit;
         }
 
-        .star-btn.active {
-            color: #fbc02d;
+        .load-more-btn:hover {
+            background: var(--primary-soft);
         }
 
+        /* ============ FAB ============ */
         .fab-generate {
             position: fixed;
             bottom: 30px;
             right: 30px;
             background: var(--primary-color);
             color: white;
-            padding: 16px 24px;
+            padding: 15px 24px;
             border-radius: 30px;
-            box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
+            box-shadow: 0 8px 20px rgba(0, 122, 255, 0.35);
             border: none;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             transition: transform 0.2s;
+            z-index: 50;
         }
 
         .fab-generate:hover {
             transform: scale(1.05);
         }
 
+        /* ============ Toast ============ */
         .toast {
             position: fixed;
-            top: 20px;
+            top: 24px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.82);
             color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 10px 22px;
+            border-radius: 10px;
             font-size: 14px;
-            z-index: 1000;
+            z-index: 2000;
             transition: opacity 0.3s;
+            pointer-events: none;
         }
 
-        .loading-state {
+        .loading-state, .empty-state {
             text-align: center;
-            padding: 60px;
+            padding: 60px 20px;
+            color: var(--text-light);
+            background: var(--card-bg);
+            border-radius: var(--radius);
+        }
+
+        /* ============ 通用弹窗 ============ */
+        .modal-mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .modal-mask.detail-mask {
+            z-index: 1100;
+        }
+
+        .modal-dialog {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 820px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border-color);
+            gap: 12px;
+        }
+
+        .modal-title {
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .modal-meta {
+            margin-top: 6px;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .modal-close {
+            border: none;
+            background: #f2f2f5;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 16px;
+            cursor: pointer;
+            color: #666;
+            flex-shrink: 0;
+        }
+
+        .modal-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 14px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ============ 题目详情 ============ */
+        .q-block {
+            margin-bottom: 12px;
+            font-size: 15px;
+            line-height: 1.8;
+            word-break: break-word;
+        }
+
+        .q-block.text {
+            white-space: pre-wrap;
+        }
+
+        .q-block .math, .math {
+            font-family: "Times New Roman", Georgia, serif;
+            font-style: italic;
+        }
+
+        .q-block pre.code-block {
+            background: #1e1f26;
+            color: #e6e6e6;
+            padding: 14px 16px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-family: "SF Mono", Menlo, Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .code-lang {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 4px;
+            font-family: inherit;
+        }
+
+        .q-block table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 13px;
+            margin: 4px 0;
+        }
+
+        .q-block table td, .q-block table th {
+            border: 1px solid var(--border-color);
+            padding: 6px 10px;
+            text-align: center;
+        }
+
+        .q-block table tr:first-child td {
+            background: #f7f7fa;
+            font-weight: 600;
+        }
+
+        .q-block.equation {
+            text-align: center;
+            font-family: "Times New Roman", serif;
+            font-style: italic;
+            font-size: 16px;
+        }
+
+        .q-block.image-note {
+            background: #fff8e1;
+            color: #8a6d00;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .q-list {
+            padding-left: 4px;
+        }
+
+        .q-list .q-list-item {
+            margin-bottom: 6px;
+            line-height: 1.8;
+        }
+
+        .option-list {
+            margin-top: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-item {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            padding: 11px 14px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .option-item:hover {
+            border-color: #b8d4f5;
+            background: #fafcff;
+        }
+
+        .option-item.selected {
+            border-color: var(--primary-color);
+            background: var(--primary-soft);
+        }
+
+        .option-item .opt-letter {
+            font-weight: 700;
+            color: var(--primary-color);
+            flex-shrink: 0;
+        }
+
+        .option-item.selected .opt-letter {
+            color: var(--primary-color);
+        }
+
+        .practice-note {
+            margin-top: 12px;
+            font-size: 12px;
             color: var(--text-light);
         }
 
-        @media (max-width: 768px) {
+        .nav-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .nav-position {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        /* ============ 智能组卷 ============ */
+        .paper-dialog {
+            max-width: 880px;
+        }
+
+        .paper-summary {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            background: #f7f9fc;
+            border-radius: 10px;
+        }
+
+        .paper-section-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin: 16px 0 8px;
+            padding-left: 10px;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .paper-item {
+            display: flex;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13.5px;
+            line-height: 1.6;
+        }
+
+        .paper-item:hover {
+            background: #f5f8ff;
+        }
+
+        .paper-item .p-no {
+            font-weight: 700;
+            color: var(--primary-color);
+            flex-shrink: 0;
+            min-width: 30px;
+        }
+
+        .paper-item .p-meta {
+            color: #999;
+            font-size: 12px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .paper-item .p-text {
+            flex: 1;
+            min-width: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .fill-badge {
+            font-size: 10px;
+            color: #b07900;
+            background: #fff3cd;
+            border-radius: 4px;
+            padding: 1px 5px;
+            flex-shrink: 0;
+        }
+
+        .paper-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .primary-btn {
+            padding: 8px 18px;
+            border-radius: 8px;
+            border: none;
+            background: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        .primary-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* ============ 响应式 ============ */
+        @media (max-width: 900px) {
             .layout {
                 flex-direction: column;
             }
@@ -243,111 +785,346 @@
                 grid-template-columns: 1fr;
             }
 
+            .search-box input {
+                width: 150px;
+            }
+
             .fab-generate {
                 bottom: 20px;
                 right: 20px;
-                padding: 12px 20px;
+                padding: 12px 18px;
                 font-size: 14px;
+            }
+
+            .modal-mask {
+                padding: 0;
+            }
+
+            .modal-dialog {
+                max-height: 100vh;
+                height: 100vh;
+                border-radius: 0;
+            }
+        }
+
+        /* ============ 打印（组卷） ============ */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #paper-modal, #paper-modal * {
+                visibility: visible;
+            }
+
+            #paper-modal {
+                position: absolute;
+                inset: 0;
+                background: white;
+                display: block !important;
+            }
+
+            #paper-modal .modal-mask {
+                position: static;
+                background: white;
+                padding: 0;
+                display: block;
+            }
+
+            #paper-modal .modal-dialog {
+                box-shadow: none;
+                max-height: none;
+                border-radius: 0;
+            }
+
+            .paper-actions, .modal-close {
+                display: none !important;
+            }
+
+            .paper-item {
+                break-inside: avoid;
             }
         }
     </style>
 </head>
 <body>
-<div id="app" class="layout">
-    <aside class="sidebar">
-        <h2 style="margin-bottom: 24px; font-size: 18px;">408 真题题库</h2>
+<div id="app">
+    <div class="layout">
+        <aside class="sidebar">
+            <h2 class="sidebar-title">408 真题题库</h2>
+            <div class="sidebar-sub">2009–2025 年 · {{ rawQuestions.length }} 道真题<br>数据结构 / 组成原理 / 操作系统 / 计算机网络</div>
 
-        <div class="filter-group">
-            <div class="filter-title">科目模块</div>
-            <div class="filter-options">
-                <button v-for="sub in filterConfig.subjects" :key="sub"
-                        :class="['filter-btn', { active: currentFilters.subject === sub }]"
-                        @click="setFilter('subject', sub)">
-                    {{ sub }}
-                </button>
-            </div>
-        </div>
-
-        <div class="filter-group" v-if="availableYears.length > 0">
-            <div class="filter-title">年份区间</div>
-            <div class="filter-options">
-                <button v-for="year in availableYears" :key="year"
-                        :class="['filter-btn', { active: currentFilters.years.includes(year) }]"
-                        @click="toggleFilterArray('years', year)">
-                    {{ year }}
-                </button>
-            </div>
-        </div>
-
-        <div class="filter-group" v-if="availableTags.length > 0">
-            <div class="filter-title">知识点标签</div>
-            <div class="filter-options">
-                <button v-for="tag in availableTags" :key="tag"
-                        :class="['filter-btn', { active: currentFilters.tags.includes(tag) }]"
-                        @click="toggleFilterArray('tags', tag)">
-                    {{ tag }}
-                </button>
-            </div>
-        </div>
-
-        <div class="filter-group">
-            <div class="filter-title">难度系数</div>
-            <div class="filter-options">
-                <button v-for="level in [1, 2, 3]" :key="level"
-                        :class="['filter-btn', { active: currentFilters.difficulty === level }]"
-                        @click="setFilter('difficulty', level)">
-                    {{ level === 1 ? '基础' : level === 2 ? '强化' : '冲刺' }}
-                </button>
-            </div>
-        </div>
-    </aside>
-
-    <main class="main-content">
-        <div class="top-bar">
-            <div v-if="!loading">共解析并找到 <strong>{{ filteredQuestions.length }}</strong> 道真题</div>
-            <div v-else>正在初始化内嵌题库...</div>
-            <div>
-                <button class="filter-btn" @click="resetFilters" style="border: none; background: #f0f0f0;">清空筛选
-                </button>
-            </div>
-        </div>
-
-        <div v-if="loading" class="loading-state">
-            🔄 正在加载并映射全局数据...
-        </div>
-        <div v-else class="card-grid">
-            <div class="question-card" v-for="q in filteredQuestions" :key="q.id" @click="expandQuestion(q)">
-                <div class="card-header">
-                        <span :class="['difficulty-tag', `diff-${q.difficulty}`]">
-                            {{ q.difficulty === 1 ? '基础' : q.difficulty === 2 ? '强化' : '冲刺' }}
-                        </span>
-                    <button :class="['star-btn', { active: favorites.includes(q.id) }]"
-                            @click.stop="toggleFavorite(q.id)">
-                        ★
+            <div class="filter-group">
+                <div class="filter-title">科目模块</div>
+                <div class="filter-options">
+                    <button v-for="sub in filterConfig.subjects" :key="sub"
+                            :class="['filter-btn', { active: currentFilters.subject === sub }]"
+                            @click="setFilter('subject', sub)">
+                        {{ sub }}
                     </button>
                 </div>
-                <div class="card-content">{{ q.content }}</div>
-                <div class="card-footer">
-                    <span>{{ q.subject }} · {{ q.year }}</span>
-                    <span>{{ q.tag }}</span>
+            </div>
+
+            <div class="filter-group">
+                <div class="filter-title">题型</div>
+                <div class="filter-options">
+                    <button v-for="t in filterConfig.types" :key="t.value"
+                            :class="['filter-btn', { active: currentFilters.qType === t.value }]"
+                            @click="setFilter('qType', t.value)">
+                        {{ t.label }}
+                    </button>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <div class="filter-title">难度系数</div>
+                <div class="filter-options">
+                    <button v-for="level in [1, 2, 3]" :key="level"
+                            :class="['filter-btn', { active: currentFilters.difficulty === level }]"
+                            @click="setFilter('difficulty', level)">
+                        {{ level === 1 ? '基础' : level === 2 ? '强化' : '冲刺' }}
+                    </button>
+                </div>
+            </div>
+
+            <div class="filter-group" v-if="availableYears.length > 0">
+                <div class="filter-title">
+                    年份区间
+                    <span class="count" v-if="currentFilters.years.length">已选 {{ currentFilters.years.length }}</span>
+                </div>
+                <div class="filter-options">
+                    <button v-for="year in availableYears" :key="year"
+                            :class="['filter-btn', { active: currentFilters.years.includes(year) }]"
+                            @click="toggleFilterArray('years', year)">
+                        {{ year }}
+                    </button>
+                </div>
+            </div>
+
+            <div class="filter-group" v-if="availableTags.length > 0">
+                <div class="filter-title">知识点标签</div>
+                <div class="filter-options">
+                    <button v-for="tag in availableTags" :key="tag"
+                            :class="['filter-btn', { active: currentFilters.tags.includes(tag) }]"
+                            @click="toggleFilterArray('tags', tag)">
+                        {{ tag }}
+                    </button>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <div class="filter-options">
+                    <button :class="['filter-btn', { active: onlyFavorites }]" @click="onlyFavorites = !onlyFavorites">
+                        {{ onlyFavorites ? '★ 只看收藏中' : '☆ 只看收藏' }}
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="ghost-btn" @click="resetFilters">清空筛选</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="result-stat" v-if="!loading">
+                    共找到 <strong>{{ filteredQuestions.length }}</strong> 道真题
+                    <span class="sub-stat">单选 {{ typeCount.choice }} · 综合 {{ typeCount.big }} · 满分合计 {{ typeCount.totalScore }} 分</span>
+                </div>
+                <div class="result-stat" v-else>正在初始化内嵌题库...</div>
+                <div class="top-actions">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" v-model="keyword" placeholder="搜索题干 / 知识点">
+                        <span class="clear-icon" v-if="keyword" @click="keyword = ''">✕</span>
+                    </div>
+                    <select class="sort-select" v-model="sortKey">
+                        <option value="year_desc">年份新 → 旧</option>
+                        <option value="year_asc">年份旧 → 新</option>
+                        <option value="subject">按科目排序</option>
+                    </select>
+                </div>
+            </div>
+
+            <div v-if="loading" class="loading-state">
+                🔄 正在加载并映射全局数据...
+            </div>
+
+            <template v-else>
+                <div class="card-grid">
+                    <div class="question-card" v-for="q in visibleQuestions" :key="q.id" @click="openDetail(q)">
+                        <div class="card-header">
+                            <div class="tag-row">
+                                <span :class="['type-tag', q.qType === '单项选择题' ? 'choice' : 'big']">
+                                    {{ q.qType === '单项选择题' ? '单选' : '综合' }}
+                                </span>
+                                <span :class="['difficulty-tag', `diff-${q.difficulty}`]">
+                                    {{ q.difficulty === 1 ? '基础' : q.difficulty === 2 ? '强化' : '冲刺' }}
+                                </span>
+                                <span class="score-tag">{{ q.score }} 分</span>
+                            </div>
+                            <button :class="['star-btn', { active: favorites.includes(q.id) }]"
+                                    @click.stop="toggleFavorite(q.id)" title="收藏">
+                                ★
+                            </button>
+                        </div>
+
+                        <div class="card-stem" v-html="renderInline(cardStem(q))"></div>
+
+                        <div class="card-options" v-if="q.optionKeys.length === 4">
+                            <div class="opt" v-for="k in q.optionKeys" :key="k">
+                                <span class="opt-key">{{ k }}.</span>
+                                <span class="opt-val" v-html="renderInline(q.options[k])"></span>
+                            </div>
+                        </div>
+
+                        <div class="card-image-note" v-if="q.hasImage && !q.plainText">
+                            🖼 本题为图片扫描题，原始数据未提取出文字
+                        </div>
+
+                        <div class="card-footer">
+                            <span class="qno">{{ q.subject }} · {{ q.year }} 年 · 第 {{ q.paperNo }} 题</span>
+                            <span>{{ q.tag }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="load-more-wrap" v-if="displayCount < filteredQuestions.length">
+                    <button class="load-more-btn" @click="displayCount += 48">
+                        加载更多（剩余 {{ filteredQuestions.length - displayCount }} 题）
+                    </button>
+                </div>
+
+                <div class="empty-state" v-if="filteredQuestions.length === 0">
+                    未找到匹配的题目，请调整筛选或搜索条件。
+                </div>
+            </template>
+        </main>
+    </div>
+
+    <button class="fab-generate" @click="generatePaper">
+        ✨ 智能组卷
+    </button>
+
+    <!-- ============ 题目详情弹窗 ============ -->
+    <div class="modal-mask detail-mask" v-if="detailQuestion" @click.self="closeDetail">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title">题目详情</div>
+                    <div class="modal-meta">
+                        <span :class="['type-tag', detailQuestion.qType === '单项选择题' ? 'choice' : 'big']">
+                            {{ detailQuestion.qType }}
+                        </span>
+                        <span :class="['difficulty-tag', `diff-${detailQuestion.difficulty}`]">
+                            {{ detailQuestion.difficulty === 1 ? '基础' : detailQuestion.difficulty === 2 ? '强化' : '冲刺' }}
+                        </span>
+                        <span class="score-tag">{{ detailQuestion.score }} 分</span>
+                        <span class="score-tag">{{ detailQuestion.subject }} · {{ detailQuestion.year }} · 第 {{ detailQuestion.paperNo }} 题</span>
+                        <span class="score-tag">{{ detailQuestion.tag }}</span>
+                    </div>
+                </div>
+                <button class="modal-close" @click="closeDetail">✕</button>
+            </div>
+
+            <div class="modal-body">
+                <template v-for="(block, bi) in detailQuestion.blocks" :key="bi">
+                    <div v-if="block.kind === 'text'" class="q-block text" v-html="block.html"></div>
+                    <div v-else-if="block.kind === 'code'">
+                        <div class="code-lang" v-if="block.lang">{{ block.lang }}</div>
+                        <pre class="code-block">{{ block.code }}</pre>
+                    </div>
+                    <div v-else-if="block.kind === 'table'" class="q-block" v-html="block.html"></div>
+                    <div v-else-if="block.kind === 'equation'" class="q-block equation" v-html="block.html"></div>
+                    <div v-else-if="block.kind === 'image'" class="q-block image-note">
+                        🖼 原题此处包含图片（{{ block.path }}），本地图片资源缺失，可对照原卷查看
+                    </div>
+                    <div v-else-if="block.kind === 'list'" class="q-block q-list">
+                        <div class="q-list-item" v-for="(li, liIdx) in block.items" :key="liIdx">{{ li }}</div>
+                    </div>
+                </template>
+
+                <div v-if="!detailQuestion.plainText && !detailQuestion.hasImage" class="q-block image-note">
+                    本题原始数据未提取出正文文字
+                </div>
+
+                <!-- 选择题选项（刷题自查，题库无标准答案） -->
+                <div class="option-list" v-if="detailQuestion.optionKeys.length === 4">
+                    <div v-for="k in detailQuestion.optionKeys" :key="k"
+                         :class="['option-item', { selected: practice[detailQuestion.id] === k }]"
+                         @click="setPractice(detailQuestion.id, k)">
+                        <span class="opt-letter">{{ k }}.</span>
+                        <span v-html="renderInline(detailQuestion.options[k])"></span>
+                    </div>
+                    <div class="practice-note">
+                        题库未收录标准答案，点选仅记录你的自查答案（保存在本地浏览器）。
+                        <span v-if="practice[detailQuestion.id]">当前选择：{{ practice[detailQuestion.id] }}。</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="nav-btn" @click="gotoPrev" :disabled="detailIndex <= 0">← 上一题</button>
+                <span class="nav-position">{{ detailIndex + 1 }} / {{ filteredQuestions.length }}</span>
+                <div style="display:flex; gap:10px;">
+                    <button class="nav-btn" @click="toggleFavorite(detailQuestion.id)">
+                        {{ favorites.includes(detailQuestion.id) ? '★ 已收藏' : '☆ 收藏' }}
+                    </button>
+                    <button class="nav-btn" @click="gotoNext" :disabled="detailIndex >= filteredQuestions.length - 1">下一题 →</button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div v-if="!loading && filteredQuestions.length === 0" style="text-align: center; padding: 40px; color: #888;">
-            未找到匹配的题目，请调整筛选条件。
+    <!-- ============ 智能组卷弹窗 ============ -->
+    <div class="modal-mask" id="paper-modal" v-if="paper" @click.self="paper = null">
+        <div class="modal-dialog paper-dialog">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title">✨ 智能组卷（仿真 408 试卷结构）</div>
+                    <div class="paper-summary">
+                        <span>单选题：{{ paper.singles.length }} 题，共 {{ paper.singleScore }} 分</span>
+                        <span>综合题：{{ paper.bigs.length }} 题，共 {{ paper.bigScore }} 分</span>
+                        <span><strong>卷面满分：{{ paper.totalScore }} 分</strong></span>
+                        <span style="color:#b07900" v-if="paper.filledCount">含 {{ paper.filledCount }} 题为放宽筛选后补足</span>
+                    </div>
+                </div>
+                <button class="modal-close" @click="paper = null">✕</button>
+            </div>
+
+            <div class="modal-body">
+                <div class="paper-section-title">一、单项选择题（每题 2 分，共 80 分）</div>
+                <div class="paper-item" v-for="(item, i) in paper.singles" :key="'s'+i" @click="openDetail(item.q)">
+                    <span class="p-no">{{ i + 1 }}.</span>
+                    <span class="p-text" v-html="renderInline(cardStem(item.q))"></span>
+                    <span class="fill-badge" v-if="item.filled">补足</span>
+                    <span class="p-meta">{{ item.q.subject }}·{{ item.q.year }}</span>
+                </div>
+
+                <div class="paper-section-title">二、综合应用题（共 70 分）</div>
+                <div class="paper-item" v-for="(item, i) in paper.bigs" :key="'b'+i" @click="openDetail(item.q)">
+                    <span class="p-no">{{ 41 + i }}.</span>
+                    <span class="p-text" v-html="renderInline(cardStem(item.q))"></span>
+                    <span class="fill-badge" v-if="item.filled">补足</span>
+                    <span class="p-meta">{{ item.q.subject }}·{{ item.q.year }}·{{ item.q.score }}分</span>
+                </div>
+            </div>
+
+            <div class="modal-footer paper-actions">
+                <span style="font-size:12px;color:#999;">题目取自当前筛选结果，点击题目可查看详情</span>
+                <div style="display:flex;gap:10px;">
+                    <button class="nav-btn" @click="generatePaper">🔄 换一套</button>
+                    <button class="primary-btn" @click="printPaper">🖨 打印 / 导出 PDF</button>
+                </div>
+            </div>
         </div>
-    </main>
-
-    <button class="fab-generate" @click="triggerSmartGeneration">
-        ✨ 智能组卷
-    </button>
+    </div>
 
     <div class="toast" v-if="toastMsg">{{ toastMsg }}</div>
 </div>
 
 <script>
-    const {createApp, ref, computed, watch, onMounted} = Vue;
+    const {createApp, ref, computed, watch, onMounted, nextTick} = Vue;
 
     createApp({
         setup() {
@@ -355,122 +1132,412 @@
             const loading = ref(true);
 
             const filterConfig = {
-                subjects: ['全部', '数据结构', '组成原理', '操作系统', '计算机网络']
+                subjects: ['全部', '数据结构', '组成原理', '操作系统', '计算机网络'],
+                types: [
+                    {value: null, label: '全部题型'},
+                    {value: '单项选择题', label: '单项选择'},
+                    {value: '综合应用题', label: '综合应用'}
+                ]
             };
 
             const currentFilters = ref({
                 subject: '全部',
+                qType: null,
                 years: [],
                 tags: [],
                 difficulty: null
             });
 
             const favorites = ref([]);
+            const practice = ref({});
             const toastMsg = ref('');
+            let toastTimer = null;
 
+            const keyword = ref('');
+            const sortKey = ref('year_desc');
+            const displayCount = ref(48);
+            const onlyFavorites = ref(false);
+
+            const detailQuestion = ref(null);
+            const detailIndex = ref(0);
+            const paper = ref(null);
+
+            const SUBJECT_ORDER = {'数据结构': 1, '组成原理': 2, '操作系统': 3, '计算机网络': 4};
+
+            // 知识点标签规则：按科目分组、按顺序优先匹配
+            const TAG_RULES = {
+                '数据结构': [
+                    [['复杂度'], '时间复杂度'],
+                    [['线性表', '链表', '数组', '顺序表', '稀疏矩阵', '三元组', '有序表'], '线性表'],
+                    [['栈', '队列', '括号'], '栈与队列'],
+                    [['KMP', '串'], '串'],
+                    [['二叉树', '森林', '哈夫曼', 'Huffman', '遍历', '平衡', '线索', 'B树', 'B+树', '红黑', '前缀编码', '树'], '树与二叉树'],
+                    [['拓扑', '最短路径', '关键路径', '生成树', '邻接', 'Prim', 'Kruskal', 'Dijkstra', '深度优先', '广度优先', 'DFS', 'BFS', 'AOE', 'AOV', '图'], '图'],
+                    [['排序', '快排', '归并', '希尔', '堆排', '冒泡', '基数', '大根堆', '小根堆', '堆'], '排序算法'],
+                    [['散列', '哈希', 'Hash', '折半', '查找'], '查找算法']
+                ],
+                '组成原理': [
+                    [['补码', '原码', '反码', '移码', '浮点', '阶码', '尾数', '进制', '溢出', 'IEEE', '真值', '奇偶校验', '海明', '机器数', '逻辑右移', '算术右移', '小端', '大端', '边界对齐', 'unsigned', 'short', '编址'], '数据的表示'],
+                    [['Cache', 'cache', '缓存', '主存', '存储', 'SRAM', 'DRAM', '交叉存储', '闪存', '局部性'], '存储系统'],
+                    [['指令', '寻址', '操作码', 'RISC', 'CISC', 'ISA'], '指令系统'],
+                    [['流水线', '寄存器', '控制器', '数据通路', '主频', 'CPI', 'MIPS', 'CPU'], 'CPU与流水线'],
+                    [['总线'], '总线系统'],
+                    [['中断', 'DMA', 'I/O', '外设', '磁盘', '输入输出'], '输入输出系统'],
+                    [['源程序', '编译', '汇编程序', '链接', '预处理', '机器语言', '硬件描述', 'MIMD', 'SIMD', '向量处理器', '并行处理', '可执行目标'], '计算机系统基础']
+                ],
+                '操作系统': [
+                    [['进程', '线程', '调度', '信号量', '同步', '互斥', '死锁', '临界', '管程', '并发', 'PV操作', '安全序列', '银行家'], '进程管理'],
+                    [['页式', '分页', '分段', '虚拟内存', '页面', '置换', '缺页', '内存', '地址空间', 'TLB', '快表', '伙伴', '分区', '适应算法'], '内存管理'],
+                    [['文件', '目录', 'FCB', 'inode', 'FAT', '磁盘调度', '位示图', '簇'], '文件管理'],
+                    [['设备', '缓冲', 'SPOOLing', '驱动', 'I/O'], '设备管理'],
+                    [['系统调用', '用户态', '核心态', '内核', '操作系统', '压栈', '子程序', '虚拟化', 'VMM', '虚拟机'], '操作系统概述']
+                ],
+                '计算机网络': [
+                    [['OSI', '体系结构', '参考模型', '分层', '协议要素', '语法', '语义', '时序', '应用模型', 'P2P', '对等', '客户/服务器'], '网络体系结构'],
+                    [['信道', '调制', '信噪比', '曼彻斯特', 'ASK', 'PSK', 'FSK', 'QAM', 'NRZ', '载波', '奈奎斯特', '香农', '码元', '传输速率', '分组交换', '吞吐量', '物理层', '信号', '比特流', '差分', '带宽'], '物理层'],
+                    [['数据链路', 'CSMA', '以太网', 'MAC', 'VLAN', '交换机', 'CRC', 'HDLC', 'PPP', '滑动窗口', '帧', '后退N帧', '选择重传', '冲突域', '广播域', '差错编码', '检错', '纠错'], '数据链路层'],
+                    [['IP', '路由', '子网', 'ARP', 'ICMP', 'RIP', 'OSPF', 'BGP', '分片', 'NAT', 'DHCP', '网络层'], '网络层'],
+                    [['TCP', 'UDP', '拥塞', '握手', '流量控制', '传输层', '报文段'], '传输层'],
+                    [['HTTP', 'DNS', 'FTP', 'SMTP', '应用层', '邮件', '万维网', '域名'], '应用层']
+                ]
+            };
+
+            /* ---------------- 工具函数 ---------------- */
+
+            // 简单去标签，得到纯文本
+            const stripTags = (html) => {
+                const div = document.createElement('div');
+                div.innerHTML = html || '';
+                return (div.textContent || '').replace(/\s+\n/g, '\n');
+            };
+
+            // 极简安全过滤（数据来自本地 data.js，仍去掉脚本与事件属性）
+            const sanitize = (html) => String(html || '')
+                .replace(/<script[\s\S]*?<\/script>/gi, '')
+                .replace(/<style[\s\S]*?<\/style>/gi, '')
+                .replace(/\son\w+\s*=\s*"[^"]*"/gi, '')
+                .replace(/\son\w+\s*=\s*'[^']*'/gi, '');
+
+            // 将题库中类 LaTeX 的数学串格式化为可读 HTML（^/_ 转上下标、常见符号映射）
+            const latexSymbolMap = {
+                '\\cdot': '·', '\\times': '×', '\\leq': '≤', '\\le': '≤', '\\geq': '≥', '\\ge': '≥',
+                '\\ne': '≠', '\\neq': '≠', '\\pm': '±', '\\div': '÷', '\\sum': 'Σ', '\\prod': '∏',
+                '\\infty': '∞', '\\rightarrow': '→', '\\leftarrow': '←', '\\leftrightarrow': '↔',
+                '\\forall': '∀', '\\exists': '∃', '\\in': '∈', '\\notin': '∉', '\\subset': '⊂',
+                '\\supset': '⊃', '\\cup': '∪', '\\cap': '∩', '\\sqrt': '√', '\\ldots': '…',
+                '\\cdots': '…', '\\circ': '°', '\\alpha': 'α', '\\beta': 'β', '\\gamma': 'γ',
+                '\\delta': 'δ', '\\epsilon': 'ε', '\\theta': 'θ', '\\lambda': 'λ', '\\mu': 'μ',
+                '\\pi': 'π', '\\sigma': 'σ', '\\phi': 'φ', '\\omega': 'ω', '\\Delta': 'Δ',
+                '\\Sigma': 'Σ', '\\Omega': 'Ω', '\\mathrm': '', '\\mathbf': '', '\\tt': '', '\\text': ''
+            };
+
+            const formatLatex = (raw) => {
+                if (!raw) return '';
+                let s = raw;
+                s = s.replace(/\\frac\s*\{\s*([^{}]*?)\s*\}\s*\{\s*([^{}]*?)\s*\}/g, '($1)/($2)');
+                Object.keys(latexSymbolMap).forEach(k => {
+                    s = s.split(k).join(latexSymbolMap[k]);
+                });
+                s = s.replace(/[\^_]\{([^{}]*)\}/g, (m, p) => m[0] === '^' ? `<sup>${p}</sup>` : `<sub>${p}</sub>`);
+                s = s.replace(/[\^_]([A-Za-z0-9])/g, (m, p) => m[0] === '^' ? `<sup>${p}</sup>` : `<sub>${p}</sub>`);
+                s = s.replace(/[{}]/g, '').replace(/\s+/g, ' ').trim();
+                return s;
+            };
+
+            // 段落内联元素 → HTML
+            const inlineHtml = (arr) => (arr || []).map(el => {
+                if (el.type === 'equation_inline') {
+                    return `<span class="math">${formatLatex(el.content || el.math_content || '')}</span>`;
+                }
+                return sanitize(el.content || el.math_content || '');
+            }).join('');
+
+            const inlineText = (arr) => (arr || []).map(el => el.content || el.math_content || '').join('');
+
+            // 从纯文本中按顺序提取 A/B/C/D 四个选项；提取失败返回 null
+            const splitOptions = (text) => {
+                const re = /([ABCD])\s*[.．、)）]\s*/g;
+                const marks = [];
+                let m;
+                while ((m = re.exec(text)) !== null) marks.push({letter: m[1], from: m.index, to: re.lastIndex});
+                for (let i = 0; i < marks.length; i++) {
+                    if (marks[i].letter !== 'A') continue;
+                    const chain = [marks[i]];
+                    let expect = 'B';
+                    for (let j = i + 1; j < marks.length && expect; j++) {
+                        if (marks[j].letter === expect) {
+                            chain.push(marks[j]);
+                            expect = expect === 'B' ? 'C' : expect === 'C' ? 'D' : null;
+                        }
+                    }
+                    if (chain.length === 4) {
+                        const stem = text.slice(0, chain[0].from).trim();
+                        const options = {};
+                        for (let k = 0; k < 4; k++) {
+                            const end = k < 3 ? chain[k + 1].from : text.length;
+                            options[chain[k].letter] = text.slice(chain[k].to, end).trim().replace(/[\s;；,，]+$/, '');
+                        }
+                        return {stem, options};
+                    }
+                }
+                return null;
+            };
+
+            const detectTag = (subject, text) => {
+                const rules = TAG_RULES[subject] || [];
+                for (const [keywords, tag] of rules) {
+                    if (keywords.some(kw => text.includes(kw))) return tag;
+                }
+                return '综合考点';
+            };
+
+            const flattenList = (items, out) => {
+                (items || []).forEach(item => {
+                    if (item.item_content) {
+                        out.push(inlineText(item.item_content).trim());
+                    } else if (item.list_items) {
+                        flattenList(item.list_items, out);
+                    }
+                });
+            };
+
+            /* ---------------- 核心解析：把一页（一道题）映射为结构化对象 ---------------- */
             const parseRealData = (pages) => {
                 const parsed = [];
                 pages.forEach((page, index) => {
-                    let subject = "";
-                    let year = "未知";
-                    let content = "";
-                    let qType = "单项选择题";
+                    let subject = '';
+                    let year = '未知';
+                    let yearNum = 0;
+                    let paperNo = 0;
+                    let qType = '单项选择题';
+                    let score = 2;
+                    let headerText = '';
+
+                    const blocks = [];
+                    let hasImage = false;
+                    const imagePaths = [];
 
                     page.forEach(item => {
-                        if (item.type === 'page_header' && item.content?.page_header_content?.length > 0) {
-                            const text = item.content.page_header_content[0].content || '';
-                            if (text.includes('数据结构')) subject = '数据结构';
-                            else if (text.includes('组成原理')) subject = '组成原理';
-                            else if (text.includes('操作系统')) subject = '操作系统';
-                            else if (text.includes('计算机网络')) subject = '计算机网络';
-
-                            const yearMatch = text.match(/(20\d{2})/);
-                            if (yearMatch) year = yearMatch[1];
-                            if (text.includes('综合应用题')) qType = '综合应用题';
-                        } else if (['paragraph', 'title'].includes(item.type)) {
-                            const texts = item.content?.paragraph_content || item.content?.title_content || [];
-                            texts.forEach(p => {
-                                content += (p.content || p.math_content || '') + " ";
+                        const content = item.content || {};
+                        if (item.type === 'page_header') {
+                            const hs = (content.page_header_content || []).map(p => p.content || '');
+                            const text = hs.join(' ');
+                            headerText += ' ' + text;
+                        } else if (item.type === 'paragraph' || item.type === 'title') {
+                            // OCR 偶尔会把「第 N 题 / 共 N 题」误排进正文，统一剔除
+                            const leaked = /^\s*第\s*\d+\s*题\s*\/\s*共\s*\d+\s*题\s*/;
+                            const arr = (content.paragraph_content || content.title_content || []).map(el => {
+                                if (el.type === 'equation_inline') return el;
+                                return {...el, content: (el.content || '').replace(leaked, '')};
                             });
-                            content += "\n";
-                        } else if (item.type === 'code' && item.content?.code_content) {
-                            content += "\n" + item.content.code_content[0].content + "\n\n";
+                            const html = inlineHtml(arr);
+                            const text = inlineText(arr);
+                            if (html.trim()) blocks.push({kind: 'text', html, text});
+                        } else if (item.type === 'code' && content.code_content) {
+                            const code = content.code_content.map(c => c.content || '').join('\n');
+                            if (code.trim()) blocks.push({kind: 'code', code, lang: content.code_language || ''});
+                        } else if (item.type === 'table') {
+                            if (content.html) blocks.push({kind: 'table', html: sanitize(content.html)});
+                        } else if (item.type === 'equation_inline' || item.type === 'equation_interline') {
+                            const latex = content.math_content || '';
+                            if (latex.trim()) blocks.push({kind: 'equation', html: formatLatex(latex), latex});
+                        } else if (item.type === 'list') {
+                            const items = [];
+                            flattenList(content.list_items, items);
+                            const cleanItems = items.filter(Boolean);
+                            if (cleanItems.length) blocks.push({kind: 'list', items: cleanItems});
+                        } else if (item.type === 'image') {
+                            hasImage = true;
+                            const p = content.image_source?.path || '';
+                            imagePaths.push(p);
+                            blocks.push({kind: 'image', path: p});
                         }
                     });
 
-                    if (subject && content.trim()) {
-                        let tag = '综合';
-                        if (content.includes('复杂度')) tag = '时间复杂度';
-                        else if (content.includes('栈') || content.includes('括号')) tag = '栈与队列';
-                        else if (content.includes('二叉树') || content.includes('森林') || content.includes('哈夫曼')) tag = '树与二叉树';
-                        else if (content.includes('图') || content.includes('拓扑') || content.includes('度')) tag = '图论';
-                        else if (content.includes('排序')) tag = '排序算法';
-                        else if (content.includes('散列') || content.includes('查找')) tag = '查找算法';
-                        else if (content.includes('TCP') || content.includes('UDP')) tag = '传输层';
-                        else if (content.includes('页式') || content.includes('内存') || content.includes('页面')) tag = '内存管理';
-                        else if (content.includes('中断') || content.includes('DMA')) tag = 'I/O 系统';
-                        else if (content.includes('Cache') || content.includes('寻址') || content.includes('地址')) tag = '存储系统';
-                        else if (content.includes('进程') || content.includes('线程') || content.includes('调度')) tag = '进程管理';
-                        else if (content.includes('指令')) tag = '指令系统';
+                    // 从合并后的 header 提取元信息
+                    if (headerText.includes('数据结构')) subject = '数据结构';
+                    else if (headerText.includes('组成原理')) subject = '组成原理';
+                    else if (headerText.includes('操作系统')) subject = '操作系统';
+                    else if (headerText.includes('计算机网络')) subject = '计算机网络';
 
-                        parsed.push({
-                            id: index,
-                            subject: subject,
-                            year: year,
-                            tag: tag,
-                            difficulty: qType === '综合应用题' ? 3 : (content.length > 150 ? 2 : 1),
-                            content: content.trim()
-                        });
+                    const yearMatch = headerText.match(/(20\d{2})/);
+                    if (yearMatch) {
+                        year = yearMatch[1];
+                        yearNum = Number(year);
                     }
+                    if (headerText.includes('综合应用题')) qType = '综合应用题';
+                    const scoreMatch = headerText.match(/·\s*(\d+)\s*分/);
+                    if (scoreMatch) score = Number(scoreMatch[1]);
+                    const noMatch = headerText.match(/第\s*(\d+)\s*题/);
+                    if (noMatch) {
+                        paperNo = Number(noMatch[1]);
+                    } else {
+                        // 回退：「科目 年份-试卷题号」header 中破折号后的数字即题号
+                        const secMatch = headerText.match(/20\d{2}\s*-\s*(\d+)/);
+                        if (secMatch) paperNo = Number(secMatch[1]);
+                    }
+
+                    // 封面、目录等无科目的页直接跳过
+                    if (!subject) return;
+
+                    let plainText = blocks
+                        .map(b => {
+                            if (b.kind === 'text') return b.text;
+                            if (b.kind === 'code') return b.code;
+                            if (b.kind === 'table') return stripTags(b.html);
+                            if (b.kind === 'equation') return b.latex;
+                            if (b.kind === 'list') return b.items.join('\n');
+                            return '';
+                        })
+                        .join('\n')
+                        .replace(/\n{3,}/g, '\n\n')
+                        .trim();
+
+                    const split = qType === '单项选择题' ? splitOptions(plainText) : null;
+                    const stem = split ? split.stem : plainText;
+                    const options = split ? split.options : {};
+
+                    parsed.push({
+                        id: index,
+                        subject,
+                        year,
+                        yearNum,
+                        paperNo,
+                        qType,
+                        score,
+                        tag: detectTag(subject, plainText + ' ' + stem),
+                        difficulty: qType === '综合应用题' ? 3 : (plainText.length > 140 ? 2 : 1),
+                        blocks,
+                        plainText,
+                        stem,
+                        options,
+                        optionKeys: Object.keys(options).sort(),
+                        hasImage,
+                        imagePaths
+                    });
                 });
                 return parsed;
             };
 
+            /* ---------------- 生命周期 ---------------- */
             onMounted(() => {
-                const localFavs = localStorage.getItem('11408_favorites');
-                if (localFavs) favorites.value = JSON.parse(localFavs);
+                try {
+                    const localFavs = localStorage.getItem('11408_favorites');
+                    if (localFavs) favorites.value = JSON.parse(localFavs);
+                    const localPractice = localStorage.getItem('11408_practice');
+                    if (localPractice) practice.value = JSON.parse(localPractice);
+                } catch (e) {
+                    console.warn('本地缓存读取失败', e);
+                }
 
-                // 检查全局变量 fullExamData 是否存在
                 if (typeof fullExamData !== 'undefined') {
-                    rawQuestions.value = parseRealData(fullExamData);
+                    // 大题库解析为同步计算，用 setTimeout 让 loading 先渲染一帧
+                    setTimeout(() => {
+                        rawQuestions.value = parseRealData(fullExamData);
+                        loading.value = false;
+                    }, 30);
                 } else {
                     showToast('未检测到全局题库变量，请检查 data.js 引入情况');
+                    loading.value = false;
                 }
-                loading.value = false;
+
+                document.addEventListener('keydown', onKeydown);
             });
 
+            const onKeydown = (e) => {
+                if (e.key === 'Escape') {
+                    detailQuestion.value = null;
+                    paper.value = null;
+                } else if (detailQuestion.value && e.key === 'ArrowLeft') {
+                    gotoPrev();
+                } else if (detailQuestion.value && e.key === 'ArrowRight') {
+                    gotoNext();
+                }
+            };
+
+            /* ---------------- 筛选与排序 ---------------- */
             const availableYears = computed(() => {
-                const years = rawQuestions.value.map(q => q.year).filter(y => y !== '未知');
+                const years = rawQuestions.value.map(q => q.yearNum).filter(Boolean);
                 return [...new Set(years)].sort((a, b) => b - a);
             });
 
             const availableTags = computed(() => {
-                let filtered = rawQuestions.value;
+                let list = rawQuestions.value;
                 if (currentFilters.value.subject !== '全部') {
-                    filtered = filtered.filter(q => q.subject === currentFilters.value.subject);
+                    list = list.filter(q => q.subject === currentFilters.value.subject);
                 }
-                if (currentFilters.value.years.length > 0) {
-                    filtered = filtered.filter(q => currentFilters.value.years.includes(q.year));
+                if (currentFilters.value.years.length) {
+                    list = list.filter(q => currentFilters.value.years.includes(q.yearNum));
                 }
-                return [...new Set(filtered.map(q => q.tag))];
+                if (currentFilters.value.qType) {
+                    list = list.filter(q => q.qType === currentFilters.value.qType);
+                }
+                return [...new Set(list.map(q => q.tag))].sort();
             });
 
             const filteredQuestions = computed(() => {
-                return rawQuestions.value.filter(q => {
-                    const matchSubject = currentFilters.value.subject === '全部' || q.subject === currentFilters.value.subject;
-                    const matchYears = currentFilters.value.years.length === 0 || currentFilters.value.years.includes(q.year);
-                    const matchTags = currentFilters.value.tags.length === 0 || currentFilters.value.tags.includes(q.tag);
-                    const matchDifficulty = !currentFilters.value.difficulty || q.difficulty === currentFilters.value.difficulty;
-                    return matchSubject && matchYears && matchTags && matchDifficulty;
+                const kw = keyword.value.trim().toLowerCase();
+                let list = rawQuestions.value.filter(q => {
+                    const f = currentFilters.value;
+                    if (f.subject !== '全部' && q.subject !== f.subject) return false;
+                    if (f.qType && q.qType !== f.qType) return false;
+                    if (f.years.length && !f.years.includes(q.yearNum)) return false;
+                    if (f.tags.length && !f.tags.includes(q.tag)) return false;
+                    if (f.difficulty && q.difficulty !== f.difficulty) return false;
+                    if (onlyFavorites.value && !favorites.value.includes(q.id)) return false;
+                    if (kw) {
+                        const hay = (q.plainText + ' ' + q.tag + ' ' + q.subject + ' ' + q.year).toLowerCase();
+                        if (!hay.includes(kw)) return false;
+                    }
+                    return true;
                 });
+
+                const subOrder = SUBJECT_ORDER;
+                list = list.slice().sort((a, b) => {
+                    if (sortKey.value === 'year_asc') {
+                        return a.yearNum - b.yearNum || a.paperNo - b.paperNo;
+                    } else if (sortKey.value === 'subject') {
+                        return subOrder[a.subject] - subOrder[b.subject]
+                            || b.yearNum - a.yearNum || a.paperNo - b.paperNo;
+                    }
+                    return b.yearNum - a.yearNum || a.paperNo - b.paperNo;
+                });
+                return list;
             });
 
-            watch([() => currentFilters.value.subject, () => currentFilters.value.years], () => {
-                currentFilters.value.tags = currentFilters.value.tags.filter(tag => availableTags.value.includes(tag));
+            const visibleQuestions = computed(() => filteredQuestions.value.slice(0, displayCount.value));
+
+            const typeCount = computed(() => {
+                let choice = 0, big = 0, totalScore = 0;
+                filteredQuestions.value.forEach(q => {
+                    totalScore += q.score;
+                    if (q.qType === '单项选择题') choice++;
+                    else big++;
+                });
+                return {choice, big, totalScore};
             });
 
+            // 筛选条件变化时：重置分页、清理失效标签
+            watch([() => currentFilters.value.subject, () => currentFilters.value.years, () => currentFilters.value.qType], () => {
+                currentFilters.value.tags = currentFilters.value.tags.filter(t => availableTags.value.includes(t));
+            });
+            watch(filteredQuestions, () => {
+                displayCount.value = 48;
+                if (detailQuestion.value) {
+                    const idx = filteredQuestions.value.findIndex(q => q.id === detailQuestion.value.id);
+                    if (idx >= 0) detailIndex.value = idx;
+                    else detailQuestion.value = null;
+                }
+            });
+
+            // 弹窗打开时锁定背景滚动
+            watch([detailQuestion, paper], ([d, p]) => {
+                document.body.classList.toggle('modal-open', !!(d || p));
+            });
+
+            /* ---------------- 交互方法 ---------------- */
             const setFilter = (type, val) => {
-                if (currentFilters.value[type] === val && type !== 'subject') {
+                if (type !== 'subject' && currentFilters.value[type] === val) {
                     currentFilters.value[type] = null;
                 } else {
                     currentFilters.value[type] = val;
@@ -478,13 +1545,16 @@
             };
 
             const toggleFilterArray = (type, val) => {
-                const idx = currentFilters.value[type].indexOf(val);
-                if (idx > -1) currentFilters.value[type].splice(idx, 1);
-                else currentFilters.value[type].push(val);
+                const arr = currentFilters.value[type];
+                const idx = arr.indexOf(val);
+                if (idx > -1) arr.splice(idx, 1);
+                else arr.push(val);
             };
 
             const resetFilters = () => {
-                currentFilters.value = {subject: '全部', years: [], tags: [], difficulty: null};
+                currentFilters.value = {subject: '全部', qType: null, years: [], tags: [], difficulty: null};
+                keyword.value = '';
+                onlyFavorites.value = false;
                 showToast('已清空筛选条件');
             };
 
@@ -500,28 +1570,185 @@
                 localStorage.setItem('11408_favorites', JSON.stringify(favorites.value));
             };
 
-            const expandQuestion = (q) => {
-                console.log('查看大题/详细内容:', q.id);
+            const setPractice = (id, letter) => {
+                if (practice.value[id] === letter) delete practice.value[id];
+                else practice.value[id] = letter;
+                localStorage.setItem('11408_practice', JSON.stringify(practice.value));
             };
 
-            const triggerSmartGeneration = () => {
-                if (filteredQuestions.value.length < 5) {
-                    showToast('当前题量不足 (需≥5题)，请放宽筛选条件');
+            const cardStem = (q) => {
+                if (q.stem && q.stem.trim()) return q.stem;
+                if (q.plainText) return q.plainText.slice(0, 220);
+                if (q.hasImage) return '（图片扫描题，正文未提取出文字）';
+                return '（本题无文字内容）';
+            };
+
+            // 题干/选项中的 HTML 与数学符号渲染
+            const renderInline = (text) => sanitize(formatLatex(text || ''));
+
+            /* ---------------- 详情弹窗 ---------------- */
+            const openDetail = (q) => {
+                const idx = filteredQuestions.value.findIndex(item => item.id === q.id);
+                detailIndex.value = idx < 0 ? 0 : idx;
+                detailQuestion.value = q;
+            };
+
+            const closeDetail = () => {
+                detailQuestion.value = null;
+            };
+
+            const gotoPrev = () => {
+                if (detailIndex.value > 0) {
+                    detailIndex.value--;
+                    detailQuestion.value = filteredQuestions.value[detailIndex.value];
+                }
+            };
+
+            const gotoNext = () => {
+                if (detailIndex.value < filteredQuestions.value.length - 1) {
+                    detailIndex.value++;
+                    detailQuestion.value = filteredQuestions.value[detailIndex.value];
+                }
+            };
+
+            /* ---------------- 智能组卷（严格仿真 408：40 单选 80 分 + 7 综合 70 分 = 150） ---------------- */
+            // 单选题号 1-40：数据结构 10、组成原理 12、操作系统 10、计算机网络 8
+            const SINGLE_PLAN = [
+                {subject: '数据结构', count: 10},
+                {subject: '组成原理', count: 12},
+                {subject: '操作系统', count: 10},
+                {subject: '计算机网络', count: 8}
+            ];
+            // 综合题号 41-47：各科目题数与目标分值（合计 70）
+            const BIG_PLAN = [
+                {subject: '数据结构', count: 2, target: 23},
+                {subject: '组成原理', count: 2, target: 23},
+                {subject: '操作系统', count: 2, target: 15},
+                {subject: '计算机网络', count: 1, target: 9}
+            ];
+
+            const shuffle = (arr) => {
+                const a = arr.slice();
+                for (let i = a.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [a[i], a[j]] = [a[j], a[i]];
+                }
+                return a;
+            };
+
+            // 枚举 arr 中取 n 题且分值之和恰为 target 的全部下标组合
+            const findScoreCombos = (arr, n, target) => {
+                const result = [];
+                const dfs = (start, chosen, sum) => {
+                    if (chosen.length === n) {
+                        if (sum === target) result.push(chosen.slice());
+                        return;
+                    }
+                    for (let i = start; i < arr.length; i++) {
+                        chosen.push(i);
+                        dfs(i + 1, chosen, sum + arr[i].score);
+                        chosen.pop();
+                    }
+                };
+                dfs(0, [], 0);
+                return result;
+            };
+
+            // 单选题：优先取当前筛选池，不足时从全题库放宽补足并标记
+            const pickSingles = (pool, globalPool) => {
+                const out = [];
+                let filledCount = 0;
+                SINGLE_PLAN.forEach(plan => {
+                    const inPool = shuffle(pool.filter(q => q.qType === '单项选择题' && q.subject === plan.subject));
+                    let picked = inPool.slice(0, plan.count);
+                    if (picked.length < plan.count) {
+                        const exist = new Set(picked.map(q => q.id));
+                        const extra = shuffle(globalPool.filter(q =>
+                            q.qType === '单项选择题' && q.subject === plan.subject && !exist.has(q.id)));
+                        for (const q of extra) {
+                            if (picked.length >= plan.count) break;
+                            picked.push(q);
+                            filledCount++;
+                        }
+                    }
+                    picked.forEach(q => out.push({q, filled: !pool.includes(q)}));
+                });
+                return {out, filledCount};
+            };
+
+            // 综合题：按「题数 + 目标分值」抽取，保证卷面综合部分严格 70 分
+            const pickBigs = (pool, globalPool) => {
+                const out = [];
+                let filledCount = 0;
+                for (const plan of BIG_PLAN) {
+                    const match = q => q.qType === '综合应用题' && q.subject === plan.subject;
+                    let candidates = shuffle(pool.filter(match));
+                    let combos = findScoreCombos(candidates, plan.count, plan.target);
+                    let fromGlobal = false;
+                    if (!combos.length) {
+                        candidates = shuffle(globalPool.filter(match));
+                        combos = findScoreCombos(candidates, plan.count, plan.target);
+                        fromGlobal = true;
+                    }
+                    if (!combos.length) {
+                        showToast(`${plan.subject}综合题分值组合异常，无法组卷`);
+                        return null;
+                    }
+                    const chosenIdx = combos[Math.floor(Math.random() * combos.length)];
+                    chosenIdx.forEach(i => {
+                        if (fromGlobal) filledCount++;
+                        out.push({q: candidates[i], filled: fromGlobal});
+                    });
+                }
+                return {out, filledCount};
+            };
+
+            const generatePaper = () => {
+                if (rawQuestions.value.length < 47) {
+                    showToast('题库加载异常，无法组卷');
                     return;
                 }
-                showToast('正在根据比例及难度生成 408 专属试卷...');
+                const pool = filteredQuestions.value;
+                const singleRes = pickSingles(pool, rawQuestions.value);
+                const bigRes = pickBigs(pool, rawQuestions.value);
+                if (!bigRes || singleRes.out.length !== 40 || bigRes.out.length !== 7) {
+                    showToast('题库题量不足以组成完整试卷（数据异常）');
+                    return;
+                }
+
+                const singleScore = singleRes.out.reduce((s, i) => s + i.q.score, 0);
+                const bigScore = bigRes.out.reduce((s, i) => s + i.q.score, 0);
+
+                paper.value = {
+                    singles: singleRes.out,
+                    bigs: bigRes.out,
+                    singleScore,
+                    bigScore,
+                    totalScore: singleScore + bigScore,
+                    filledCount: singleRes.filledCount + bigRes.filledCount
+                };
+                showToast('已按 408 真题结构生成 150 分仿真试卷');
+            };
+
+            const printPaper = () => {
+                nextTick(() => window.print());
             };
 
             const showToast = (msg) => {
                 toastMsg.value = msg;
-                setTimeout(() => toastMsg.value = '', 2000);
+                if (toastTimer) clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => toastMsg.value = '', 2000);
             };
 
             return {
-                rawQuestions, loading, filterConfig, currentFilters,
-                availableYears, availableTags, filteredQuestions,
-                favorites, toastMsg,
-                setFilter, toggleFilterArray, resetFilters, toggleFavorite, expandQuestion, triggerSmartGeneration
+                rawQuestions, loading, filterConfig, currentFilters, favorites, practice,
+                availableYears, availableTags, filteredQuestions, visibleQuestions, typeCount,
+                keyword, sortKey, displayCount, onlyFavorites,
+                detailQuestion, detailIndex, paper, toastMsg,
+                setFilter, toggleFilterArray, resetFilters, toggleFavorite, setPractice,
+                cardStem, renderInline,
+                openDetail, closeDetail, gotoPrev, gotoNext,
+                generatePaper, printPaper
             };
         }
     }).mount('#app');
