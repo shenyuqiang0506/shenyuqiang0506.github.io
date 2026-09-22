@@ -361,6 +361,19 @@ img.q-fig { display: block; margin: 8px auto; max-width: 100%; max-height: 190px
   var YEARS = DATA.years || [];
   var YMIN = YEARS[0], YMAX = YEARS[YEARS.length - 1];
   var CHAPTERS = DATA.chapters || [];
+  // 线面积分在题目标签中已有数据，单独列出章节入口，避免埋在“多元函数积分学”中。
+  var LINE_SURFACE_TAGS = ["第一类曲线积分", "第二类曲线积分", "第一类曲面积分", "第二类曲面积分"];
+  if (!CHAPTERS.some(function (ch) { return ch.id === "高等数学::曲线积分与曲面积分"; })) {
+    var multiIndex = CHAPTERS.findIndex(function (ch) { return ch.title === "多元函数积分学"; });
+    var lineSurfaceChapter = {
+      id: "高等数学::曲线积分与曲面积分",
+      title: "线面积分（曲线积分与曲面积分）",
+      category: "高等数学",
+      tags: LINE_SURFACE_TAGS
+    };
+    if (multiIndex >= 0) CHAPTERS.splice(multiIndex + 1, 0, lineSurfaceChapter);
+    else CHAPTERS.push(lineSurfaceChapter);
+  }
 
   /* ---------- 索引 ---------- */
   var tagCount = {};
@@ -389,7 +402,7 @@ img.q-fig { display: block; margin: 8px auto; max-width: 100%; max-height: 190px
     count: 10,
     excludeDrawn: true,
     blank: false,              // 卷子留白
-    expanded: {},
+    expanded: { "高等数学::曲线积分与曲面积分": true },
     pending: [],
     checked: {}                // {id:true}
   };
