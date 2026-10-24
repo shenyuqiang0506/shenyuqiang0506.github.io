@@ -1,0 +1,3122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>考研英语大作文 · 交互拼装模板</title>
+    <style>
+        :root {
+            --ink: #1b2430;
+            --ink2: #3d4a58;
+            --muted: #7b8794;
+            --paper: #fbf9f4;
+            --card: #ffffff;
+            --line: #e2dbcd;
+            --line2: #efe9dc;
+            --accent: #b5432f;
+            --accent-soft: #fbeee8;
+            --blue: #1d4e6f;
+            --blue-soft: #eaf1f6;
+            --hl: #fdf1cf;
+            --hl-line: #d9a94a;
+            --shadow: 0 8px 28px rgba(27, 36, 48, .10);
+            --serif: Georgia, "Times New Roman", "Songti SC", serif;
+            --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: var(--sans);
+            background: var(--paper);
+            color: var(--ink);
+            font-size: 14px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer
+        }
+
+        select, input {
+            font-family: inherit
+        }
+
+        /* ---------- header ---------- */
+        .top {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            background: rgba(251, 249, 244, .96);
+            backdrop-filter: blur(6px);
+            border-bottom: 1px solid var(--line)
+        }
+
+        .top-in {
+            max-width: 1420px;
+            margin: 0 auto;
+            padding: 10px 18px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap
+        }
+
+        .brand {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-right: auto
+        }
+
+        .brand h1 {
+            font-size: 17px;
+            margin: 0;
+            letter-spacing: .5px;
+            font-weight: 700
+        }
+
+        .brand h1 b {
+            color: var(--accent)
+        }
+
+        .brand .sub {
+            font-size: 11px;
+            color: var(--muted);
+            letter-spacing: .4px
+        }
+
+        .tools {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        .tools select {
+            height: 31px;
+            max-width: 270px;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            background: #fff;
+            padding: 0 8px;
+            font-size: 12.5px;
+            color: var(--ink)
+        }
+
+        .btn {
+            height: 31px;
+            padding: 0 11px;
+            border: 1px solid var(--line);
+            background: #fff;
+            border-radius: 6px;
+            font-size: 12.5px;
+            color: var(--ink2);
+            transition: .15s
+        }
+
+        .btn:hover {
+            border-color: var(--muted);
+            background: #fffdf8
+        }
+
+        .btn.primary {
+            background: var(--ink);
+            color: #fdfbf5;
+            border-color: var(--ink)
+        }
+
+        .btn.primary:hover {
+            background: #000
+        }
+
+        .btn:disabled {
+            opacity: .4;
+            cursor: not-allowed
+        }
+
+        /* ---------- scenario nav ---------- */
+        .scen {
+            max-width: 1420px;
+            margin: 0 auto;
+            padding: 9px 18px 0;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap
+        }
+
+        .scen button {
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--ink2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12.5px;
+            letter-spacing: .2px;
+            transition: .15s
+        }
+
+        .scen button small {
+            color: var(--muted);
+            margin-left: 5px;
+            font-size: 10.5px
+        }
+
+        .scen button:hover {
+            border-color: var(--blue);
+            color: var(--blue)
+        }
+
+        .scen button.on {
+            background: var(--ink);
+            border-color: var(--ink);
+            color: #fdfbf5
+        }
+
+        .scen button.on small {
+            color: #c9b79e
+        }
+
+        /* ---------- option bar ---------- */
+        .opts {
+            max-width: 1420px;
+            margin: 0 auto;
+            padding: 8px 18px 10px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--line2)
+        }
+
+        .opts label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: var(--ink2);
+            cursor: pointer;
+            user-select: none
+        }
+
+        .opts input[type=checkbox] {
+            accent-color: var(--accent);
+            width: 13px;
+            height: 13px
+        }
+
+        .opts .connlab select {
+            height: 26px;
+            border: 1px solid var(--line);
+            border-radius: 5px;
+            background: #fff;
+            font-size: 11.5px;
+            color: var(--ink2);
+            padding: 0 6px;
+            max-width: 250px
+        }
+
+        .opts .count {
+            margin-left: auto;
+            font-size: 11.5px;
+            color: var(--muted);
+            font-variant-numeric: tabular-nums
+        }
+
+        /* ---------- layout ---------- */
+        main {
+            max-width: 1420px;
+            margin: 0 auto;
+            padding: 14px 18px 60px;
+            display: grid;
+            grid-template-columns:minmax(0, 1fr) minmax(380px, 46%);
+            gap: 18px;
+            align-items: start
+        }
+
+        @media (max-width: 1080px) {
+            main {
+                grid-template-columns:1fr
+            }
+
+            .preview {
+                position: static !important
+            }
+        }
+
+        /* ---------- editor ---------- */
+        .editor {
+            min-width: 0
+        }
+
+        .part {
+            margin-bottom: 14px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: var(--card);
+            overflow: hidden
+        }
+
+        .part-h {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 13px;
+            background: #fffdf8;
+            border-bottom: 1px solid var(--line2)
+        }
+
+        .part-h .idx {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--ink);
+            color: #fff;
+            font-size: 11px;
+            display: grid;
+            place-items: center;
+            flex: 0 0 auto
+        }
+
+        .part-h h2 {
+            font-size: 13.5px;
+            margin: 0;
+            letter-spacing: .3px
+        }
+
+        .part-h span:not(.idx) {
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: auto
+        }
+
+        .step {
+            padding: 10px 13px;
+            border-bottom: 1px dashed var(--line2);
+            transition: background .15s
+        }
+
+        .step:last-child {
+            border-bottom: 0
+        }
+
+        .step:hover {
+            background: #fffdf7
+        }
+
+        .step-h {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px
+        }
+
+        .step-h .lab {
+            font-size: 11.5px;
+            color: var(--accent);
+            font-weight: 600;
+            letter-spacing: .4px;
+            flex: 0 0 auto
+        }
+
+        .step-h select {
+            flex: 1;
+            min-width: 0;
+            height: 26px;
+            border: 1px solid var(--line);
+            border-radius: 5px;
+            background: #fff;
+            font-size: 11.5px;
+            color: var(--ink2);
+            padding: 0 6px
+        }
+
+        .step-h .tip {
+            font-size: 10.5px;
+            color: var(--muted);
+            flex: 0 0 auto
+        }
+
+        .sent {
+            font-family: var(--serif);
+            font-size: 14.5px;
+            line-height: 1.75;
+            color: var(--ink)
+        }
+
+        .sent .lit {
+            white-space: pre-wrap
+        }
+
+        .cn-line {
+            font-size: 11.5px;
+            color: var(--muted);
+            margin-top: 2px;
+            line-height: 1.6
+        }
+
+        /* slot chip */
+        .slot {
+            display: inline;
+            border: 0;
+            background: transparent;
+            padding: 1px 3px;
+            margin: 0 1px;
+            font: inherit;
+            color: var(--accent);
+            border-bottom: 1px dashed var(--accent);
+            border-radius: 3px 3px 0 0;
+            transition: .12s;
+            line-height: inherit
+        }
+
+        .slot:hover {
+            background: var(--accent-soft)
+        }
+
+        .slot.filled {
+            background: var(--hl);
+            color: #6b4a10;
+            border-bottom: 1px solid var(--hl-line);
+            font-weight: 600
+        }
+
+        .slot.filled:hover {
+            background: #fbe4a8
+        }
+
+        /* ---------- preview ---------- */
+        .preview {
+            position: sticky;
+            top: 104px
+        }
+
+        .pv-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px
+        }
+
+        .pv-bar h3 {
+            font-size: 12.5px;
+            margin: 0;
+            letter-spacing: .5px;
+            color: var(--ink2)
+        }
+
+        .pv-bar .wc {
+            margin-left: auto;
+            font-size: 11px;
+            color: var(--muted);
+            font-variant-numeric: tabular-nums
+        }
+
+        .paper {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 18px 20px 22px;
+            box-shadow: var(--shadow);
+            max-height: calc(100vh - 190px);
+            overflow: auto
+        }
+
+        .para {
+            margin-bottom: 14px
+        }
+
+        .para:last-child {
+            margin-bottom: 0
+        }
+
+        .para .pnum {
+            font-size: 10px;
+            color: var(--muted);
+            letter-spacing: 1px;
+            margin-bottom: 3px;
+            text-transform: uppercase
+        }
+
+        .para .en {
+            font-family: var(--serif);
+            font-size: 14.5px;
+            line-height: 1.85;
+            text-align: justify;
+            color: #141b24
+        }
+
+        .para .en p {
+            margin: 0 0 5px
+        }
+
+        .para .zh {
+            font-size: 11.5px;
+            line-height: 1.75;
+            color: #8a7f6d;
+            border-left: 2px solid var(--line);
+            padding-left: 8px;
+            margin-top: 6px
+        }
+
+        .para .zh p {
+            margin: 0 0 3px
+        }
+
+        .para .en .slot {
+            font-family: var(--serif)
+        }
+
+        .empty {
+            color: var(--muted);
+            font-size: 12px;
+            padding: 20px 0;
+            text-align: center
+        }
+
+        /* ---------- popover ---------- */
+        .pop {
+            position: fixed;
+            z-index: 90;
+            width: 340px;
+            max-width: calc(100vw - 24px);
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            box-shadow: 0 16px 44px rgba(27, 36, 48, .18);
+            overflow: hidden
+        }
+
+        .pop-h {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 11px;
+            border-bottom: 1px solid var(--line2);
+            background: #fffdf8
+        }
+
+        .pop-h b {
+            font-size: 12.5px
+        }
+
+        .pop-h .x {
+            margin-left: auto;
+            border: 0;
+            background: transparent;
+            font-size: 15px;
+            color: var(--muted);
+            line-height: 1;
+            padding: 2px 4px
+        }
+
+        .pop-h .x:hover {
+            color: var(--accent)
+        }
+
+        .pop-in {
+            display: flex;
+            gap: 6px;
+            padding: 9px 11px;
+            border-bottom: 1px solid var(--line2)
+        }
+
+        .pop-in input {
+            flex: 1;
+            min-width: 0;
+            height: 28px;
+            border: 1px solid var(--line);
+            border-radius: 5px;
+            padding: 0 7px;
+            font-size: 12.5px
+        }
+
+        .pop-in input:focus {
+            outline: 2px solid var(--blue-soft);
+            border-color: var(--blue)
+        }
+
+        .pop-in button {
+            height: 28px;
+            padding: 0 10px;
+            border: 1px solid var(--ink);
+            background: var(--ink);
+            color: #fff;
+            border-radius: 5px;
+            font-size: 12px
+        }
+
+        .pop-list {
+            max-height: 280px;
+            overflow: auto;
+            padding: 4px
+        }
+
+        .opt {
+            display: block;
+            width: 100%;
+            text-align: left;
+            border: 0;
+            background: transparent;
+            padding: 7px 8px;
+            border-radius: 6px;
+            transition: .12s
+        }
+
+        .opt:hover {
+            background: var(--blue-soft)
+        }
+
+        .opt .oe {
+            font-family: var(--serif);
+            font-size: 12.8px;
+            color: var(--ink);
+            line-height: 1.45
+        }
+
+        .opt .oc {
+            font-size: 11px;
+            color: var(--ink2);
+            margin-top: 1px
+        }
+
+        .opt .on {
+            font-size: 10.5px;
+            color: var(--muted);
+            margin-top: 2px;
+            line-height: 1.45
+        }
+
+        .opt.cur {
+            background: var(--hl)
+        }
+
+        .pop-f {
+            padding: 7px 11px;
+            border-top: 1px solid var(--line2);
+            display: flex;
+            gap: 8px
+        }
+
+        .pop-f button {
+            font-size: 11.5px;
+            border: 1px solid var(--line);
+            background: #fff;
+            border-radius: 5px;
+            padding: 3px 9px;
+            color: var(--ink2)
+        }
+
+        .pop-f button:hover {
+            border-color: var(--accent);
+            color: var(--accent)
+        }
+
+        /* toast */
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 28px;
+            transform: translateX(-50%) translateY(10px);
+            background: var(--ink);
+            color: #fff;
+            font-size: 12.5px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: .25s;
+            z-index: 120
+        }
+
+        .toast.on {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0)
+        }
+
+        @media print {
+            .top, .scen, .opts, .editor, .pv-bar {
+                display: none !important
+            }
+
+            main {
+                display: block;
+                padding: 0
+            }
+
+            .preview {
+                position: static
+            }
+
+            .paper {
+                box-shadow: none;
+                border: 0;
+                max-height: none;
+                padding: 0
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="top">
+    <div class="top-in">
+        <div class="brand">
+            <h1>大作文 <b>交互拼装</b></h1>
+            <span class="sub">英一 · 英二通用｜点红色方框填词，下拉换句式</span>
+        </div>
+        <div class="tools">
+            <select id="preset" title="载入真题预设"></select>
+            <button class="btn" id="undo" title="撤销上一步">撤销</button>
+            <button class="btn" id="clear" title="清空全部填写">清空</button>
+            <button class="btn primary" id="copy" title="复制英文全文">复制全文</button>
+        </div>
+    </div>
+</div>
+
+<nav class="scen" id="scen"></nav>
+
+<div class="opts">
+    <label><input type="checkbox" id="tg-bi" checked> 中英对照</label>
+    <label><input type="checkbox" id="tg-concise"> 考场精简</label>
+    <label><input type="checkbox" id="tg-three"> 三条原因（英一）</label>
+    <label><input type="checkbox" id="tg-hint" checked> 句位提示</label>
+    <label class="connlab">原因连接词
+        <select id="conn">
+            <option value="none">不加（自然衔接）</option>
+            <option value="c1">Firstly / Secondly / Thirdly</option>
+            <option value="c2">To begin with / What's more / Last but not least</option>
+            <option value="c3">To begin with / More importantly / Most importantly</option>
+            <option value="c4">For one thing / For another</option>
+            <option value="c5">First and foremost / Furthermore / Last but not least</option>
+        </select>
+    </label>
+    <span class="count" id="count"></span>
+</div>
+
+<main>
+    <section class="editor" id="editor"></section>
+    <aside class="preview">
+        <div class="pv-bar">
+            <h3>成稿预览</h3>
+            <button class="btn" id="copy2" style="height:26px;font-size:11.5px">复制</button>
+            <span class="wc" id="wc"></span>
+        </div>
+        <div class="paper" id="preview"></div>
+    </aside>
+</main>
+
+<div class="pop" id="pop" hidden></div>
+<div class="toast" id="toast"></div>
+
+<script>
+    (function () {
+        "use strict";
+        /* =====================================================================
+   考研英语大作文交互模板 · 单文件离线版
+   数据来源：AI 归来《考研英语大作文模板（英一英二通用）》27 版
+   ===================================================================== */
+
+        var $ = function (s, r) {
+            return (r || document).querySelector(s);
+        };
+        var $$ = function (s, r) {
+            return Array.prototype.slice.call((r || document).querySelectorAll(s));
+        };
+
+        /* ---------------------------- 槽位词库 ---------------------------- */
+        var SLOTS = {
+            topic: {
+                label: "主题词", ph: "health literacy", options: [
+                    {
+                        en: "Chinese residents' health literacy level",
+                        cn: "中国居民健康素养水平",
+                        note: "2023 英二 · 动态单方向"
+                    },
+                    {en: "graduates' choices", cn: "毕业生的选择", note: "2019 英二 · 动态多方向"},
+                    {
+                        en: "students' gains from a labor practice course",
+                        cn: "劳动实践课的学生收获",
+                        note: "2024 英二 · 静态占比"
+                    },
+                    {
+                        en: "the leisure activities of the elderly",
+                        cn: "老年人日常休闲活动",
+                        note: "2025 英二 · 静态占比"
+                    },
+                    {en: "children's outdoor activities", cn: "儿童户外活动", note: "2026 英二 · 静态占比"},
+                    {en: "household appliances", cn: "家用电器", note: "2025 英一 · 表格"},
+                    {en: "elderly-care robots", cn: "养老机器人", note: "2026 英一 · 双图表"},
+                    {en: "infrastructure construction", cn: "基础设施建设", note: "2024 英一 · 图画+图表"},
+                    {en: "traditional culture", cn: "传统文化", note: "2023 英一 · 图画"},
+                    {en: "environmental protection", cn: "环境保护", note: "2011 英一 · 图画"}
+                ]
+            },
+            y1: {
+                label: "起始年份",
+                ph: "2012",
+                options: [{en: "2012", cn: "2012", note: ""}, {en: "2013", cn: "2013", note: ""}, {
+                    en: "2018",
+                    cn: "2018",
+                    note: ""
+                }, {en: "2020", cn: "2020", note: ""}, {en: "2021", cn: "2021", note: ""}]
+            },
+            y2: {
+                label: "结束年份",
+                ph: "2021",
+                options: [{en: "2021", cn: "2021", note: ""}, {en: "2018", cn: "2018", note: ""}, {
+                    en: "2022",
+                    cn: "2022",
+                    note: ""
+                }, {en: "2023", cn: "2023", note: ""}, {en: "2024", cn: "2024", note: ""}]
+            },
+            n1: {
+                label: "数值①",
+                ph: "8.8%",
+                options: [{en: "8.8%", cn: "8.8%", note: "健康素养 2012"}, {
+                    en: "91.3%",
+                    cn: "91.3%",
+                    note: "劳动实践首位"
+                }, {en: "39.3%", cn: "39.3%", note: "养老机器人接受度"}, {
+                    en: "90.8%",
+                    cn: "90.8%",
+                    note: "看电视"
+                }, {en: "54.6%", cn: "54.6%", note: "满足好奇心"}]
+            },
+            n2: {
+                label: "数值②",
+                ph: "25.4%",
+                options: [{en: "25.4%", cn: "25.4%", note: ""}, {en: "84.8%", cn: "84.8%", note: ""}, {
+                    en: "32.8%",
+                    cn: "32.8%",
+                    note: ""
+                }, {en: "68.3%", cn: "68.3%", note: ""}, {en: "54.5%", cn: "54.5%", note: ""}]
+            },
+            n3: {
+                label: "数值③",
+                ph: "54.4%",
+                options: [{en: "54.4%", cn: "54.4%", note: ""}, {en: "27.9%", cn: "27.9%", note: ""}, {
+                    en: "34.7%",
+                    cn: "34.7%",
+                    note: ""
+                }, {en: "37.2%", cn: "37.2%", note: ""}, {en: "16.6", cn: "16.6", note: "百分点增量"}]
+            },
+            n4: {
+                label: "数值④",
+                ph: "32.6%",
+                options: [{en: "32.6%", cn: "32.6%", note: ""}, {en: "31.8%", cn: "31.8%", note: ""}, {
+                    en: "33.2%",
+                    cn: "33.2%",
+                    note: ""
+                }, {en: "24.9%", cn: "24.9%", note: ""}]
+            },
+            unit: {
+                label: "单位",
+                ph: "percentage points",
+                options: [{en: "percentage points", cn: "个百分点", note: "增减用"}, {
+                    en: "%",
+                    cn: "%",
+                    note: "占比用"
+                }, {en: "units", cn: "台/件", note: "实物数量"}, {en: "billion parcels", cn: "亿件", note: "快递量"}]
+            },
+            item1: {
+                label: "项目①", ph: "watching TV", options: [
+                    {en: "watching TV", cn: "看电视", note: "2025 英二"},
+                    {en: "acquiring relevant knowledge", cn: "获得相关知识", note: "2024 英二"},
+                    {en: "the proportion pursuing further study", cn: "继续深造比例", note: "2019 英二"},
+                    {en: "satisfying curiosity", cn: "满足好奇心", note: "2026 英二"},
+                    {
+                        en: "consumers' attitudes towards elderly-care robots",
+                        cn: "对养老机器人的态度",
+                        note: "2026 英一 双图左"
+                    },
+                    {en: "air conditioners", cn: "空调", note: "2025 英一"}
+                ]
+            },
+            item2: {
+                label: "项目②", ph: "walking", options: [
+                    {en: "walking", cn: "散步", note: ""},
+                    {en: "improving practical skills", cn: "提高动手能力", note: ""},
+                    {en: "the proportion entering the workforce", cn: "就业比例", note: ""},
+                    {en: "developing observational skills", cn: "培养观察力", note: ""},
+                    {en: "their major concerns about such robots", cn: "对机器人的主要担忧", note: "双图右"},
+                    {en: "refrigerators", cn: "冰箱", note: ""}
+                ]
+            },
+            item3: {
+                label: "项目③",
+                ph: "gardening",
+                options: [{en: "gardening", cn: "养花", note: ""}, {
+                    en: "feeling comfortable",
+                    cn: "心情舒畅",
+                    note: ""
+                }, {en: "strengthening physical fitness", cn: "强身健体", note: ""}, {
+                    en: "washing machines",
+                    cn: "洗衣机",
+                    note: ""
+                }, {en: "safety", cn: "安全", note: "2026 英一 担忧项"}]
+            },
+            item4: {
+                label: "项目④",
+                ph: "reading",
+                options: [{en: "reading", cn: "阅读", note: ""}, {
+                    en: "enhancing cooperation capacity",
+                    cn: "增强合作能力",
+                    note: ""
+                }, {en: "enhancing parent-child interaction", cn: "增强亲子互动", note: ""}, {
+                    en: "TV sets",
+                    cn: "电视机",
+                    note: ""
+                }, {en: "price", cn: "价格", note: "2026 英一 担忧项"}]
+            },
+            aspect: {
+                label: "某方面", ph: "personal growth", options: [
+                    {en: "personal growth", cn: "个人成长", note: "个人层面（命中 26 英二）"},
+                    {en: "physical and mental health", cn: "身心健康", note: "健康类"},
+                    {en: "social progress", cn: "社会进步", note: "社会层面"},
+                    {en: "economic growth", cn: "经济增长", note: "经济层面"},
+                    {en: "cultural inheritance", cn: "文化传承", note: "文化层面"},
+                    {en: "ecological balance", cn: "生态平衡", note: "自然层面"},
+                    {en: "effective communication", cn: "有效沟通", note: "交流层面"},
+                    {en: "our daily lives and studies", cn: "日常生活与学习", note: "万能兜底"}
+                ]
+            },
+            benefit: {
+                label: "好处", ph: "broaden their horizons", options: [
+                    {en: "broaden their horizons", cn: "开阔眼界", note: "通用"},
+                    {en: "improve their quality of life", cn: "提升生活质量", note: "民生类"},
+                    {en: "enhance their practical skills", cn: "增强实践能力", note: "教育类"},
+                    {en: "relieve the pressure of aging on families", cn: "缓解家庭养老压力", note: "养老类"},
+                    {en: "keep them well informed about current affairs", cn: "了解时事", note: "媒体类"},
+                    {en: "develop a positive mindset", cn: "培养积极心态", note: "心态类"}
+                ]
+            },
+            benefitS: {
+                label: "好处（名词）", ph: "a broader horizon", options: [
+                    {en: "a broader horizon", cn: "更开阔的眼界", note: "配 bring him…"},
+                    {en: "stronger practical skills", cn: "更强的实践能力", note: "配 bring him…"},
+                    {en: "a healthier lifestyle", cn: "更健康的生活方式", note: "配 bring him…"},
+                    {en: "a sense of belonging", cn: "归属感", note: "配 bring him…"},
+                    {en: "a more balanced life", cn: "更平衡的生活", note: "配 bring him…"}
+                ]
+            },
+            actor: {
+                label: "实施方", ph: "the authorities", options: [
+                    {en: "the authorities", cn: "当局/政府", note: "政策、法规、拨款"},
+                    {en: "enterprises", cn: "企业", note: "产品质量、价格"},
+                    {en: "parents and schools", cn: "家长与学校", note: "教育类"},
+                    {en: "new media platforms", cn: "新媒体平台", note: "宣传呼吁"},
+                    {en: "universities", cn: "高校", note: "课程、实践"},
+                    {en: "the public", cn: "公众", note: "意识、行为"}
+                ]
+            },
+            action: {
+                label: "具体动作", ph: "formulate strict regulations", options: [
+                    {en: "formulate strict regulations to ensure safety", cn: "制定严格法规保障安全", note: "监管类"},
+                    {en: "allocate more funds to build public facilities", cn: "拨款建设公共设施", note: "基建类"},
+                    {en: "improve public facilities for children", cn: "完善儿童公共设施", note: "26 英二"},
+                    {en: "raise public awareness of environmental protection", cn: "提高环保意识", note: "意识类"},
+                    {en: "create more opportunities for outdoor activities", cn: "创造更多户外活动机会", note: "教育类"}
+                ]
+            },
+            place: {
+                label: "环境", ph: "on the playground", options: [
+                    {en: "on the playground", cn: "在操场上", note: "清晰环境优先写具体"},
+                    {en: "in front of us", cn: "在我们面前", note: "万能环境"},
+                    {en: "in the middle of the picture", cn: "在图画中间", note: "万能环境"},
+                    {en: "in front of the board", cn: "在公告栏前", note: "2022 对话"}
+                ]
+            },
+            person: {
+                label: "主体", ph: "a young man", options: [
+                    {en: "a young man", cn: "一个年轻人", note: "2004 跑步"},
+                    {en: "an oil lamp", cn: "一盏小油灯", note: "2001 爱心"},
+                    {en: "two girls", cn: "两位女生", note: "2022 对话"},
+                    {en: "several urban residents", cn: "几位城市居民", note: "2024 公园"}
+                ]
+            },
+            detail: {
+                label: "细节", ph: "with a sweet smile on his face", options: [
+                    {en: "with a sweet smile on his face", cn: "脸上带着甜蜜的微笑", note: "通用"},
+                    {en: "with determination in his eyes", cn: "眼神中带着决心", note: "2019 坚持"},
+                    {en: "with an excited expression on her face", cn: "脸上带着兴奋", note: "2023 龙舟"},
+                    {en: "with curiosity in his eyes", cn: "眼神中带着好奇", note: "2018 选课"},
+                    {en: "with a worried look on his face", cn: "脸上带着担忧", note: "2020 习惯"}
+                ]
+            },
+            caption: {
+                label: "图中文字",
+                ph: "Love is a lamp.",
+                options: [{
+                    en: "Love is a lamp. The darker the place, the brighter it shines.",
+                    cn: "爱是一盏灯，越黑越亮",
+                    note: "2001 油灯"
+                }, {en: "Cultural hot pot, nutritious and delicious.", cn: "文化火锅，既美味又营养", note: "2010 火锅"}]
+            },
+            q1: {label: "甲的话", ph: "The lecture is not related to our major.", options: []},
+            q2: {label: "乙的话", ph: "It will be beneficial nonetheless.", options: []},
+            author: {
+                label: "作者观点", ph: "we are perceived as less biased when we show uncertainty", options: [
+                    {
+                        en: "we are perceived as less biased and willing to tell the truth when we show uncertainty in a transparent way",
+                        cn: "透明地表达不确定性时，我们显得更少偏见、更愿说真话",
+                        note: "大纲样题 1"
+                    },
+                    {
+                        en: "we cannot blame the screens because children have lost the right to make sense of the world",
+                        cn: "不能责怪屏幕，因为孩子失去了理解世界的机会",
+                        note: "大纲样题 2"
+                    }
+                ]
+            },
+        };
+
+        /* ---------------------------- 图表作文 ---------------------------- */
+        SLOTS.choice = {
+            label: "具体行为", ph: "choose a healthy lifestyle", options: [
+                {en: "choose a healthy lifestyle", cn: "选择健康生活方式", note: "健康类"},
+                {en: "engage in accessible leisure activities", cn: "参与易上手的休闲活动", note: "2025 英二"},
+                {en: "pursue further education", cn: "继续深造", note: "2019 英二"},
+                {en: "take part in outdoor activities", cn: "参加户外活动", note: "2026 英二"}
+            ]
+        };
+        SLOTS.group = {
+            label: "人群", ph: "undergraduates", options: [
+                {en: "undergraduates", cn: "大学生", note: "校园类"},
+                {en: "residents", cn: "居民", note: "民生类"},
+                {en: "elderly residents", cn: "老年居民", note: "2025 英二"},
+                {en: "parents", cn: "家长", note: "2026 英二"},
+                {en: "consumers", cn: "消费者", note: "消费类"},
+                {en: "citizens", cn: "市民", note: "城市类"}
+            ]
+        };
+        SLOTS.result = {
+            label: "结果", ph: "earns the respect of our class", options: [
+                {en: "earns the respect of our class", cn: "赢得全班尊重", note: "正面"},
+                {en: "has made remarkable progress", cn: "取得明显进步", note: "正面"},
+                {en: "regretted everything he had done", cn: "后悔自己的所作所为", note: "负面"}
+            ]
+        };
+
+        var CHART = [
+            {
+                part: 1, title: "第一段 · 图表描述", sub: "总体 → 具体 → 现象", steps: [
+                    {
+                        id: "p1_ov",
+                        label: "① 总体描述",
+                        hint: "看图形选一句",
+                        scenes: ["dyn1", "dyn2", "static", "double", "pic_chart"],
+                        variants: [
+                            {
+                                id: "ov1",
+                                sc: "dyn1",
+                                name: "待选 1 · which 从句",
+                                note: "单变量整体上升；主题词须是实体（行业/城市/品牌）",
+                                en: "The chart above illustrates the changes in {{topic}} from {{y1}} to {{y2}}, during which it rose steadily.",
+                                cn: "上图展示了{{y1}}至{{y2}}间{{topic}}的变化，其间稳步上升。"
+                            },
+                            {
+                                id: "ov2",
+                                sc: "dyn1",
+                                name: "待选 2 · 趋势作宾语",
+                                note: "主语是实体；若主题词是数据（率/量/占比），改用时间作主语",
+                                en: "{{topic}} saw a steady rise from {{y1}} to {{y2}}, as illustrated in the chart.",
+                                cn: "如图表所示，{{topic}}在{{y1}}至{{y2}}间稳步上升。"
+                            },
+                            {
+                                id: "ov3",
+                                sc: "dyn1",
+                                name: "待选 3 · 状语式",
+                                note: "最保险，不用管主题词是实体还是数据",
+                                en: "According to the data given in the chart, the number of {{topic}} climbed steadily from {{y1}} to {{y2}}.",
+                                cn: "根据图中数据，{{topic}}的数量在{{y1}}至{{y2}}间稳步攀升。"
+                            },
+                            {
+                                id: "ov4",
+                                sc: "dyn2",
+                                name: "待选 1 · among which 从句",
+                                note: "多变量分化，只点出最突出的一项",
+                                en: "The chart above illustrates the changes in {{topic}} from {{y1}} to {{y2}}, among which the rise in {{item1}} was the most striking.",
+                                cn: "上图展示了{{y1}}至{{y2}}间{{topic}}的变化，其中{{item1}}的上升最为显著。"
+                            },
+                            {
+                                id: "ov5",
+                                sc: "dyn2",
+                                name: "待选 2 · divergent + with",
+                                note: "两个方向相反时最自然，with 后接现在分词",
+                                en: "{{topic}} experienced divergent trends from {{y1}} to {{y2}}, with {{item1}} rising most sharply.",
+                                cn: "{{topic}}在{{y1}}至{{y2}}间呈分化趋势，其中{{item1}}上升最剧烈。"
+                            },
+                            {
+                                id: "ov6",
+                                sc: "dyn2",
+                                name: "待选 3 · 对比状语",
+                                note: "三个变量时只写对比最鲜明的两个，第三个留给细节句",
+                                en: "As reflected in the chart, {{topic}} moved in opposite directions from {{y1}} to {{y2}}, {{item1}} rising while {{item2}} falling.",
+                                cn: "如图中数据所示，{{topic}}朝相反方向变化，{{item1}}上升而{{item2}}下降。"
+                            },
+                            {
+                                id: "ov7",
+                                sc: "static",
+                                name: "待选 1 · distribution + with",
+                                note: "静态占比首选，3D 之 distribution",
+                                en: "The chart above presents the distribution of {{topic}} in {{y2}}, with {{item1}} accounting for the largest share.",
+                                cn: "上图呈现了{{y2}}年{{topic}}的分布，其中{{item1}}占比最高。"
+                            },
+                            {
+                                id: "ov8",
+                                sc: "static",
+                                name: "待选 2 · dominance",
+                                note: "仅当第一项断崖式领先时用，否则失真",
+                                en: "The chart above highlights the dominance of {{item1}} in {{topic}}, with it overshadowing all other components.",
+                                cn: "上图突出了{{item1}}在{{topic}}中的主导地位，其远超其他各项。"
+                            },
+                            {
+                                id: "ov9",
+                                sc: "static",
+                                name: "待选 3 · disparity",
+                                note: "各项差距大、且不想突出第一名时用",
+                                en: "The chart above reveals a striking disparity in {{topic}}, with the proportions ranging from {{n4}} to {{n1}}.",
+                                cn: "上图揭示了{{topic}}中的显著差距，占比从{{n4}}到{{n1}}不等。"
+                            },
+                            {
+                                id: "ov10",
+                                sc: "double",
+                                name: "待选 1 · while 并列",
+                                note: "两图地位平等，一句话交代完",
+                                en: "The chart on the left illustrates {{item1}}, while the chart on the right presents {{item2}}.",
+                                cn: "左图展示了{{item1}}，右图呈现了{{item2}}。"
+                            },
+                            {
+                                id: "ov11",
+                                sc: "double",
+                                name: "待选 2 · 分句描述",
+                                note: "两图内容都较长时，避免一句话过重",
+                                en: "The pie chart above presents {{item1}}. As for the chart on the right, it shows {{item2}}.",
+                                cn: "上图呈现了{{item1}}。至于右图，它展示了{{item2}}。"
+                            },
+                            {
+                                id: "ov12",
+                                sc: "double",
+                                name: "待选 3 · 总分结构",
+                                note: "两图同属一个主题时，先总后分最清楚",
+                                en: "The two charts present {{topic}}: the pie chart shows {{item1}}, while the bar chart on the right lists {{item2}}.",
+                                cn: "两幅图呈现了{{topic}}：饼图显示{{item1}}，右图列出{{item2}}。"
+                            },
+                            {
+                                id: "ov13",
+                                sc: "pic_chart",
+                                name: "一图一表 · 图表部分",
+                                note: "2024 英一写法：图画描述 + 图表总体描述叠加",
+                                en: "Referring to the statistics provided in the right chart, the number of {{item1}} increased remarkably from {{n1}} in {{y1}} to {{n2}} in {{y2}}.",
+                                cn: "参考右图数据，{{item1}}的数量从{{y1}}年的{{n1}}显著增至{{y2}}年的{{n2}}。"
+                            },
+                            {
+                                id: "ov14",
+                                sc: "any",
+                                name: "万能 1 · 有变化",
+                                note: "看不懂图时用，只交代“有变化”，不写数字",
+                                en: "Some remarkable changes in {{topic}} have taken place in the past few years.",
+                                cn: "过去几年{{topic}}发生了显著变化。"
+                            },
+                            {
+                                id: "ov15", sc: "any", name: "万能 2 · 有变化", note: "动态图兜底，带年份更稳",
+                                en: "The chart above shows the variation in {{topic}} from {{y1}} to {{y2}}.",
+                                cn: "上图展示了{{y1}}至{{y2}}间{{topic}}的变化。"
+                            },
+                            {
+                                id: "ov16", sc: "any", name: "万能 3 · 有变化", note: "只强调“有明显变化”，最不容易写错",
+                                en: "The proportions of {{topic}} had visible changes during the period from {{y1}} to {{y2}}.",
+                                cn: "{{topic}}的占比在{{y1}}至{{y2}}间发生明显变化。"
+                            },
+                            {
+                                id: "ov17", sc: "any", name: "万能 4 · 有占比", note: "静态图兜底，自带“差距大”的判断",
+                                en: "The chart shows the distribution of {{topic}} at a glance, revealing a striking disparity among the options.",
+                                cn: "该图一目了然地展示了{{topic}}的分布，揭示出各项间的巨大差异。"
+                            },
+                            {
+                                id: "ov18", sc: "any", name: "万能 5 · 有占比", note: "最安全的一句，什么图都能接",
+                                en: "The chart above presents {{topic}}, offering a clear picture of the overall situation.",
+                                cn: "上图呈现了{{topic}}，清晰展示了整体情况。"
+                            },
+                            {
+                                id: "ov19", sc: "any", name: "万能 6 · 纯信息", note: "零判断、零趋势，时间紧时直接用",
+                                en: "The chart above provides information about {{topic}} from {{y1}} to {{y2}}.",
+                                cn: "上图提供了{{y1}}至{{y2}}间关于{{topic}}的信息。"
+                            }
+                        ]
+                    },
+                    {
+                        id: "p1_dt",
+                        label: "② 细节描述",
+                        hint: "To be specific 起句",
+                        scenes: ["dyn1", "dyn2", "static", "double", "pic_chart"],
+                        variants: [
+                            {
+                                id: "dt1",
+                                sc: "dyn",
+                                name: "动态公式 1 · 双变量对比",
+                                note: "两条曲线一升一降时最好用；三个数据配三种动词+副词",
+                                en: "To be specific, the proportion of {{item1}} decreased markedly from {{n1}} to {{n2}}. Meanwhile, that of {{item2}} climbed significantly from {{n3}} to {{n4}}.",
+                                cn: "具体而言，{{item1}}的比例从{{n1}}显著降至{{n2}}；与此同时，{{item2}}的比例从{{n3}}升至{{n4}}。"
+                            },
+                            {
+                                id: "dt1b",
+                                sc: "dyn",
+                                name: "动态公式 1′ · 先降后升（镜像）",
+                                note: "主语顺序与公式 1 相反：item2 降、item1 升，用于“升学升、就业降”一类图",
+                                en: "To be specific, the proportion of {{item2}} decreased markedly from {{n1}} to {{n2}}. Meanwhile, that of {{item1}} climbed significantly from {{n3}} to {{n4}}.",
+                                cn: "具体而言，{{item2}}的比例从{{n1}}显著降至{{n2}}；与此同时，{{item1}}的比例从{{n3}}升至{{n4}}。"
+                            },
+                            {
+                                id: "dt2",
+                                sc: "dyn",
+                                name: "动态公式 2 · 首尾对比",
+                                note: "只有一条线时用，必须带单位（百分点/台/件）",
+                                en: "To be specific, the figure for {{item1}} was {{n1}} in {{y1}}, compared with {{n2}} in {{y2}}, showing an increase of {{n3}} {{unit}}.",
+                                cn: "具体而言，{{item1}}在{{y1}}年为{{n1}}，{{y2}}年为{{n2}}，增长了{{n3}}{{unit}}。"
+                            },
+                            {
+                                id: "dt3",
+                                sc: "dyn",
+                                name: "动态公式 3 · 倍数",
+                                note: "涨幅大时最有冲击力；2 倍 twice，3 倍 triple",
+                                en: "To be specific, the figure in {{y2}} was almost three times that in {{y1}}.",
+                                cn: "具体而言，{{y2}}年的数值几乎是{{y1}}年的三倍。"
+                            },
+                            {
+                                id: "dt4",
+                                sc: "dyn",
+                                name: "例外 · 2012 表格",
+                                note: "成分过多且无趋势，只挑两组代表数据，不可套公式",
+                                en: "To be specific, half of the employees under 40 and half of those over 50 were uncertain about their satisfaction, while 64% of those aged 41 to 50 were dissatisfied.",
+                                cn: "具体而言，40 岁以下和 50 岁以上员工中各有一半对满意度不确定，而 41 至 50 岁员工中 64% 表示不满意。"
+                            },
+                            {
+                                id: "dt5",
+                                sc: "static",
+                                name: "静态公式 1 · 首项 + 其余并列",
+                                note: "把主语固定在 proportion of 上，避免 percentages 与动词不一致；排名只写前两名",
+                                en: "To be specific, the proportion of {{item1}} stands at {{n1}}, followed by {{item2}} at {{n2}}, {{item3}} at {{n3}} and {{item4}} at {{n4}}. Notably, {{item1}} tops the list.",
+                                cn: "具体而言，{{item1}}的比例为{{n1}}，其次是{{item2}}（{{n2}}）、{{item3}}（{{n3}}）和{{item4}}（{{n4}}）。值得注意的是，{{item1}}位居首位。"
+                            },
+                            {
+                                id: "dt6",
+                                sc: "static",
+                                name: "静态公式 2 · 倍数",
+                                note: "同一年份两个变量对比，静态图专用",
+                                en: "To be specific, {{item1}} accounts for nearly twice the share of {{item2}}.",
+                                cn: "具体而言，{{item1}}的占比几乎是{{item2}}的两倍。"
+                            },
+                            {
+                                id: "dt7",
+                                sc: "double",
+                                name: "双图 · 第二图排名",
+                                note: "第一图用静态公式 1，第二图用这句，避免两句结构重复",
+                                en: "As for the second chart, {{item3}} tops the list, at {{n4}}, followed by {{item4}} at {{n3}}.",
+                                cn: "至于第二幅图，{{item3}}居首，占{{n4}}，其次是{{item4}}，占{{n3}}。"
+                            },
+                            {
+                                id: "dt0",
+                                sc: "pic_chart",
+                                name: "不写 · 跳过此句",
+                                note: "一图一表已有一句数据，再写会重复，默认跳过",
+                                en: "",
+                                cn: ""
+                            },
+                            {
+                                id: "dt8",
+                                sc: "pic_chart",
+                                name: "一图一表 · 数据句",
+                                note: "图表部分只写一组首尾数据，篇幅有限",
+                                en: "To be specific, the figure rose remarkably from {{n1}} in {{y1}} to {{n2}} in {{y2}}.",
+                                cn: "具体而言，该数值从{{y1}}年的{{n1}}显著升至{{y2}}年的{{n2}}。"
+                            }
+                        ]
+                    },
+                    {
+                        id: "p1_ph_t",
+                        label: "③ 社会现象 · 过渡",
+                        hint: "与下一句合成一句",
+                        scenes: ["dyn1", "dyn2", "static", "double", "pic_chart"],
+                        variants: [
+                            {
+                                id: "pt0a",
+                                name: "升级句 · The purpose … remind",
+                                note: "最原始的句型，remind 后接人；把 purpose 换成 message / primary intention 亦可",
+                                en: "The purpose of the chart is to remind us that",
+                                cn: "该图的目的是提醒我们："
+                            },
+                            {
+                                id: "pt0b",
+                                name: "升级句 · aims to convince",
+                                note: "convince 使信服，比 remind 更有力度",
+                                en: "The chart aims to convince the public that",
+                                cn: "该图意在使公众相信："
+                            },
+                            {
+                                id: "pt0c", name: "升级句 · highlight the fact", note: "删除 us，直接强调事实",
+                                en: "The chart serves to highlight the fact that", cn: "该图起到强调这一事实的作用："
+                            },
+                            {
+                                id: "pt0d",
+                                name: "升级句 · message to society",
+                                note: "purpose 换 message，us 换 the whole society",
+                                en: "The primary intention of the chart is to remind the whole society that",
+                                cn: "该图的首要意图是提醒整个社会："
+                            },
+                            {
+                                id: "pt1", name: "过渡 1 · It is apparent", note: "最通用，后接完整从句",
+                                en: "It is apparent from the statistics that", cn: "从统计数据可明显看出，"
+                            },
+                            {
+                                id: "pt2", name: "过渡 2 · lead us to the conclusion", note: "语气更重，适合结论型现象",
+                                en: "These data lead us to the conclusion that", cn: "这些数据使我们得出结论："
+                            },
+                            {
+                                id: "pt3",
+                                name: "过渡 3 · Despite its simplicity",
+                                note: "图表信息简单、现象直白时用，自带转折",
+                                en: "Despite its apparent simplicity, the chart highlights the core information that",
+                                cn: "尽管看似简单，该图却突出了核心信息："
+                            },
+                            {
+                                id: "pt4",
+                                name: "过渡 4 · communicates its meaning",
+                                note: "后接冒号，适合一句话说清的现象",
+                                en: "The chart clearly communicates its intended meaning:",
+                                cn: "该图清楚地传达了其意图："
+                            },
+                            {
+                                id: "pt5",
+                                name: "过渡 5 · message to the young",
+                                note: "对象是年轻人/学生时用，否则改称呼",
+                                en: "The chart appears to convey a message to the younger generation, reminding them that",
+                                cn: "该图似乎向年轻一代传达了一条信息，提醒他们："
+                            }
+                        ]
+                    },
+                    {
+                        id: "p1_ph_c",
+                        label: "④ 社会现象 · 内容",
+                        hint: "三选一：变化 / 占比 / 认同",
+                        attach: true,
+                        scenes: ["dyn1", "dyn2", "static", "double", "pic_chart"],
+                        variants: [
+                            {
+                                id: "pc1",
+                                name: "方案 1 · 水平/率在提升",
+                                note: "主题词是 level/rate/proportion 时用，配 improve/rise",
+                                en: "{{topic}} has been improving rapidly in recent years.",
+                                cn: "{{topic}}近年来迅速提升。"
+                            },
+                            {
+                                id: "pc2", name: "方案 2 · 越来越多人在做", note: "主题词是行为/选择时用，最像人话",
+                                en: "an increasing number of {{group}} tend to {{choice}} when they are able.",
+                                cn: "越来越多的{{group}}在有条件时倾向于{{choice}}。"
+                            },
+                            {
+                                id: "pc3", name: "方案 3 · 某现象流行", note: "主题词是行为/做法时用，配 common/popular",
+                                en: "{{topic}} is becoming common among {{group}}.",
+                                cn: "{{topic}}在{{group}}中正变得普遍。"
+                            },
+                            {
+                                id: "pc4", name: "方案 4 · 受到关注", note: "态度型图表（新技术/新观念）专用",
+                                en: "{{topic}} has drawn growing attention from the public.",
+                                cn: "{{topic}}日益受到公众关注。"
+                            },
+                            {
+                                id: "pc5", name: "方案 5 · 万能兜底", note: "不补任何成分，实在想不出时用",
+                                en: "this is a common phenomenon in modern society.",
+                                cn: "这是当今社会很常见的现象。"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                part: 2, title: "第二段 · 原因分析", sub: "过渡 1 句 + 原因 2~3 句", steps: [
+                    {
+                        id: "p2_t", label: "⑤ 过渡句", hint: "一句话引出原因", variants: [
+                            {
+                                id: "r0a",
+                                name: "待选 1 · three key reasons",
+                                note: "英一三条原因时用，数字与后文一致",
+                                en: "Three key reasons, from my perspective, account for this phenomenon.",
+                                cn: "在我看来，三个关键原因可以解释这一现象。"
+                            },
+                            {
+                                id: "r0b",
+                                name: "待选 2 · summarized as",
+                                note: "最稳，不承诺数量，英二写两条也不矛盾",
+                                en: "From my perspective, the causes behind this phenomenon can be summarized as three main aspects.",
+                                cn: "在我看来，{{topic}}的成因可归结为三个主要方面。"
+                            },
+                            {
+                                id: "r0c", name: "待选 3 · several factors", note: "英二首选，两条原因也能用",
+                                en: "Several factors contribute to this phenomenon.", cn: "几个因素促成了这一现象。"
+                            },
+                            {
+                                id: "r0d",
+                                name: "待选 4 · a variety of reasons",
+                                note: "比 several 更正式，适合书面论证",
+                                en: "A variety of reasons can be cited to account for this phenomenon.",
+                                cn: "可以举出多种原因来解释这一现象。"
+                            },
+                            {
+                                id: "r0e",
+                                name: "待选 5 · a combination",
+                                note: "强调多因共同作用，适合复杂社会现象",
+                                en: "A combination of factors has contributed to the tendency reflected in this chart.",
+                                cn: "多种因素共同促成了该图所反映的趋势。"
+                            }
+                        ]
+                    },
+                    {
+                        id: "p2_r1", label: "⑥ 原因 ①", hint: "六种路线任选", variants: [
+                            {
+                                id: "rs1",
+                                name: "方案一 · 举例（个人路线）",
+                                note: "最好写、最像人话；例子要具体到人/地/事",
+                                en: "For instance, my roommate, Kevin, is passionate about {{topic}}, which brings him {{benefitS}}. Consequently, he {{result}}.",
+                                cn: "例如，我的室友凯文热爱{{topic}}，这为他带来了{{benefitS}}。因此，他{{result}}。"
+                            },
+                            {
+                                id: "rs2", name: "方案二 · 群众路线", note: "适合发展、教育、就业等“大众选择”类主题",
+                                en: "The majority of {{group}} believe that {{topic}} will provide them with a broader platform to {{benefit}}, which may put them in a beneficial position in the future.",
+                                cn: "大多数{{group}}认为{{topic}}将为他们提供更广阔的平台去{{benefit}}，这可能让他们在未来处于有利位置。"
+                            },
+                            {
+                                id: "rs3",
+                                name: "方案三 · 从句 + 短语",
+                                note: "最长句，靠 play a crucial role in 撑字数",
+                                en: "It is widely believed that {{topic}} plays a crucial role in {{aspect}}.",
+                                cn: "人们普遍认为，{{topic}}对{{aspect}}起着关键作用。"
+                            },
+                            {
+                                id: "rs4", name: "方案三变体 · 密不可分", note: "强调因果/依存关系，适合经济、技术类",
+                                en: "There is no doubt that {{topic}} is inextricably linked to {{aspect}}.",
+                                cn: "毫无疑问，{{topic}}与{{aspect}}密不可分。"
+                            },
+                            {
+                                id: "rs5", name: "方案四 · not only 倒装", note: "一正一反写两个好处，句子立刻变长",
+                                en: "Not only does {{topic}} improve {{aspect}}, but this also enables them to {{benefit}}.",
+                                cn: "{{topic}}不仅改善{{aspect}}，还使他们能够{{benefit}}。"
+                            },
+                            {
+                                id: "rs6", name: "方案五 · 虚拟语气", note: "建议放段尾收束，警示感强；别扣太狠",
+                                en: "If we ignored the importance of {{topic}}, we would never become a better version of ourselves.",
+                                cn: "如果我们忽视{{topic}}的重要性，就永远不会成为更好的自己。"
+                            },
+                            {
+                                id: "rs7", name: "方案六 · 对比论证", note: "二选一型图表（就业 vs 深造）专用",
+                                en: "Compared with {{item2}}, {{item1}} can {{benefit}}, so as to promote {{aspect}}.",
+                                cn: "与{{item2}}相比，{{item1}}能够{{benefit}}，从而促进{{aspect}}。"
+                            }
+                        ]
+                    },
+                    {id: "p2_r2", label: "⑦ 原因 ②", hint: "换一条不同路线", variants: "SAME_REASON"},
+                    {id: "p2_r3", label: "⑧ 原因 ③", hint: "英一用；英二关掉", optional: true, variants: "SAME_REASON"}
+                ]
+            },
+            {
+                part: 3, title: "第三段 · 总结 + 措施 + 展望", sub: "英二 4 句，可换趋势预测", steps: [
+                    {
+                        id: "p3_sum", label: "⑨ 总结全文", hint: "重申中心思想", variants: [
+                            {
+                                id: "sm1",
+                                name: "公式 1 · enough attention",
+                                note: "万能，注意时态：已重视用 has been paid",
+                                en: "It is not difficult to draw the conclusion that enough attention must be paid to {{topic}} by ourselves and our society.",
+                                cn: "不难得出结论：我们自身与社会都必须对{{topic}}给予足够重视。"
+                            },
+                            {
+                                id: "sm2", name: "公式 2 · bear in mind", note: "意志品质类（坚持/合作/终身学习）首选",
+                                en: "We should bear in mind that {{topic}} is of great importance to {{aspect}}.",
+                                cn: "我们应牢记，{{topic}}对{{aspect}}极为重要。"
+                            },
+                            {
+                                id: "sm3",
+                                name: "公式 3 · not an option but a necessity",
+                                note: "语气最强，适合文化传承、养老等“非做不可”的话题",
+                                en: "The discussion leads us to the realization that {{topic}} is not an option, but a necessity.",
+                                cn: "讨论使我们认识到，{{topic}}不是选择，而是必需。"
+                            },
+                            {
+                                id: "sm4",
+                                name: "公式 4 · undeniable fact",
+                                note: "适合已普及的事物（互联网、机器人、户外活动）",
+                                en: "We are faced with the undeniable fact that {{topic}} has become an integral part of our lives.",
+                                cn: "我们面临一个不可否认的事实：{{topic}}已成为生活中不可或缺的一部分。"
+                            },
+                            {
+                                id: "sm5", name: "方案二 · 否定词倒装", note: "气势足，适合结尾前压一句",
+                                en: "By no means should we underestimate the profound impact of {{topic}} on {{aspect}}.",
+                                cn: "我们绝不能低估{{topic}}对{{aspect}}的深远影响。"
+                            },
+                            {
+                                id: "sm6",
+                                name: "万能 1 · deserves consideration",
+                                note: "应急，不用改任何词",
+                                en: "It is evident that the trend reflected in the chart deserves our careful consideration.",
+                                cn: "很明显，图表反映的趋势值得我们认真思考。"
+                            },
+                            {
+                                id: "sm7",
+                                name: "万能 2 · further attention",
+                                note: "应急，静态动态都能接",
+                                en: "There is no denying that further attention must be paid to the phenomenon mentioned above.",
+                                cn: "不可否认，必须对上述现象给予进一步关注。"
+                            },
+                            {
+                                id: "sm8",
+                                name: "万能 3 · given the above analysis",
+                                note: "承上启下最顺，但略套话",
+                                en: "Given the above analysis, it is not difficult to understand why this phenomenon has aroused widespread concern.",
+                                cn: "鉴于以上分析，不难理解这一现象为何引起广泛关注。"
+                            }
+                        ]
+                    },
+                    {
+                        id: "p3_m1", label: "⑩ 措施 ①", hint: "For one thing", prefix: "For one thing, ", variants: [
+                            {
+                                id: "ms1", name: "角度 · 政府作为", note: "最百搭，法规/政策/拨款三选一",
+                                en: "it is imperative for the authorities to {{action}}.",
+                                cn: "当局必须{{action}}。"
+                            },
+                            {
+                                id: "ms2", name: "角度 · 公民意识", note: "教育、环保、健康类通用",
+                                en: "we should also raise public awareness of {{topic}} among children and adults.",
+                                cn: "我们还应在孩子和成人中提高对{{topic}}的意识。"
+                            },
+                            {
+                                id: "ms3", name: "角度 · 个人行为", note: "强调身体力行，适合环保、节约",
+                                en: "we should spare no pains to {{action}} and make our society better.",
+                                cn: "我们应不遗余力地{{action}}，让社会更美好。"
+                            },
+                            {
+                                id: "ms4", name: "角度 · 媒体呼吁", note: "适合社会热点、消费类",
+                                en: "new media platforms should appeal to users to adopt a sustainable lifestyle.",
+                                cn: "新媒体平台应呼吁用户采取可持续的生活方式。"
+                            },
+                            {
+                                id: "ms5", name: "角度 · 家庭教育", note: "教育、习惯、阅读类专用",
+                                en: "parents and teachers should set a good example for children in {{topic}}.",
+                                cn: "家长和老师应在{{topic}}方面为孩子树立榜样。"
+                            },
+                            {
+                                id: "ms0",
+                                name: "不写 · 跳过此句",
+                                note: "当选了下面的“两句式方案”时，把措施②设为不写，避免重复",
+                                en: "",
+                                cn: ""
+                            },
+                            {
+                                id: "ms6",
+                                name: "方案二 · 先立后破（长）",
+                                note: "两句一段：先写多数人的做法，再转折给出你的看法；适合措施短、主题短的题",
+                                en: "When it comes to concrete solutions, some people hold that {{actor}} must take responsibility for {{topic}}. In fact, it is {{aspect}} that plays a crucial role in solving the problem.",
+                                cn: "谈到具体解决方案，有人认为{{actor}}必须为{{topic}}负责。事实上，真正在解决问题中起关键作用的是{{aspect}}。"
+                            },
+                            {
+                                id: "ms7",
+                                name: "方案二变体 · 表面 vs 实际",
+                                note: "对比两种措施，显得有独立判断；句子较长，注意字数",
+                                en: "On the surface, building more facilities seems to be a sound solution, but on careful consideration, we find that raising public awareness is a more reasonable and effective approach.",
+                                cn: "表面上，建设更多设施似乎是合理的解决方案，但仔细考虑后会发现，提高公众意识才是更合理、更有效的办法。"
+                            },
+                            {
+                                id: "ms5b", name: "角度 · 家庭/学校（备选）", note: "儿童、青少年话题更贴切",
+                                en: "parents and schools should create more opportunities for children to {{choice}}.",
+                                cn: "家长和学校应为孩子创造更多{{choice}}的机会。"
+                            }
+                        ]
+                    },
+                    {
+                        id: "p3_m2",
+                        label: "⑪ 措施 ②",
+                        hint: "For another",
+                        prefix: "For another, ",
+                        variants: "SAME_MEASURE"
+                    },
+                    {
+                        id: "p3_out", label: "⑫ 展望未来", hint: "或换趋势预测", variants: [
+                            {
+                                id: "ot1", name: "待选 1 · 平衡触手可及", note: "需填入 A/B 两个对象，适合“兼顾型”主题",
+                                en: "If these proposed measures are implemented, a harmonious balance between {{item1}} and {{item2}} will be within our reach.",
+                                cn: "若上述措施得以落实，{{item1}}与{{item2}}之间的和谐平衡便触手可及。"
+                            },
+                            {
+                                id: "ot2", name: "待选 2 · 共同努力", note: "最稳，任何人称都能接",
+                                en: "Only through the joint efforts of all people can we effectively solve the problem.",
+                                cn: "只有通过所有人的共同努力，我们才能有效解决问题。"
+                            },
+                            {
+                                id: "ot3", name: "待选 3 · 光明未来", note: "纯套话，字数不够时用",
+                                en: "In this way, hopefully, we may embrace a brighter and more promising future.",
+                                cn: "这样，我们才有希望拥抱更光明的未来。"
+                            },
+                            {
+                                id: "ot4", name: "待选 4 · 就是现在", note: "语气强，适合紧迫型话题（环保、老龄化）",
+                                en: "There is no better time than now for us to take collective action to address this pressing issue.",
+                                cn: "现在正是我们采取集体行动解决这一紧迫问题的最佳时机。"
+                            },
+                            {
+                                id: "ot5", name: "趋势预测 1 · 现象延续", note: "静态图最适用；替代措施两句话",
+                                en: "In conclusion, the phenomenon reflected in the chart is bound to continue, and it will keep exerting a positive influence on {{aspect}}.",
+                                cn: "总之，图表反映的现象必将继续，并持续对{{aspect}}产生积极影响。"
+                            },
+                            {
+                                id: "ot6", name: "趋势预测 2 · 人数增加", note: "动态图专用，与首段数据呼应",
+                                en: "Taking into account all the factors discussed above, we may reasonably conclude that the number of people who choose to {{choice}} will continue to increase in the coming years.",
+                                cn: "综合考虑上述因素，可合理推断未来几年选择{{choice}}的人数将持续增加。"
+                            },
+                            {
+                                id: "ot7", name: "趋势预测 3 · 更大规模", note: "经济、产业类最好用",
+                                en: "Given the arguments above, the next few years will also witness larger-scale and higher-quality development in {{topic}}.",
+                                cn: "鉴于上述论点，未来几年{{topic}}也将迎来更大规模、更高质量的发展。"
+                            },
+                            {
+                                id: "ot8", name: "趋势预测 4 · 更重要", note: "零风险，任何主题都能接",
+                                en: "In a word, as society keeps moving forward, {{topic}} is likely to gain even greater significance in the days to come.",
+                                cn: "总之，随着社会不断前进，{{topic}}在未来很可能更加重要。"
+                            },
+                            {
+                                id: "ot9", name: "趋势预测 5 · 关注度上升", note: "态度型图表专用",
+                                en: "For the reasons given above, we can predict that an increasing number of people will focus on {{topic}}, and this trend is likely to continue.",
+                                cn: "基于上述原因，可以预见将有越来越多的人关注{{topic}}，且这一趋势很可能会延续。"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        /* ---------------------------- 图画作文 ---------------------------- */
+        SLOTS.base = {
+            label: "基本动作", ph: "runs", options: [
+                {en: "runs", cn: "跑", note: "动态画面"},
+                {en: "stands", cn: "站", note: "最常见"},
+                {en: "sits", cn: "坐", note: "室内场景"},
+                {en: "lies", cn: "躺", note: "负面/懒散"},
+                {en: "stays", cn: "停留", note: "静物"}
+            ]
+        };
+        SLOTS.adj = {
+            label: "形容词组", ph: "lovely as well as cute", options: [
+                {en: "lovely as well as cute", cn: "可爱", note: "正面·静物/人物"},
+                {en: "confident as well as optimistic", cn: "自信又乐观", note: "正面·人物"},
+                {en: "passionate as well as aggressive", cn: "热情又进取", note: "正面·奋斗"},
+                {en: "negative as well as passive", cn: "消极又被动", note: "负面·手机/懒惰"},
+                {en: "cruel as well as vicious", cn: "残忍恶毒", note: "负面·批判"}
+            ]
+        };
+        SLOTS.picAction = {
+            label: "画面主要动作", ph: "staring at his phone", options: [
+                {en: "rushing to the finishing line", cn: "冲向终点", note: "2004 跑步"},
+                {en: "lighting up the darkness", cn: "照亮黑暗", note: "2001 油灯"},
+                {en: "staring at his phone", cn: "盯着手机", note: "2015 手机聚会"},
+                {en: "reading a book attentively", cn: "专注读书", note: "2017 读书"},
+                {en: "talking about campus lectures", cn: "谈论校园讲座", note: "2022 对话"}
+            ]
+        };
+        SLOTS.actor2 = {
+            label: "某人/机构", ph: "our government and the public", options: [
+                {en: "our government and the public", cn: "政府与公众", note: "环保类"},
+                {en: "the government", cn: "政府", note: "建设类"},
+                {en: "parents and schools", cn: "家长与学校", note: "教育类"},
+                {en: "the whole society", cn: "全社会", note: "通用"},
+                {en: "youngsters on campus", cn: "在校大学生", note: "校园类"}
+            ]
+        };
+
+        var PICTURE = [
+            {
+                part: 1, title: "第一段 · 图画描述 + 主题阐述", sub: "描述 → 寓意", steps: [
+                    {
+                        id: "pic_intro", label: "① 描述引入", hint: "与下一句连成一句", append: true, variants: [
+                            {
+                                id: "pi1",
+                                name: "待选 1 · As is depicted",
+                                note: "最通用；depicted 可换 illustrated / portrayed",
+                                en: "As is symbolically depicted in the cartoon above,",
+                                cn: "如上图象征性地描绘的那样，"
+                            },
+                            {
+                                id: "pi2",
+                                name: "待选 2 · presents a scene",
+                                note: "后接冒号，画面感强",
+                                en: "The cartoon above presents us with a thought-provoking scene:",
+                                cn: "上图向我们呈现了一个发人深省的场景："
+                            },
+                            {
+                                id: "pi3",
+                                name: "待选 3 · portrayed is",
+                                note: "完全倒装，句式更高级，适合单图",
+                                en: "Portrayed distinctively in the drawing above is a common scene:",
+                                cn: "上图清晰地描绘了一个常见场景："
+                            },
+                            {
+                                id: "pi4",
+                                name: "待选 4 · what is conveyed",
+                                note: "后接 that 从句，适合画面抽象、难描述时",
+                                en: "What is clearly conveyed in the picture is that",
+                                cn: "图片明确传达的是，"
+                            }
+                        ]
+                    },
+                    {
+                        id: "pic_scene", label: "② 画面描述", hint: "环境+动作+主体", attach: true, variants: [
+                            {
+                                id: "ps1", name: "单图 · 基本公式", note: "环境 + 基本动作 + 主体，主要动作 + 细节",
+                                en: "{{place}} {{base}} {{person}}, {{picAction}}, {{detail}}.",
+                                cn: "{{place}}{{base}}{{person}}，{{picAction}}，{{detail}}。"
+                            },
+                            {
+                                id: "ps2",
+                                name: "单图 · 加形容词升级",
+                                note: "在主体后插入 as well as 结构，句子立刻变长",
+                                en: "{{place}} {{base}} {{person}}, {{adj}}, {{picAction}}, {{detail}}.",
+                                cn: "{{place}}{{base}}{{person}}，{{adj}}，{{picAction}}，{{detail}}。"
+                            },
+                            {
+                                id: "ps3",
+                                name: "对话型 · 转述",
+                                note: "推荐转述，直译对话会显得低级；用 argue / maintain 引",
+                                en: "{{place}} {{base}} two girls, talking about {{topic}}. One argues that {{q1}} By contrast, the other maintains that {{q2}}",
+                                cn: "{{place}}{{base}}两位女生，正在谈论{{topic}}。一人认为{{q1}}；相比之下，另一人坚持认为{{q2}}"
+                            },
+                            {
+                                id: "ps4",
+                                name: "两幅图 · 左右对比",
+                                note: "左图 + 关联词 + 右图；相似用 Similarly，对比用 However",
+                                en: "In the left picture, {{person}} is fully focused on {{topic}}, thinking that {{q1}} However, in the right picture, another person is lying on the sofa, telling himself that {{q2}}",
+                                cn: "左图中，{{person}}全神贯注于{{topic}}，心想{{q1}}；然而右图中，另一人躺在沙发上，告诉自己{{q2}}"
+                            },
+                            {
+                                id: "ps5",
+                                name: "例外 · there be 句型",
+                                note: "仅 2010 文化火锅这类“成分罗列”图适用；there be 平淡，可后接改写",
+                                en: "There are many cultural elements in the delicious and nutritious hotpot, such as Peking Opera, Kung fu and Shakespeare.",
+                                cn: "在这个美味又营养的火锅中有许多文化元素，如京剧、功夫、莎士比亚。"
+                            },
+                            {
+                                id: "ps6", name: "一图一表 · 图画部分", note: "2024 英一：只写一句，篇幅留给图表",
+                                en: "{{person}} are exercising in a park and a youngster says that the new park is fantastic.",
+                                cn: "{{person}}正在公园锻炼，一位年轻人说新公园棒极了。"
+                            }
+                        ]
+                    },
+                    {
+                        id: "pic_cap",
+                        label: "③ 图中文字（可选）",
+                        hint: "篇幅不足时写，默认跳过",
+                        optional: true,
+                        variants: [
+                            {
+                                id: "pg0", name: "不写 · 跳过此句", note: "默认；首段篇幅已够，或标题就是主题词时不要写",
+                                en: "", cn: ""
+                            },
+                            {
+                                id: "pg1",
+                                name: "待选 1 · below the drawing",
+                                note: "最常用，引号内照抄原文",
+                                en: "Below the drawing, there is a caption which reads: \"{{caption}}\"",
+                                cn: "图下方有一行文字写道：{{caption}}"
+                            },
+                            {
+                                id: "pg2", name: "待选 2 · the caption reads", note: "更简洁",
+                                en: "The caption beneath the drawing reads: \"{{caption}}\"", cn: "图下方的文字写道：{{caption}}"
+                            },
+                            {
+                                id: "pg3",
+                                name: "待选 3 · a profound statement",
+                                note: "文字较长、偏议论时用",
+                                en: "A profound statement is placed below the picture: \"{{caption}}\"",
+                                cn: "图下方写着一句意味深长的话：{{caption}}"
+                            }
+                        ]
+                    },
+                    {
+                        id: "pic_theme_t",
+                        label: "④ 主题阐述 · 过渡",
+                        hint: "与下一句连成一句",
+                        append: true,
+                        variants: [
+                            {
+                                id: "pt_h1",
+                                name: "待选 1 · The purpose",
+                                note: "最稳；remind 后可换 convince / highlight the fact",
+                                en: "The purpose of the drawing is to remind {{group}} that",
+                                cn: "这幅图的目的是提醒{{group}}："
+                            },
+                            {
+                                id: "pt_h2", name: "待选 2 · Simple as it is", note: "让步状语倒装，句式分高",
+                                en: "Simple as the drawing is, it conveys a truth that", cn: "图画虽简单，却传达了一个道理："
+                            },
+                            {
+                                id: "pt_h3",
+                                name: "待选 3 · emphasizes the core idea",
+                                note: "语气肯定，适合寓意明确的图",
+                                en: "The drawing, undoubtedly, emphasizes the core idea that",
+                                cn: "毫无疑问，这幅图强调了这样一个核心观点："
+                            },
+                            {
+                                id: "pt_h4",
+                                name: "待选 4 · mirrors a phenomenon",
+                                note: "现象型图画（手机、习惯）用",
+                                en: "What the cartoon above mirrors is a thought-provoking phenomenon that",
+                                cn: "上图反映的是一个发人深省的现象："
+                            }
+                        ]
+                    },
+                    {
+                        id: "pic_theme_c", label: "⑤ 中心思想", hint: "某事很重要", attach: true, variants: [
+                            {
+                                id: "tc1", name: "方案 1 · so...that", note: "万能；主题词要具体到“事”，不要只写名词大类",
+                                en: "{{topic}} is so indispensable that the subject deserves the highest level of attention and consideration.",
+                                cn: "{{topic}}如此不可或缺，值得给予最高程度的关注与考虑。"
+                            },
+                            {
+                                id: "tc2", name: "方案 2 · 给予高度重视", note: "政府/机构作主体时最顺",
+                                en: "the utmost importance ought to be attached to {{topic}} by {{actor2}}.",
+                                cn: "{{actor2}}应当对{{topic}}给予高度重视。"
+                            },
+                            {
+                                id: "tc3", name: "方案 3 · 取得重大成就", note: "已见成效的话题（基建、扶贫、环保）",
+                                en: "great accomplishments have been made in {{topic}} by {{actor2}}.",
+                                cn: "{{actor2}}在{{topic}}方面已取得重大成就。"
+                            },
+                            {
+                                id: "tc4", name: "方案 4 · 双重否定", note: "语气强，适合品德类（孝顺、诚信）",
+                                en: "at no time should the public underestimate the significance of {{topic}}.",
+                                cn: "公众任何时候都不应低估{{topic}}的重要性。"
+                            },
+                            {
+                                id: "tc5", name: "方案 5 · 强调句型", note: "It is X that...，句式亮点",
+                                en: "it is {{topic}} that deserves greater attention.",
+                                cn: "正是{{topic}}值得更多关注。"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {part: 2, title: "第二段 · 原因分析", sub: "与图表作文完全通用", steps: []},
+            {part: 3, title: "第三段 · 总结 + 措施 + 展望", sub: "与图表作文完全通用", steps: []}
+        ];
+
+        /* ---------------------------- 文字作文 ---------------------------- */
+        SLOTS.topic2 = {
+            label: "主题短语", ph: "honesty and integrity", options: [
+                {en: "honesty and integrity", cn: "诚实与正直", note: "样题 1"},
+                {en: "network addiction among children", cn: "儿童网络成瘾", note: "样题 2"},
+                {en: "the responsible use of technology", cn: "负责任地使用科技", note: "科技类"},
+                {en: "lifelong learning", cn: "终身学习", note: "学习类"}
+            ]
+        };
+
+        var TEXT = [
+            {
+                part: 1, title: "第一段 · 文字改写 + 表明态度", sub: "改写 → 观点 → 态度", steps: [
+                    {
+                        id: "txt_intro", label: "① 引出话题", hint: "能改写就改写，不能就套句", variants: [
+                            {
+                                id: "tx1",
+                                name: "改写式 · 现象 + 担忧",
+                                note: "按“同义替换 / 主动变被动 / 高度概括”改写原文，最贴题",
+                                en: "Nowadays, gaining trust from others is vital in the workplace. Many people are afraid of damaging their image by appearing unsure.",
+                                cn: "如今，在职场中获得他人信任至关重要；许多人害怕因显得不自信而损害形象。"
+                            },
+                            {
+                                id: "tx2",
+                                name: "待选 1 · cannot be denied",
+                                note: "不会改写时的万能开头，最稳",
+                                en: "It cannot be denied that {{topic2}} plays a key role in people's work and life.",
+                                cn: "不可否认，{{topic2}}在人们的工作和生活中起着关键作用。"
+                            },
+                            {
+                                id: "tx3",
+                                name: "待选 2 · widely accepted",
+                                note: "价值判断类话题（诚信、坚持）",
+                                en: "It is widely accepted that {{topic2}} is the key element for individuals to achieve success.",
+                                cn: "人们普遍认为，{{topic2}}是个人取得成功的关键要素。"
+                            },
+                            {
+                                id: "tx4",
+                                name: "待选 3 · wide concern",
+                                note: "问题型话题（成瘾、焦虑）",
+                                en: "Nowadays, it is well-known that the problem of {{topic2}} has caused wide concern.",
+                                cn: "如今众所周知，{{topic2}}问题已引起广泛关注。"
+                            },
+                            {
+                                id: "tx5",
+                                name: "待选 4 · with the advancement",
+                                note: "科技、社会变迁类最好用",
+                                en: "With the rapid advancement of society and technology, {{topic2}} has become a common phenomenon in our daily lives.",
+                                cn: "随着社会与科技的快速发展，{{topic2}}已成为日常生活中的普遍现象。"
+                            },
+                            {
+                                id: "tx6",
+                                name: "待选 5 · whether to",
+                                note: "存在争议、两种立场时用",
+                                en: "Currently, whether to embrace or reject {{topic2}} has become a hot topic among people, especially among the young.",
+                                cn: "目前，是接纳还是拒绝{{topic2}}已成为人们尤其是年轻人中的热门话题。"
+                            }
+                        ]
+                    },
+                    {
+                        id: "txt_view", label: "② 转述作者观点", hint: "题干要求必须出现", variants: [
+                            {
+                                id: "tv1", name: "待选 1 · believes", note: "最常用",
+                                en: "The author believes that {{author}}.", cn: "作者认为，{{author}}。"
+                            },
+                            {
+                                id: "tv2", name: "待选 2 · holds", note: "略正式",
+                                en: "Therefore, the author holds that {{author}}.", cn: "因此，作者主张，{{author}}。"
+                            },
+                            {
+                                id: "tv3", name: "待选 3 · according to", note: "客观转述，不掺立场",
+                                en: "According to the author, {{author}}.", cn: "根据作者的观点，{{author}}。"
+                            },
+                            {
+                                id: "tv4", name: "待选 4 · in the opinion of", note: "同上，换词避免重复",
+                                en: "In the opinion of the author, {{author}}.", cn: "在作者看来，{{author}}。"
+                            }
+                        ]
+                    },
+                    {
+                        id: "txt_attr", label: "③ 表明态度", hint: "三种立场选一", variants: [
+                            {
+                                id: "ta1", name: "强烈同意", note: "原文观点明显正确时用",
+                                en: "I fully agree with the author's viewpoint.", cn: "我完全同意作者的观点。"
+                            },
+                            {
+                                id: "ta2", name: "强烈反对", note: "原文观点有硬伤时用，需在后文给理由",
+                                en: "I strongly disagree with the author's opinion.", cn: "我强烈反对作者的观点。"
+                            },
+                            {
+                                id: "ta3",
+                                name: "部分同意",
+                                note: "最安全，后文可写“但也要注意…”",
+                                en: "I share the author's view to a large extent, but I also believe that {{aspect}} deserves equal attention.",
+                                cn: "我在很大程度上同意作者的观点，但也认为{{aspect}}同样值得关注。"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {part: 2, title: "第二段 · 原因分析", sub: "与图表作文完全通用", steps: []},
+            {part: 3, title: "第三段 · 总结 + 措施 + 展望", sub: "与图表作文完全通用", steps: []}
+        ];
+
+        /* ---------------------------- 真题预设 ---------------------------- */
+        var PRESETS = [
+            {
+                id: "p1", label: "2023 英二 · 居民健康素养（动态单）", sc: "dyn1", sel: {
+                    p1_ov: "ov1", p1_dt: "dt2", p1_ph_t: "pt1", p1_ph_c: "pc1", p2_t: "r0c", p2_r1: "rs3", p2_r2: "rs6",
+                    p3_sum: "sm1", p3_m1: "ms1", p3_m2: "ms2", p3_out: "ot2"
+                },
+                slots: {
+                    topic: "Chinese residents' health literacy level",
+                    y1: "2012",
+                    y2: "2021",
+                    n1: "8.8%",
+                    n2: "25.4%",
+                    n3: "16.6",
+                    unit: "percentage points",
+                    aspect: "physical and mental health",
+                    group: "residents",
+                    item1: "Chinese residents' health literacy level",
+                    action: "launch public health campaigns and improve medical services"
+                }
+            },
+
+            {
+                id: "p2", label: "2019 英二 · 毕业生去向（动态多）", sc: "dyn2", sel: {
+                    p1_ov: "ov4",
+                    p1_dt: "dt1b",
+                    p1_ph_t: "pt2",
+                    p1_ph_c: "pc2",
+                    p2_t: "r0c",
+                    p2_r1: "rs2",
+                    p2_r2: "rs5",
+                    p3_sum: "sm1",
+                    p3_m1: "ms1",
+                    p3_m2: "ms4",
+                    p3_out: "ot6"
+                },
+                slots: {
+                    topic: "graduates' choices",
+                    y1: "2013",
+                    y2: "2018",
+                    n1: "68.1%",
+                    n2: "60.7%",
+                    n3: "26.3%",
+                    n4: "34.0%",
+                    item1: "graduates pursuing further study",
+                    item2: "graduates entering the workforce",
+                    group: "undergraduates",
+                    choice: "pursue further education",
+                    aspect: "personal growth",
+                    benefit: "develop themselves",
+                    action: "expand employment channels"
+                }
+            },
+
+            {
+                id: "p3", label: "2024 英二 · 劳动实践课收获（静态）", sc: "static", sel: {
+                    p1_ov: "ov7", p1_dt: "dt5", p1_ph_t: "pt3", p1_ph_c: "pc4", p2_t: "r0c", p2_r1: "rs3", p2_r2: "rs5",
+                    p3_sum: "sm2", p3_m1: "ms1", p3_m2: "ms5b", p3_out: "ot2"
+                },
+                slots: {
+                    topic: "students' gains from a labor practice course",
+                    y2: "2024",
+                    n1: "91.3%",
+                    n2: "84.8%",
+                    n3: "54.4%",
+                    n4: "32.6%",
+                    item1: "acquiring relevant knowledge",
+                    item2: "improving practical skills",
+                    item3: "feeling comfortable",
+                    item4: "enhancing cooperation capacity",
+                    aspect: "personal growth",
+                    result: "earns the respect of our class",
+                    benefit: "enhance their practical skills",
+                    benefitS: "stronger practical skills",
+                    choice: "take part in labor practice",
+                    action: "allocate more funds to build practice bases"
+                }
+            },
+
+            {
+                id: "p4", label: "2025 英二 · 老年人休闲活动（静态）", sc: "static", sel: {
+                    p1_ov: "ov7", p1_dt: "dt5", p1_ph_t: "pt1", p1_ph_c: "pc2", p2_t: "r0c", p2_r1: "rs3", p2_r2: "rs6",
+                    p3_sum: "sm4", p3_m1: "ms1", p3_m2: "ms4", p3_out: "ot5"
+                },
+                slots: {
+                    topic: "the leisure activities of the elderly",
+                    y2: "2025",
+                    n1: "90.8%",
+                    n2: "68.3%",
+                    n3: "34.7%",
+                    n4: "31.8%",
+                    item1: "watching TV",
+                    item2: "walking",
+                    item3: "gardening",
+                    item4: "reading",
+                    group: "elderly residents",
+                    choice: "engage in accessible leisure activities",
+                    aspect: "physical and mental health",
+                    action: "allocate more funds to build public facilities"
+                }
+            },
+
+            {
+                id: "p5", label: "2026 英二 · 儿童户外活动（静态）", sc: "static", sel: {
+                    p1_ov: "ov7", p1_dt: "dt5", p1_ph_t: "pt3", p1_ph_c: "pc4", p2_t: "r0c", p2_r1: "rs3", p2_r2: "rs6",
+                    p3_sum: "sm4", p3_m1: "ms1", p3_m2: "ms5b", p3_out: "ot5"
+                },
+                slots: {
+                    topic: "children's outdoor activities",
+                    y2: "2026",
+                    n1: "54.6%",
+                    n2: "54.5%",
+                    n3: "37.2%",
+                    n4: "33.2%",
+                    item1: "satisfying curiosity",
+                    item2: "developing observational skills",
+                    item3: "strengthening physical fitness",
+                    item4: "enhancing parent-child interaction",
+                    aspect: "personal growth",
+                    group: "parents",
+                    choice: "take part in outdoor activities",
+                    action: "improve public facilities for children"
+                }
+            },
+
+            {
+                id: "p6", label: "2026 英一 · 养老机器人（双图表）", sc: "double", sel: {
+                    p1_ov: "ov10",
+                    p1_dt: "dt7",
+                    p1_ph_t: "pt1",
+                    p1_ph_c: "pc4",
+                    p2_t: "r0b",
+                    p2_r1: "rs3",
+                    p2_r2: "rs5",
+                    p2_r3: "rs6",
+                    p3_sum: "sm4",
+                    p3_m1: "ms1",
+                    p3_m2: "ms2",
+                    p3_out: "ot8"
+                },
+                slots: {
+                    topic: "elderly-care robots",
+                    item1: "consumers' attitudes towards elderly-care robots",
+                    item2: "their major concerns about such robots",
+                    item3: "safety",
+                    item4: "price",
+                    n1: "39.3%",
+                    n2: "32.8%",
+                    n3: "24.9%",
+                    n4: "46.3%",
+                    aspect: "the quality of life for the elderly",
+                    group: "consumers",
+                    benefit: "relieve the pressure of aging on families",
+                    action: "formulate strict regulations to ensure safety"
+                }
+            },
+
+            {
+                id: "p7", label: "2025 英一 · 耐用消费品（表格）", sc: "static", sel: {
+                    p1_ov: "ov9",
+                    p1_dt: "dt5",
+                    p1_ph_t: "pt1",
+                    p1_ph_c: "pc1",
+                    p2_t: "r0c",
+                    p2_r1: "rs3",
+                    p2_r2: "rs4",
+                    p2_r3: "rs2",
+                    p3_sum: "sm1",
+                    p3_m1: "ms1",
+                    p3_m2: "ms4",
+                    p3_out: "ot8"
+                },
+                slots: {
+                    topic: "household appliances",
+                    y1: "2014",
+                    y2: "2023",
+                    n1: "145.9 units",
+                    n2: "103.4 units",
+                    n3: "98.2 units",
+                    n4: "121.4 units",
+                    item1: "air conditioners",
+                    item2: "refrigerators",
+                    item3: "washing machines",
+                    item4: "TV sets",
+                    aspect: "economic growth",
+                    group: "residents",
+                    benefit: "improve their quality of life",
+                    action: "allocate more funds to build public facilities"
+                }
+            },
+
+            {
+                id: "p8", label: "2012 英二 · 员工满意度（表格例外）", sc: "dyn1", sel: {
+                    p1_ov: "ov18",
+                    p1_dt: "dt4",
+                    p1_ph_t: "pt1",
+                    p1_ph_c: "pc5",
+                    p2_t: "r0c",
+                    p2_r1: "rs1",
+                    p2_r2: "rs6",
+                    p3_sum: "sm6",
+                    p3_m1: "ms1",
+                    p3_m2: "ms2b",
+                    p3_out: "ot8"
+                },
+                slots: {
+                    topic: "employee satisfaction",
+                    y1: "2010",
+                    y2: "2012",
+                    aspect: "personal growth",
+                    result: "has made remarkable progress",
+                    benefit: "improve their quality of life",
+                    benefitS: "a healthier lifestyle",
+                    action: "allocate more funds to build public facilities"
+                }
+            },
+
+            {
+                id: "p9", label: "2024 英一 · 公园建设（图画+图表）", sc: "pic_chart", sel: {
+                    pic_intro: "pi2",
+                    pic_scene: "ps6",
+                    p1_ov: "ov13",
+                    p1_dt: "dt0",
+                    pic_theme_t: "pt_h3",
+                    pic_theme_c: "tc3",
+                    p2_t: "r0c",
+                    p2_r1: "rs3",
+                    p2_r2: "rs6",
+                    p3_sum: "sm1",
+                    p3_m1: "ms1",
+                    p3_m2: "ms2",
+                    p3_out: "ot2"
+                },
+                slots: {
+                    topic: "infrastructure construction", item1: "parks", n1: "406", n2: "670", y1: "2020", y2: "2022",
+                    person: "several urban residents", actor2: "the government", aspect: "people's daily lives",
+                    action: "allocate more funds to build public facilities", group: "residents"
+                }
+            },
+
+            {
+                id: "p10", label: "2015 英一 · 手机时代的聚会（单图）", sc: "picture", sel: {
+                    pic_intro: "pi1", pic_scene: "ps2", pic_theme_t: "pt_h4", pic_theme_c: "tc1",
+                    p2_t: "r0c", p2_r1: "rs1", p2_r2: "rs6", p3_sum: "sm5", p3_m1: "ms2", p3_m2: "ms3", p3_out: "ot3"
+                },
+                slots: {
+                    topic: "face-to-face communication",
+                    place: "in front of us",
+                    base: "sits",
+                    person: "a young man",
+                    picAction: "staring at his phone",
+                    detail: "with a worried look on his face",
+                    adj: "negative as well as passive",
+                    aspect: "effective communication",
+                    result: "has made remarkable progress",
+                    group: "youngsters on campus",
+                    benefit: "strengthen real-life bonds",
+                    benefitS: "a more balanced life",
+                    action: "raise public awareness of effective communication"
+                }
+            },
+
+            {
+                id: "p11", label: "2020 英一 · 拖延与自律（两幅图）", sc: "picture", sel: {
+                    pic_intro: "pi3", pic_scene: "ps4", pic_theme_t: "pt_h2", pic_theme_c: "tc5",
+                    p2_t: "r0c", p2_r1: "rs1", p2_r2: "rs6", p3_sum: "sm2", p3_m1: "ms5", p3_m2: "ms3b", p3_out: "ot2"
+                },
+                slots: {
+                    topic: "good habits",
+                    person: "the girl",
+                    q1: "she will feel relieved when she finishes her work.",
+                    q2: "he will not start until the deadline.",
+                    aspect: "personal growth",
+                    group: "undergraduates",
+                    result: "has made remarkable progress",
+                    benefit: "broaden their horizons",
+                    benefitS: "a broader horizon",
+                    action: "spend less time on screens"
+                }
+            },
+
+            {
+                id: "p12", label: "2010 英一 · 文化火锅（例外图）", sc: "picture", sel: {
+                    pic_intro: "pi2", pic_scene: "ps5", pic_cap: "pg2", pic_theme_t: "pt_h2", pic_theme_c: "tc2",
+                    p2_t: "r0c", p2_r1: "rs3", p2_r2: "rs6", p3_sum: "sm3", p3_m1: "ms1", p3_m2: "ms5b", p3_out: "ot2"
+                },
+                slots: {
+                    topic: "cultural exchange", caption: "Cultural hot pot, nutritious and delicious.",
+                    actor2: "the whole society", aspect: "cultural inheritance", group: "the public",
+                    choice: "take part in outdoor activities", action: "formulate strict regulations to ensure safety"
+                }
+            },
+
+            {
+                id: "p13", label: "2022 英一 · 校园讲座（对话图）", sc: "picture", sel: {
+                    pic_intro: "pi1", pic_scene: "ps3", pic_theme_t: "pt_h2", pic_theme_c: "tc1",
+                    p2_t: "r0c", p2_r1: "rs2", p2_r2: "rs6", p3_sum: "sm2", p3_m1: "ms5", p3_m2: "ms3b", p3_out: "ot2"
+                },
+                slots: {
+                    topic: "campus lectures", place: "in front of the board", base: "stands",
+                    q1: "campus lectures are irrelevant to her major and a waste of time.",
+                    q2: "attending such lectures is highly beneficial nonetheless.",
+                    group: "undergraduates", aspect: "personal growth", choice: "pursue further education",
+                    benefit: "broaden their horizons", result: "has made remarkable progress",
+                    action: "read more widely"
+                }
+            },
+
+            {
+                id: "p16", label: "2004 英一 · 终点前的奔跑（单图）", sc: "picture", sel: {
+                    pic_intro: "pi1", pic_scene: "ps2", pic_theme_t: "pt_h2", pic_theme_c: "tc1",
+                    p2_t: "r0c", p2_r1: "rs1", p2_r2: "rs6", p3_sum: "sm2", p3_m1: "ms5", p3_m2: "ms3b", p3_out: "ot2"
+                },
+                slots: {
+                    topic: "perseverance", place: "on the playground", base: "runs", person: "a young man",
+                    picAction: "rushing to the finishing line", detail: "with a sweet smile on his face",
+                    adj: "confident as well as optimistic", aspect: "personal growth", group: "youngsters on campus",
+                    result: "has made remarkable progress", benefitS: "a broader horizon",
+                    choice: "take part in outdoor activities", action: "take concrete steps to pursue their goals"
+                }
+            },
+
+            {
+                id: "p17", label: "2001 英一 · 爱心之灯（单图+文字）", sc: "picture", sel: {
+                    pic_intro: "pi1", pic_scene: "ps2", pic_cap: "pg1", pic_theme_t: "pt_h2", pic_theme_c: "tc4",
+                    p2_t: "r0c", p2_r1: "rs3", p2_r2: "rs6", p3_sum: "sm3", p3_m1: "ms2", p3_m2: "ms5b", p3_out: "ot3"
+                },
+                slots: {
+                    topic: "love and care",
+                    place: "in front of us",
+                    base: "stays",
+                    person: "an oil lamp",
+                    picAction: "lighting up the darkness",
+                    detail: "with a sweet smile on its face",
+                    adj: "lovely as well as cute",
+                    caption: "Love is a lamp. The darker the place, the brighter it shines.",
+                    aspect: "social harmony",
+                    group: "the public",
+                    choice: "take part in outdoor activities",
+                    action: "raise public awareness of environmental protection"
+                }
+            },
+
+            {
+                id: "p14", label: "文字样题 1 · 坦诚与信任", sc: "text", sel: {
+                    txt_intro: "tx2",
+                    txt_view: "tv1",
+                    txt_attr: "ta1",
+                    p2_t: "r0c",
+                    p2_r1: "rs3",
+                    p2_r2: "rs1",
+                    p3_sum: "sm2",
+                    p3_m1: "ms2",
+                    p3_m2: "ms3b",
+                    p3_out: "ot3"
+                },
+                slots: {
+                    topic2: "honesty and integrity",
+                    topic: "honesty and integrity",
+                    author: "we are perceived as less biased and willing to tell the truth when we show uncertainty in a transparent way",
+                    aspect: "personal growth",
+                    group: "the public",
+                    result: "earns the respect of our class",
+                    choice: "take part in outdoor activities",
+                    benefit: "broaden their horizons",
+                    benefitS: "a broader horizon",
+                    action: "establish clear standards of integrity in public communication"
+                }
+            },
+
+            {
+                id: "p15", label: "文字样题 2 · 屏幕与童年", sc: "text", sel: {
+                    txt_intro: "tx5",
+                    txt_view: "tv1",
+                    txt_attr: "ta1",
+                    p2_t: "r0c",
+                    p2_r1: "rs3",
+                    p2_r2: "rs6",
+                    p3_sum: "sm4",
+                    p3_m1: "ms1",
+                    p3_m2: "ms5b",
+                    p3_out: "ot5"
+                },
+                slots: {
+                    topic2: "network addiction among children", topic: "network addiction among children",
+                    author: "we cannot blame the screens because children have lost the right to make sense of the world",
+                    aspect: "personal growth", group: "parents", choice: "take part in outdoor activities",
+                    action: "improve public facilities for children"
+                }
+            }
+        ];
+
+        /* ============================ 初始化数据关系 ============================ */
+        /* 第二、三段与图表作文完全通用；原因 ②③ 复用同一套方案 */
+        CHART[1].steps[2].variants = CHART[1].steps[1].variants;
+        CHART[1].steps[3].variants = CHART[1].steps[1].variants;
+        CHART[2].steps[2].variants = CHART[2].steps[1].variants;
+        PICTURE[1].steps = CHART[1].steps;
+        PICTURE[2].steps = CHART[2].steps;
+        TEXT[1].steps = CHART[1].steps;
+        TEXT[2].steps = CHART[2].steps;
+
+        /* ============================ 常量 ============================ */
+        var SCENARIOS = [
+            {id: "dyn1", label: "图表 · 动态单", sub: "单变量"},
+            {id: "dyn2", label: "图表 · 动态多", sub: "多变量"},
+            {id: "static", label: "图表 · 静态", sub: "占比/排名"},
+            {id: "double", label: "双图表", sub: "左右两图"},
+            {id: "pic_chart", label: "图画+图表", sub: "2024 英一"},
+            {id: "picture", label: "图画作文", sub: "单图/双图"},
+            {id: "text", label: "文字作文", sub: "大纲样题"}
+        ];
+
+        var VARIANTS_PAIRS = [ /* [复数形式, 单数形式] */
+            ["are", "is"], ["have", "has"], ["do", "does"], ["were", "was"],
+            ["play", "plays"], ["account", "accounts"], ["constitute", "constitutes"], ["provide", "provides"],
+            ["enable", "enables"], ["remain", "remains"], ["top", "tops"], ["improve", "improves"],
+            ["indicate", "indicates"], ["demonstrate", "demonstrates"], ["create", "creates"], ["help", "helps"],
+            ["cultivate", "cultivates"], ["strengthen", "strengthens"], ["relieve", "relieves"], ["ensure", "ensures"],
+            ["make", "makes"], ["become", "becomes"], ["rise", "rises"], ["climb", "climbs"], ["grow", "grows"],
+            ["fall", "falls"], ["peak", "peaks"], ["fluctuate", "fluctuates"], ["outnumber", "outnumbers"],
+            ["need", "needs"], ["deserve", "deserves"], ["show", "shows"], ["reflect", "reflects"], ["include", "includes"],
+            ["cover", "covers"], ["offer", "offers"], ["require", "requires"], ["witness", "witnesses"],
+            ["represent", "represents"], ["highlight", "highlights"]
+        ];
+        var TO_PLURAL = {}, TO_SING = {}, VERB_RE_SRC = [];
+        VARIANTS_PAIRS.forEach(function (p) {
+            TO_PLURAL[p[1]] = p[0];
+            TO_SING[p[0]] = p[1];
+            VERB_RE_SRC.push(p[0], p[1]);
+        });
+        var VERB_RE = new RegExp("\\b(?:" + VERB_RE_SRC.join("|") + ")\\b");
+
+        var PLURAL_WORDS = {
+            people: 1, children: 1, data: 1, men: 1, women: 1, residents: 1, students: 1,
+            graduates: 1, consumers: 1, parents: 1, citizens: 1, elderly: 1, teenagers: 1, youngsters: 1,
+            undergraduates: 1, employees: 1, experts: 1, companies: 1, families: 1, households: 1,
+            respondents: 1, users: 1, activities: 1, parks: 1, appliances: 1, robots: 1
+        };
+
+        var PROPER = {
+            china: 1, chinese: 1, us: 1, uk: 1, english: 1, kevin: 1, shakespeare: 1,
+            peking: 1, kung: 1, america: 1, american: 1, britain: 1, british: 1, i: 1
+        };
+
+        var MARK_RE = /\u0001([^\u0002]*)\u0002([^\u0002]*)\u0002([^\u0003]*)\u0003/g;
+
+        /* ============================ 状态 ============================ */
+        var KEY = "kaoyan_essay_builder_v1";
+        var LS = null;
+        try {
+            LS = window.localStorage;
+        } catch (e) {
+            LS = null;
+        }
+
+        var state = {
+            sc: "dyn1",
+            pid: "",
+            sel: {},
+            slots: {},
+            tg: {bi: true, concise: false, three: false, hint: true, conn: "none"}
+        };
+        var undoStack = [];
+        var UNDO_MAX = 20;
+
+        function clone(o) {
+            return JSON.parse(JSON.stringify(o));
+        }
+
+        function loadState() {
+            if (!LS) return false;
+            try {
+                var raw = LS.getItem(KEY);
+                if (!raw) return false;
+                var o = JSON.parse(raw);
+                if (!o || typeof o !== "object") return false;
+                state.sc = o.sc || "dyn1";
+                state.pid = o.pid || "";
+                state.sel = o.sel || {};
+                state.slots = o.slots || {};
+                state.tg = {bi: true, concise: false, three: false, hint: true, conn: "none"};
+                if (o.tg) for (var k in o.tg) state.tg[k] = !!o.tg[k];
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function saveState() {
+            if (!LS) return;
+            try {
+                LS.setItem(KEY, JSON.stringify(state));
+            } catch (e) {
+            }
+        }
+
+        function pushUndo() {
+            undoStack.push(JSON.stringify(state));
+            if (undoStack.length > UNDO_MAX) undoStack.shift();
+            updateUndoBtn();
+        }
+
+        function updateUndoBtn() {
+            var b = $("#undo");
+            if (b) b.disabled = undoStack.length === 0;
+        }
+
+        /* ============================ 句子拼装 ============================ */
+        function isPluralValue(v) {
+            if (!v) return false;
+            var s = String(v).toLowerCase().replace(/[^a-z\s]/g, " ").replace(/\s+/g, " ").trim();
+            if (!s) return false;
+            if (/\band\b/.test(s)) return true;
+            var head = s;
+            var cut = head.search(/\s(?:of|from|in|on|with|among|for|by|to|towards|about)\s/);
+            if (cut > -1) head = head.slice(0, cut);
+            var w = head.split(" ").filter(Boolean);
+            head = w[w.length - 1] || "";
+            if (PLURAL_WORDS[head]) return true;
+            if (/[a-z]s$/.test(head) && !/(ss|us|is)$/.test(head)) return true;
+            return false;
+        }
+
+        function dispVal(sid, lang) {
+            var v = state.slots[sid];
+            if (v === undefined || v === null || v === "") return null;
+            if (lang === "cn") {
+                var s = SLOTS[sid];
+                if (s && s.options) {
+                    for (var i = 0; i < s.options.length; i++) {
+                        if (s.options[i].en === v) return s.options[i].cn;
+                    }
+                }
+                /* 本槽没有对应词条时，用全库词典兜底翻译 */
+                for (var k in SLOTS) {
+                    var os = SLOTS[k].options;
+                    if (!os) continue;
+                    for (var j = 0; j < os.length; j++) {
+                        if (os[j].en === v && os[j].cn) return os[j].cn;
+                    }
+                }
+            }
+            return String(v);
+        }
+
+        function fillTpl(tpl, lang, stepId) {
+            return tpl.replace(/\{\{(\w+)\}\}/g, function (m, sid) {
+                var d = dispVal(sid, lang);
+                if (d === null) {
+                    var s = SLOTS[sid];
+                    d = "【" + (s ? s.label : sid) + "】";
+                }
+                return "\u0001" + stepId + "\u0002" + sid + "\u0002" + d + "\u0003";
+            });
+        }
+
+        function applyAgreement(str) {
+            /* 槽位 + 动词 相邻：按槽位单复数改动词 */
+            var re = new RegExp("\\u0001[^\\u0002]*\\u0002[^\\u0002]*\\u0002([^\\u0003]*)\\u0003(\\s+)(" + VERB_RE_SRC.join("|") + ")\\b", "g");
+            str = str.replace(re, function (m, val, sp, verb) {
+                var plural = isPluralValue(val);
+                var fixed = plural ? (TO_PLURAL[verb] || verb) : (TO_SING[verb] || verb);
+                return m.slice(0, m.length - verb.length) + fixed;
+            });
+            /* does/do + 槽位 */
+            var re2 = /\b(does|do)(\s+)(\u0001[^\u0002]*\u0002[^\u0002]*\u0002([^\u0003]*)\u0003)/g;
+            str = str.replace(re2, function (m, aux, sp, marker, val) {
+                var plural = isPluralValue(val);
+                var fixed = plural ? (TO_PLURAL[aux] || aux) : (TO_SING[aux] || aux);
+                return fixed + sp + marker;
+            });
+            return str;
+        }
+
+        function capFirst(s) {
+            var i = 0;
+            while (i < s.length && !/[A-Za-z]/.test(s[i])) i++;
+            if (i >= s.length) return s;
+            return s.slice(0, i) + s[i].toUpperCase() + s.slice(i + 1);
+        }
+
+        function lowerFirstWord(s) {
+            var m = /^(\s*)([A-Za-z][A-Za-z'’\-]*)/.exec(s);
+            if (!m) return s;
+            if (!/^[A-Z][a-z]/.test(m[2])) return s;
+            if (PROPER[m[2].toLowerCase()]) return s;
+            return m[1] + m[2].charAt(0).toLowerCase() + m[2].slice(1);
+        }
+
+        function esc(s) {
+            return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
+        }
+
+        function lastSig(s) {
+            for (var i = s.length - 1; i >= 0; i--) {
+                if (!/\s/.test(s[i])) return s[i];
+            }
+            return "";
+        }
+
+        function toHTML(str, atStart, stepId) {
+            var segs = [], last = 0, m;
+            MARK_RE.lastIndex = 0;
+            while ((m = MARK_RE.exec(str)) !== null) {
+                if (m.index > last) segs.push({t: "x", text: str.slice(last, m.index)});
+                segs.push({t: "s", slot: m[2], val: m[3]});
+                last = m.index + m[0].length;
+            }
+            if (last < str.length) segs.push({t: "x", text: str.slice(last)});
+
+            var html = "", plain = "";
+            var start = !!atStart, prevSig = "";
+
+            segs.forEach(function (p) {
+                if (p.t === "x") {
+                    var txt = p.text;
+                    if (start) txt = capFirst(txt);
+                    else if (prevSig === ",") txt = lowerFirstWord(txt);
+                    html += esc(txt);
+                    plain += txt;
+                    var ls = lastSig(txt);
+                    if (ls) prevSig = ls;
+                    if (/[.!?]\s*$/.test(txt)) start = true;
+                    else if (ls) start = false;
+                } else {
+                    var val = p.val, filled = !!(state.slots[p.slot]);
+                    if (start) val = capFirst(val);
+                    else if (prevSig === ",") val = lowerFirstWord(val);
+                    html += '<button type="button" class="slot' + (filled ? " filled" : "") +
+                        '" data-step="' + esc(stepId) + '" data-slot="' + esc(p.slot) + '">' +
+                        esc(val) + "</button>";
+                    plain += val;
+                    var vs = lastSig(val);
+                    if (vs) prevSig = vs;
+                    start = false;
+                }
+            });
+            return {html: html, plain: plain};
+        }
+
+        /* ============================ 结构 ============================ */
+        function chartStep(id) {
+            var all = CHART[0].steps;
+            for (var i = 0; i < all.length; i++) {
+                if (all[i].id === id) return all[i];
+            }
+            return null;
+        }
+
+        function variantVisible(v, sc) {
+            if (!v.sc) return true;
+            if (v.sc === "any") return true;
+            if (v.sc === "dyn") return sc === "dyn1" || sc === "dyn2";
+            return v.sc === sc;
+        }
+
+        function visibleVariants(step) {
+            var sc = state.sc;
+            if (!step.variants) return [];
+            return step.variants.filter(function (v) {
+                return variantVisible(v, sc);
+            });
+        }
+
+        function sectionList() {
+            var sc = state.sc, p1, title, sub;
+            if (sc === "picture") {
+                p1 = PICTURE[0].steps.slice();
+                title = "第一段 · 图画描述 + 主题阐述";
+                sub = "描述 → 寓意";
+            } else if (sc === "text") {
+                p1 = TEXT[0].steps.slice();
+                title = "第一段 · 文字改写 + 表明态度";
+                sub = "改写 → 观点 → 态度";
+            } else if (sc === "pic_chart") {
+                p1 = [PICTURE[0].steps[0], PICTURE[0].steps[1], chartStep("p1_ov"),
+                    chartStep("p1_dt"), PICTURE[0].steps[3], PICTURE[0].steps[4]];
+                title = "第一段 · 图画 + 图表";
+                sub = "图画描述 → 数据 → 寓意";
+            } else {
+                p1 = CHART[0].steps.filter(function (s) {
+                    return s.scenes && s.scenes.indexOf(sc) > -1;
+                });
+                title = "第一段 · 图表描述";
+                sub = "总体 → 具体 → 现象";
+            }
+            return [
+                {title: title, sub: sub, steps: p1.filter(Boolean)},
+                {title: "第二段 · 原因分析", sub: "过渡 + 原因", steps: CHART[1].steps},
+                {title: "第三段 · 总结 + 措施 + 展望", sub: "可换趋势预测", steps: CHART[2].steps}
+            ];
+        }
+
+        function stepVisible(step) {
+            if (step.id === "p2_r3") return !!state.tg.three;
+            /* 考场精简：去掉“社会现象”整句与可选句，只留总体→细节→原因×2→总结→措施→展望 */
+            if (step.id === "p1_ph_t" || step.id === "p1_ph_c") return !state.tg.concise;
+            if (step.optional) return !state.tg.concise;
+            return true;
+        }
+
+        var CONNECTORS = {
+            none: ["", "", ""],
+            c1: ["Firstly, ", "Secondly, ", "Thirdly, "],
+            c2: ["To begin with, ", "What's more, ", "Last but not least, "],
+            c3: ["To begin with, ", "More importantly, ", "Most importantly, "],
+            c4: ["For one thing, ", "For another, ", ""],
+            c5: ["First and foremost, ", "Furthermore, ", "Last but not least, "]
+        };
+        var DEFAULT_PICK = {p1_ph_t: "pt1", p2_t: "r0c", p2_r2: "rs2", p2_r3: "rs5", p3_m2: "ms2"};
+
+        function pickVariant(step) {
+            var vs = visibleVariants(step);
+            if (!vs.length) return null;
+            var want = state.sel[step.id];
+            for (var i = 0; i < vs.length; i++) {
+                if (vs[i].id === want) return vs[i];
+            }
+            var dft = DEFAULT_PICK[step.id];
+            if (dft) {
+                for (var j = 0; j < vs.length; j++) {
+                    if (vs[j].id === dft) return vs[j];
+                }
+            }
+            return vs[0];
+        }
+
+        /* ============================ 渲染 ============================ */
+        var pop = null, popAnchor = null;
+
+        function render() {
+            var secs = sectionList();
+            var ed = $("#editor"), pv = $("#preview");
+            if (!ed || !pv) return;
+            ed.innerHTML = "";
+            pv.innerHTML = "";
+            var wc = 0;
+
+            secs.forEach(function (sec, si) {
+                var steps = sec.steps.filter(stepVisible);
+                if (!steps.length) return;
+
+                var wrap = document.createElement("div");
+                wrap.className = "part";
+                var h = document.createElement("div");
+                h.className = "part-h";
+                h.innerHTML = '<span class="idx">' + (si + 1) + '</span><h2>' + sec.title +
+                    '</h2><span>' + sec.sub + '</span>';
+                wrap.appendChild(h);
+
+                var pEl = document.createElement("div");
+                pEl.className = "para";
+                pEl.innerHTML = '<div class="pnum">Paragraph ' + (si + 1) + '</div>';
+                var enBox = document.createElement("div");
+                enBox.className = "en";
+                var zhBox = document.createElement("div");
+                zhBox.className = "zh";
+                var enP = document.createElement("p");
+                var zhP = document.createElement("p");
+
+                var prevAppend = false;
+                steps.forEach(function (step, idx) {
+                    var v = pickVariant(step);
+                    if (!v) return;
+                    var atStart = !(step.attach || prevAppend);
+                    var enStr = applyAgreement(fillTpl(v.en, "en", step.id));
+                    var cidx = {p2_r1: 0, p2_r2: 1, p2_r3: 2}[step.id];
+                    var cpre = (cidx === undefined) ? "" : (CONNECTORS[state.tg.conn] || CONNECTORS.none)[cidx];
+                    if (cpre && enStr) enStr = cpre + enStr;
+                    var zhStr = fillTpl(v.cn, "cn", step.id);
+                    var enR = toHTML(enStr, atStart, step.id);
+                    var zhR = toHTML(zhStr, atStart, step.id);
+                    var blank = !enStr.replace(/\u0001[^\u0003]*\u0003/g, "").trim();
+
+                    /* 编辑器 */
+                    var row = document.createElement("div");
+                    row.className = "step";
+                    row.setAttribute("data-step", step.id);
+                    var head = document.createElement("div");
+                    head.className = "step-h";
+                    var lab = document.createElement("span");
+                    lab.className = "lab";
+                    lab.textContent = step.label;
+                    head.appendChild(lab);
+                    var sel = document.createElement("select");
+                    sel.setAttribute("data-step", step.id);
+                    visibleVariants(step).forEach(function (o) {
+                        var op = document.createElement("option");
+                        op.value = o.id;
+                        op.textContent = o.name;
+                        if (o.id === v.id) op.selected = true;
+                        sel.appendChild(op);
+                    });
+                    head.appendChild(sel);
+                    var tip = document.createElement("span");
+                    tip.className = "tip";
+                    tip.textContent = state.tg.hint ? step.hint : "";
+                    head.appendChild(tip);
+                    row.appendChild(head);
+                    var sent = document.createElement("div");
+                    sent.className = "sent";
+                    sent.innerHTML = blank ? '<span style="color:#7b8794">（此句跳过不写）</span>' : enR.html;
+                    row.appendChild(sent);
+                    if (state.tg.bi && state.tg.hint && v.note) {
+                        var note = document.createElement("div");
+                        note.className = "cn-line";
+                        note.textContent = "用法：" + v.note;
+                        row.appendChild(note);
+                    }
+                    wrap.appendChild(row);
+
+                    /* 预览 */
+                    if (!blank) {
+                        enP.innerHTML += (idx ? " " : "") + enR.html;
+                        zhP.innerHTML += zhR.html;
+                        wc += enR.plain.trim().split(/\s+/).filter(Boolean).length;
+                    }
+                    prevAppend = !!step.append;
+                });
+
+                enBox.appendChild(enP);
+                if (state.tg.bi) {
+                    zhBox.appendChild(zhP);
+                }
+                pEl.appendChild(enBox);
+                if (state.tg.bi) pEl.appendChild(zhBox);
+                pv.appendChild(pEl);
+                ed.appendChild(wrap);
+            });
+
+            var counter = $("#count");
+            if (counter) counter.textContent = "已选 " + countSelections() + " 句 · " + wc + " 词";
+            var wcEl = $("#wc");
+            if (wcEl) wcEl.textContent = wc + " words" + (wc >= 140 && wc <= 200 ? " · 符合英二" : "");
+
+            syncControls();
+            saveState();
+        }
+
+        function countSelections() {
+            var n = 0;
+            sectionList().forEach(function (sec) {
+                sec.steps.filter(stepVisible).forEach(function (s) {
+                    if (pickVariant(s)) n++;
+                });
+            });
+            return n;
+        }
+
+        function syncControls() {
+            var ps = $("#preset");
+            if (ps) ps.value = state.pid || "";
+            $("#tg-bi").checked = state.tg.bi;
+            $("#tg-concise").checked = state.tg.concise;
+            $("#tg-three").checked = state.tg.three;
+            $("#tg-hint").checked = state.tg.hint;
+            if ($("#conn")) $("#conn").value = state.tg.conn || "none";
+            $$("#scen button").forEach(function (b) {
+                b.className = b.getAttribute("data-sc") === state.sc ? "on" : "";
+            });
+            updateUndoBtn();
+        }
+
+        /* ============================ 弹层 ============================ */
+        function openSlot(stepId, slotId, anchor) {
+            var s = SLOTS[slotId];
+            if (!s) return;
+            popAnchor = anchor;
+            var cur = state.slots[slotId] || "";
+            var html = '<div class="pop-h"><b>' + esc(s.label) + '</b><span style="font-size:10.5px;color:#7b8794">' +
+                esc(slotId) + '</span><button class="x" type="button" data-close="1">×</button></div>' +
+                '<div class="pop-in"><input id="popInput" type="text" placeholder="' +
+                esc(s.ph || "手动输入…") + '" value="' + esc(cur) + '"><button type="button" id="popOk">确定</button></div>' +
+                '<div class="pop-list">';
+            if (s.options && s.options.length) {
+                s.options.forEach(function (o) {
+                    html += '<button type="button" class="opt' + (o.en === cur ? " cur" : "") +
+                        '" data-val="' + esc(o.en) + '"><div class="oe">' + esc(o.en) + '</div>' +
+                        (o.cn ? '<div class="oc">' + esc(o.cn) + '</div>' : "") +
+                        (o.note ? '<div class="on">' + esc(o.note) + '</div>' : "") + '</button>';
+                });
+            } else {
+                html += '<div style="padding:10px;font-size:11.5px;color:#7b8794">这个词槽没有预设词条，直接在上方输入。</div>';
+            }
+            html += '</div><div class="pop-f"><button type="button" id="popClear">清空该槽</button>' +
+                '<button type="button" id="popNext">跳到下一个未填</button></div>';
+
+            pop.innerHTML = html;
+            pop.hidden = false;
+            pop.style.visibility = "hidden";
+            pop.style.left = "0px";
+            pop.style.top = "0px";
+
+            var r = anchor.getBoundingClientRect();
+            var pw = pop.offsetWidth || 340, ph = pop.offsetHeight || 320;
+            var vw = window.innerWidth, vh = window.innerHeight;
+            var left = Math.max(8, Math.min(r.left, vw - pw - 12));
+            var top = r.bottom + 6;
+            if (top + ph > vh - 10) top = Math.max(8, r.top - ph - 6);
+            pop.style.left = left + "px";
+            pop.style.top = top + "px";
+            pop.style.visibility = "visible";
+
+            var input = $("#popInput");
+            if (input) {
+                input.focus();
+                input.select();
+            }
+            pop.setAttribute("data-step", stepId);
+            pop.setAttribute("data-slot", slotId);
+        }
+
+        function closePop() {
+            if (!pop) return;
+            pop.hidden = true;
+            popAnchor = null;
+        }
+
+        function setSlot(slotId, val) {
+            pushUndo();
+            if (val === "") delete state.slots[slotId];
+            else state.slots[slotId] = val;
+            render();
+            closePop();
+            toast("已更新：" + (SLOTS[slotId] ? SLOTS[slotId].label : slotId));
+        }
+
+        function nextEmpty() {
+            var slots = $$("#preview .slot:not(.filled)");
+            if (!slots.length) {
+                toast("所有槽位都填好了");
+                closePop();
+                return;
+            }
+            var cur = pop.getAttribute("data-slot");
+            for (var i = 0; i < slots.length; i++) {
+                if (slots[i].getAttribute("data-slot") !== cur) {
+                    var el = slots[i];
+                    var st = el.getAttribute("data-step"), sl = el.getAttribute("data-slot");
+                    closePop();
+                    setTimeout(function () {
+                        openSlot(st, sl, el);
+                    }, 0);
+                    el.scrollIntoView({block: "center"});
+                    return;
+                }
+            }
+            closePop();
+        }
+
+        /* ============================ 交互 ============================ */
+        function toast(msg) {
+            var t = $("#toast");
+            if (!t) return;
+            t.textContent = msg;
+            t.className = "toast on";
+            clearTimeout(t._tm);
+            t._tm = setTimeout(function () {
+                t.className = "toast";
+            }, 1600);
+        }
+
+        function applyPreset(id) {
+            var p = null;
+            for (var i = 0; i < PRESETS.length; i++) {
+                if (PRESETS[i].id === id) p = PRESETS[i];
+            }
+            if (!p) return;
+            pushUndo();
+            state.sc = p.sc;
+            state.pid = p.id;
+            state.sel = clone(p.sel);
+            state.slots = clone(p.slots);
+            state.tg.three = !!p.sel.p2_r3;
+            render();
+            toast("已载入：" + p.label);
+        }
+
+        function copyAll() {
+            var parts = $$("#preview .en p");
+            var txt = parts.map(function (p) {
+                return p.textContent.replace(/\s+/g, " ").trim();
+            }).join("\n\n");
+            if (!txt) {
+                toast("还没有内容");
+                return;
+            }
+            var done = function () {
+                toast("英文全文已复制");
+            };
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(txt).then(done, function () {
+                        fallbackCopy(txt, done);
+                    });
+                    return;
+                }
+            } catch (e) {
+            }
+            fallbackCopy(txt, done);
+        }
+
+        function fallbackCopy(txt, done) {
+            try {
+                var ta = document.createElement("textarea");
+                ta.value = txt;
+                ta.style.position = "fixed";
+                ta.style.opacity = "0";
+                document.body.appendChild(ta);
+                ta.select();
+                if (document.execCommand) document.execCommand("copy");
+                document.body.removeChild(ta);
+                done();
+            } catch (e) {
+                toast("复制失败，请手动选择");
+            }
+        }
+
+        function bind() {
+            document.addEventListener("click", function (e) {
+                var t = e.target;
+                if (!t || !t.closest) return;
+
+                var chip = t.closest(".slot");
+                if (chip) {
+                    e.preventDefault();
+                    openSlot(chip.getAttribute("data-step"), chip.getAttribute("data-slot"), chip);
+                    return;
+                }
+                if (t.closest("#pop")) {
+                    var opt = t.closest(".opt");
+                    if (opt) {
+                        setSlot(pop.getAttribute("data-slot"), opt.getAttribute("data-val"));
+                        return;
+                    }
+                    if (t.closest("#popOk")) {
+                        setSlot(pop.getAttribute("data-slot"), $("#popInput").value.trim());
+                        return;
+                    }
+                    if (t.closest("#popClear")) {
+                        setSlot(pop.getAttribute("data-slot"), "");
+                        return;
+                    }
+                    if (t.closest("#popNext")) {
+                        nextEmpty();
+                        return;
+                    }
+                    if (t.closest("[data-close]")) {
+                        closePop();
+                        return;
+                    }
+                    return;
+                }
+                if (pop && !pop.hidden) closePop();
+            });
+
+            document.addEventListener("keydown", function (e) {
+                if (e.key === "Escape") closePop();
+                if (e.key === "Enter" && e.target && e.target.id === "popInput") {
+                    setSlot(pop.getAttribute("data-slot"), e.target.value.trim());
+                }
+            });
+
+            document.addEventListener("change", function (e) {
+                var t = e.target;
+                if (!t) return;
+                if (t.id === "preset") {
+                    if (t.value) applyPreset(t.value);
+                    return;
+                }
+                if (t.matches && t.matches("select[data-step]")) {
+                    pushUndo();
+                    state.sel[t.getAttribute("data-step")] = t.value;
+                    render();
+                    return;
+                }
+                if (t.id === "conn") {
+                    state.tg.conn = t.value;
+                    render();
+                    return;
+                }
+                var TG = {"tg-bi": "bi", "tg-concise": "concise", "tg-three": "three", "tg-hint": "hint"};
+                if (TG[t.id]) {
+                    state.tg[TG[t.id]] = !!t.checked;
+                    render();
+                }
+            });
+
+            var undoBtn = $("#undo");
+            if (undoBtn) undoBtn.addEventListener("click", function () {
+                if (!undoStack.length) return;
+                var prev = undoStack.pop();
+                try {
+                    state = JSON.parse(prev);
+                } catch (e) {
+                    return;
+                }
+                render();
+                toast("已撤销");
+            });
+
+            var clearBtn = $("#clear");
+            if (clearBtn) clearBtn.addEventListener("click", function () {
+                pushUndo();
+                state.slots = {};
+                state.sel = {};
+                state.pid = "";
+                render();
+                toast("已清空，可撤销");
+            });
+
+            var copyBtn = $("#copy");
+            if (copyBtn) copyBtn.addEventListener("click", copyAll);
+            var copy2 = $("#copy2");
+            if (copy2) copy2.addEventListener("click", copyAll);
+
+            var scBox = $("#scen");
+            if (scBox) scBox.addEventListener("click", function (e) {
+                var b = e.target && e.target.closest ? e.target.closest("button[data-sc]") : null;
+                if (!b) return;
+                var sc = b.getAttribute("data-sc");
+                if (sc === state.sc) return;
+                pushUndo();
+                state.sc = sc;
+                render();
+            });
+        }
+
+        /* ============================ 启动 ============================ */
+        function init() {
+            pop = $("#pop");
+
+            var scBox = $("#scen");
+            if (scBox) {
+                SCENARIOS.forEach(function (s) {
+                    var b = document.createElement("button");
+                    b.type = "button";
+                    b.setAttribute("data-sc", s.id);
+                    b.innerHTML = s.label + "<small>" + s.sub + "</small>";
+                    scBox.appendChild(b);
+                });
+            }
+
+            var ps = $("#preset");
+            if (ps) {
+                var o0 = document.createElement("option");
+                o0.value = "";
+                o0.textContent = "— 载入真题预设 —";
+                ps.appendChild(o0);
+                PRESETS.forEach(function (p) {
+                    var o = document.createElement("option");
+                    o.value = p.id;
+                    o.textContent = p.label;
+                    ps.appendChild(o);
+                });
+            }
+
+            loadState();
+            bind();
+
+            /* 支持 ?preset=xxx&sc=xxx 直达，便于分享与截图 */
+            try {
+                var qs = (location.search || "").replace(/^\?/, "").split("&");
+                var map = {};
+                qs.forEach(function (kv) {
+                    var p2 = kv.split("=");
+                    if (p2[0]) map[decodeURIComponent(p2[0])] = decodeURIComponent(p2[1] || "");
+                });
+                if (map.sc) {
+                    SCENARIOS.forEach(function (x) {
+                        if (x.id === map.sc) state.sc = map.sc;
+                    });
+                }
+                if (map.preset) {
+                    for (var i2 = 0; i2 < PRESETS.length; i2++) {
+                        if (PRESETS[i2].id === map.preset) {
+                            state.sc = PRESETS[i2].sc;
+                            state.pid = PRESETS[i2].id;
+                            state.sel = clone(PRESETS[i2].sel);
+                            state.slots = clone(PRESETS[i2].slots);
+                            state.tg.three = !!PRESETS[i2].sel.p2_r3;
+                        }
+                    }
+                }
+            } catch (e) {
+            }
+
+            render();
+            updateUndoBtn();
+        }
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", init);
+        } else {
+            init();
+        }
+    })();
+</script>
+</body>
+</html>

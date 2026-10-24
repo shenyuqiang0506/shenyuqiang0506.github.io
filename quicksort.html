@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>快速排序最好情况 - 比较次数动画</title>
+  <style>
+    body{font-family:"Microsoft YaHei",sans-serif;background:#f4f6fa;text-align:center;padding:20px}
+    h2{margin-bottom:5px}
+    #row{display:flex;justify-content:center;gap:10px;margin:40px 0 20px}
+    .box{width:56px;height:56px;line-height:56px;font-size:24px;font-weight:bold;border-radius:8px;
+      background:#fff;border:3px solid #ccc;transition:all .3s}
+    .inrange{border-color:#333}
+    .dim{opacity:.3}
+    .pivot{background:#ffb74d;border-color:#e65100}
+    .cmp{background:#64b5f6;border-color:#0d47a1;transform:translateY(-12px)}
+    .done{background:#81c784;border-color:#1b5e20}
+    #count{font-size:28px;color:#c62828;font-weight:bold}
+    #msg{font-size:18px;min-height:28px;margin:10px}
+    button{font-size:16px;padding:8px 18px;margin:5px;cursor:pointer;border-radius:6px;border:1px solid #888}
+    #log{width:520px;margin:15px auto;text-align:left;background:#fff;padding:10px 15px;border-radius:8px;
+      height:200px;overflow:auto;font-size:14px;line-height:1.7}
+    .legend span{display:inline-block;padding:2px 10px;margin:0 5px;border-radius:4px}
+  </style>
+</head>
+<body>
+<h2>快速排序最好情况（n = 8）</h2>
+<div class="legend">
+  <span style="background:#ffb74d">枢轴</span>
+  <span style="background:#64b5f6">正在比较</span>
+  <span style="background:#81c784">已就位</span>
+  <span style="border:2px solid #333">当前子表</span>
+</div>
+<div id="row"></div>
+<div>比较次数：<span id="count">0</span></div>
+<div id="msg">点击“播放”或“单步”开始</div>
+<button onclick="play()">▶ 播放 / 暂停</button>
+<button onclick="next()">⏭ 单步</button>
+<button onclick="reset()">⟲ 重置</button>
+<div id="log"></div>
+<script>
+  // 初始序列：精心构造，使每次以首元素为枢轴都能平均划分
+  const init = [4,2,1,3,6,5,7,8];
+  let steps = [];
+  function snap(a, lo, hi, p, c, cnt, done, msg, log){
+    steps.push({a:[...a], lo, hi, p, c, cnt, done:new Set(done), msg, log});
+  }
+  // 递归生成所有动画步骤
+  function gen(){
+    const a = [...init];
+    let cnt = 0;
+    const done = new Set();
+    (function qs(lo, hi){
+      if (lo > hi) return;
+      if (lo === hi){
+        done.add(lo);
+        snap(a, lo, hi, -1, -1, cnt, done, `子表 [${a[lo]}] 只有 1 个元素，无需比较`, null);
+        return;
+      }
+      const pv = a[lo], len = hi - lo + 1;
+      snap(a, lo, hi, lo, -1, cnt, done,
+              `划分子表 [${a.slice(lo,hi+1)}]，枢轴 = ${pv}，需比较 ${len-1} 次`, null);
+      const L = [], R = [];
+      for (let i = lo + 1; i <= hi; i++){
+        cnt++;
+        const s = a[i] < pv ? '<' : '>';
+        snap(a, lo, hi, lo, i, cnt, done, `比较 ${a[i]} 与枢轴 ${pv}：${a[i]} ${s} ${pv}`, null);
+        (a[i] < pv ? L : R).push(a[i]);
+      }
+      const res = [...L, pv, ...R];
+      for (let k = 0; k < res.length; k++) a[lo + k] = res[k];
+      const pi = lo + L.length;
+      done.add(pi);
+      snap(a, lo, hi, -1, -1, cnt, done,
+              `枢轴 ${pv} 就位，左 ${L.length} 个、右 ${R.length} 个`,
+              `长度 ${len} 的子表 → 比较 ${len-1} 次（累计 ${cnt}）`);
+      qs(lo, pi - 1);
+      qs(pi + 1, hi);
+    })(0, a.length - 1);
+    snap(a, -1, -1, -1, -1, cnt, done,
+            `✅ 排序完成！总比较次数 = 7 + 2 + 3 + 1 = ${cnt}`, `总计：${cnt} 次`);
+  }
+  let cur = -1, timer = null;
+  function render(){
+    const s = steps[cur];
+    const row = document.getElementById('row');
+    row.innerHTML = '';
+    s.a.forEach((v, i) => {
+      const d = document.createElement('div');
+      d.className = 'box';
+      d.textContent = v;
+      if (s.done.has(i)) d.classList.add('done');
+      if (s.lo >= 0){
+        if (i >= s.lo && i <= s.hi) d.classList.add('inrange');
+        else if (!s.done.has(i)) d.classList.add('dim');
+      }
+      if (i === s.p) d.classList.add('pivot');
+      if (i === s.c) d.classList.add('cmp');
+      row.appendChild(d);
+    });
+    document.getElementById('count').textContent = s.cnt;
+    document.getElementById('msg').textContent = s.msg;
+  }
+  function next(){
+    if (cur >= steps.length - 1){ stop(); return; }
+    cur++;
+    render();
+    const s = steps[cur];
+    if (s.log){
+      const log = document.getElementById('log');
+      log.innerHTML += s.log + '<br>';
+      log.scrollTop = log.scrollHeight;
+    }
+  }
+  function play(){
+    if (timer) stop();
+    else timer = setInterval(next, 900);
+  }
+  function stop(){
+    clearInterval(timer);
+    timer = null;
+  }
+  function reset(){
+    stop();
+    cur = -1;
+    document.getElementById('log').innerHTML = '';
+    document.getElementById('count').textContent = 0;
+    document.getElementById('msg').textContent = '点击“播放”或“单步”开始';
+    document.getElementById('row').innerHTML =
+            init.map(v => `<div class="box">${v}</div>`).join('');
+  }
+  gen();
+  reset();
+</script>
+</body>
+</html>
